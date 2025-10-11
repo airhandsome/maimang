@@ -86,14 +86,17 @@ func GetActivityStats(db *gorm.DB) fiber.Handler {
 	return func(c *fiber.Ctx) error {
 		var stats types.ActivityStats
 
-		// 统计活动数
-		db.Model(&repo.Activity{}).Count(&stats.TotalActivities)
-		db.Model(&repo.Activity{}).Where("status = ?", repo.ActivityUpcoming).Count(&stats.UpcomingActivities)
-		db.Model(&repo.Activity{}).Where("status = ?", repo.ActivityOngoing).Count(&stats.OngoingActivities)
-		db.Model(&repo.Activity{}).Where("status = ?", repo.ActivityCompleted).Count(&stats.CompletedActivities)
+		// 统计活动数（排除已删除的活动）
+		db.Model(&repo.Activity{}).Where("is_deleted = ?", false).Count(&stats.TotalActivities)
+		db.Model(&repo.Activity{}).Where("is_deleted = ? AND status = ?", false, repo.ActivityUpcoming).Count(&stats.UpcomingActivities)
+		db.Model(&repo.Activity{}).Where("is_deleted = ? AND status = ?", false, repo.ActivityOngoing).Count(&stats.OngoingActivities)
+		db.Model(&repo.Activity{}).Where("is_deleted = ? AND status = ?", false, repo.ActivityCompleted).Count(&stats.CompletedActivities)
 
-		// 统计参与者数
-		db.Model(&repo.ActivityParticipant{}).Count(&stats.TotalParticipants)
+		// 统计参与者数（只统计未删除活动的参与者）
+		db.Model(&repo.ActivityParticipant{}).
+			Joins("JOIN activities ON activity_participants.activity_id = activities.id").
+			Where("activities.is_deleted = ?", false).
+			Count(&stats.TotalParticipants)
 
 		return c.JSON(types.Response{
 			Success: true,

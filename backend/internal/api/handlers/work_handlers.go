@@ -501,3 +501,65 @@ func ReviewWork(db *gorm.DB) fiber.Handler {
 		})
 	}
 }
+
+// 更新作品评审意见
+func UpdateWorkReview(db *gorm.DB) fiber.Handler {
+	return func(c *fiber.Ctx) error {
+		workID, err := strconv.ParseUint(c.Params("id"), 10, 32)
+		if err != nil {
+			return c.Status(400).JSON(types.Response{
+				Success: false,
+				Error:   "Invalid work ID",
+			})
+		}
+
+		var req struct {
+			ReviewNote   string `json:"reviewNote"`
+			RejectReason string `json:"rejectReason"`
+		}
+		if err := c.BodyParser(&req); err != nil {
+			return c.Status(400).JSON(types.Response{
+				Success: false,
+				Error:   "Invalid request body",
+			})
+		}
+
+		// 检查作品是否存在
+		var work repo.Work
+		if err := db.First(&work, workID).Error; err != nil {
+			if err == gorm.ErrRecordNotFound {
+				return c.Status(404).JSON(types.Response{
+					Success: false,
+					Error:   "Work not found",
+				})
+			}
+			return c.Status(500).JSON(types.Response{
+				Success: false,
+				Error:   "Failed to fetch work",
+			})
+		}
+
+		// 更新评审意见
+		updates := make(map[string]interface{})
+		if req.ReviewNote != "" {
+			updates["review_note"] = req.ReviewNote
+		}
+		if req.RejectReason != "" {
+			updates["reject_reason"] = req.RejectReason
+		}
+
+		if len(updates) > 0 {
+			if err := db.Model(&work).Updates(updates).Error; err != nil {
+				return c.Status(500).JSON(types.Response{
+					Success: false,
+					Error:   "Failed to update review",
+				})
+			}
+		}
+
+		return c.JSON(types.Response{
+			Success: true,
+			Message: "Review updated successfully",
+		})
+	}
+}

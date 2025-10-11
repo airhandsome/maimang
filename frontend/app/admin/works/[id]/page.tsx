@@ -17,6 +17,10 @@ export default function WorkDetailPage() {
   const [showReviewModal, setShowReviewModal] = useState(false);
   const [reviewAction, setReviewAction] = useState<'approve' | 'reject'>('approve');
   const [reviewNote, setReviewNote] = useState('');
+  const [showEditReviewModal, setShowEditReviewModal] = useState(false);
+  const [editReviewNote, setEditReviewNote] = useState('');
+  const [editRejectReason, setEditRejectReason] = useState('');
+  const [editLoading, setEditLoading] = useState(false);
 
   // 获取作品详情
   const fetchWorkDetail = async () => {
@@ -66,6 +70,38 @@ export default function WorkDetailPage() {
     setReviewAction(action);
     setReviewNote('');
     setShowReviewModal(true);
+  };
+
+  // 打开编辑评审意见模态框
+  const openEditReviewModal = () => {
+    if (work) {
+      setEditReviewNote(work.ReviewNote || '');
+      setEditRejectReason(work.RejectReason || '');
+      setShowEditReviewModal(true);
+    }
+  };
+
+  // 保存编辑的评审意见
+  const handleEditReview = async () => {
+    if (!work) return;
+    
+    try {
+      setEditLoading(true);
+      
+      // 调用更新评审意见的API
+      await http.updateWorkReview(work.ID, {
+        reviewNote: editReviewNote,
+        rejectReason: editRejectReason
+      });
+      
+      // 重新获取作品详情
+      await fetchWorkDetail();
+      setShowEditReviewModal(false);
+    } catch (err: any) {
+      setError(err.message || '更新评审意见失败');
+    } finally {
+      setEditLoading(false);
+    }
   };
 
   useEffect(() => {
@@ -265,12 +301,26 @@ export default function WorkDetailPage() {
         {/* 审核信息 */}
         {(work.Status === 'approved' || work.Status === 'rejected') && (
           <div className="bg-white rounded-lg shadow-sm p-6">
-            <h3 className="text-lg font-semibold text-gray-900 mb-4">审核信息</h3>
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-lg font-semibold text-gray-900">审核信息</h3>
+              <button
+                onClick={openEditReviewModal}
+                className="text-yellow-600 hover:text-yellow-800 text-sm font-medium"
+              >
+                编辑评审意见
+              </button>
+            </div>
             <div className="space-y-3">
               {work.ReviewedAt && (
                 <div>
                   <span className="text-gray-500">审核时间:</span>
                   <span className="ml-2">{new Date(work.ReviewedAt).toLocaleString()}</span>
+                </div>
+              )}
+              {work.Reviewer && (
+                <div>
+                  <span className="text-gray-500">评审人:</span>
+                  <span className="ml-2 font-medium">{work.Reviewer.Name}</span>
                 </div>
               )}
               {work.ReviewNote && (
@@ -333,6 +383,60 @@ export default function WorkDetailPage() {
                 } disabled:opacity-50`}
               >
                 {reviewLoading ? '处理中...' : (reviewAction === 'approve' ? '通过' : '拒绝')}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* 编辑评审意见模态框 */}
+      {showEditReviewModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg p-6 w-full max-w-lg mx-4">
+            <h3 className="text-lg font-semibold text-gray-900 mb-4">编辑评审意见</h3>
+            
+            <div className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  审核备注
+                </label>
+                <textarea
+                  value={editReviewNote}
+                  onChange={(e) => setEditReviewNote(e.target.value)}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-yellow-500/50"
+                  rows={3}
+                  placeholder="请输入审核备注"
+                />
+              </div>
+              
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  拒绝原因
+                </label>
+                <textarea
+                  value={editRejectReason}
+                  onChange={(e) => setEditRejectReason(e.target.value)}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-yellow-500/50"
+                  rows={3}
+                  placeholder="请输入拒绝原因"
+                />
+              </div>
+            </div>
+
+            <div className="flex justify-end gap-3 mt-6">
+              <button
+                onClick={() => setShowEditReviewModal(false)}
+                className="px-4 py-2 text-gray-600 border border-gray-300 rounded hover:bg-gray-50"
+                disabled={editLoading}
+              >
+                取消
+              </button>
+              <button
+                onClick={handleEditReview}
+                disabled={editLoading}
+                className="px-4 py-2 bg-yellow-500 text-white rounded hover:bg-yellow-600 disabled:opacity-50"
+              >
+                {editLoading ? '保存中...' : '保存'}
               </button>
             </div>
           </div>

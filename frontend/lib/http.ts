@@ -387,6 +387,14 @@ class Http {
     return this.get<ApiResponse<WorkStats>>('/admin/statistics/works');
   }
 
+  // 更新作品评审意见
+  async updateWorkReview(id: number, data: {
+    reviewNote?: string;
+    rejectReason?: string;
+  }): Promise<ApiResponse> {
+    return this.put<ApiResponse>(`/admin/works/${id}/review`, data);
+  }
+
   // 评论相关API方法
   async getComments(params?: {
     page?: number;

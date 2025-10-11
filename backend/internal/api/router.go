@@ -86,6 +86,7 @@ func RegisterRoutes(app *fiber.App, db *gorm.DB) {
 	admin.Get("/works", handlers.ListPendingWorks(db))
 	admin.Put("/works/:id/approve", handlers.ReviewWork(db))
 	admin.Put("/works/:id/reject", handlers.ReviewWork(db))
+	admin.Put("/works/:id/review", handlers.UpdateWorkReview(db))
 
 	// 评论审核
 	admin.Get("/comments", handlers.ListPendingComments(db))

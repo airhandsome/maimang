@@ -224,21 +224,22 @@ export default function WorksManagement() {
                           >
                             查看详情
                           </Link>
-                          {work.Status === 'pending' && (
-                            <>
-                              <button 
-                                onClick={() => handleReviewWork(work.ID, 'approve')}
-                                className="text-green-600 hover:text-green-900"
-                              >
-                                通过
-                              </button>
-                              <button 
-                                onClick={() => handleReviewWork(work.ID, 'reject')}
-                                className="text-red-600 hover:text-red-900"
-                              >
-                                拒绝
-                              </button>
-                            </>
+                          {/* 支持所有状态重新修改 */}
+                          {work.Status !== 'approved' && (
+                            <button 
+                              onClick={() => handleReviewWork(work.ID, 'approve')}
+                              className="text-green-600 hover:text-green-900"
+                            >
+                              通过
+                            </button>
+                          )}
+                          {work.Status !== 'rejected' && (
+                            <button 
+                              onClick={() => handleReviewWork(work.ID, 'reject')}
+                              className="text-red-600 hover:text-red-900"
+                            >
+                              拒绝
+                            </button>
                           )}
                         </div>
                       </td>
