@@ -1,0 +1,9 @@
+API_ADDR: ":8080"
+JWT_SECRET: "dev-secret-change-me"
+ACCESS_TOKEN_TTL: "2h"
+REFRESH_TOKEN_TTL: "168h"
+
+# 本地运行后端时连接 docker-compose 提供的 Postgres
+DATABASE_URL: "host=localhost user=postgres password=postgres dbname=maimang port=5432 sslmode=disable"
+
+
