@@ -1,0 +1,462 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>麦芒文学社 - 后台管理系统</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.8/dist/chart.umd.min.js"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#F5C332',      // 主色调（深金色）
+                        secondary: '#FFF3C0',    // 辅助色（浅金色）
+                        success: '#4CAF50',      // 成功色
+                        warning: '#FF9800',      // 警告色
+                        danger: '#F44336',       // 危险色
+                        info: '#2196F3',         // 信息色
+                        dark: '#2C3E50',         // 深色
+                        light: '#F8F9FA',        // 浅色
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'system-ui', 'sans-serif'],
+                    },
+                }
+            }
+        }
+    </script>
+    <style type="text/tailwindcss">
+        @layer utilities {
+            .content-auto {
+                content-visibility: auto;
+            }
+            .sidebar-item {
+                @apply flex items-center gap-3 px-4 py-3 text-gray-600 hover:bg-secondary hover:text-primary rounded-lg transition-all;
+            }
+            .sidebar-item.active {
+                @apply bg-primary text-white;
+            }
+            .stat-card {
+                @apply bg-white rounded-xl shadow-sm p-5 transition-all hover:shadow-md hover:-translate-y-1;
+            }
+            .quick-action {
+                @apply flex items-center gap-3 p-4 bg-white rounded-xl shadow-sm cursor-pointer transition-all hover:shadow-md;
+            }
+        }
+    </style>
+</head>
+<body class="bg-gray-50 font-sans text-gray-800 min-h-screen flex overflow-hidden">
+    <!-- 侧边栏 -->
+    <aside class="w-64 bg-white shadow-md h-screen flex-shrink-0 hidden md:block transition-all duration-300 ease-in-out">
+        <div class="p-5 border-b">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-full bg-primary flex items-center justify-center">
+                    <i class="fa fa-pencil text-white"></i>
+                </div>
+                <h1 class="text-xl font-bold">麦芒管理系统</h1>
+            </div>
+        </div>
+        
+        <div class="p-4">
+            <nav class="space-y-1">
+                <a href="dashboard.html" class="sidebar-item active">
+                    <i class="fa fa-tachometer w-5 text-center"></i>
+                    <span>仪表盘</span>
+                </a>
+                <a href="works-management.html" class="sidebar-item">
+                    <i class="fa fa-book w-5 text-center"></i>
+                    <span>作品管理</span>
+                </a>
+                <a href="user-management.html" class="sidebar-item">
+                    <i class="fa fa-users w-5 text-center"></i>
+                    <span>用户管理</span>
+                </a>
+                <a href="activity-management.html" class="sidebar-item">
+                    <i class="fa fa-calendar w-5 text-center"></i>
+                    <span>活动管理</span>
+                </a>
+                <a href="comments-management.html" class="sidebar-item">
+                    <i class="fa fa-comments w-5 text-center"></i>
+                    <span>评论管理</span>
+                </a>
+                <a href="statistics.html" class="sidebar-item">
+                    <i class="fa fa-bar-chart w-5 text-center"></i>
+                    <span>数据统计</span>
+                </a>
+                <a href="material-library.html" class="sidebar-item">
+                    <i class="fa fa-folder-open w-5 text-center"></i>
+                    <span>素材库</span>
+                </a>
+                <a href="system-settings.html" class="sidebar-item">
+                    <i class="fa fa-cog w-5 text-center"></i>
+                    <span>系统设置</span>
+                </a>
+            </nav>
+        </div>
+        
+        <div class="absolute bottom-0 left-0 right-0 p-4 border-t">
+            <div class="flex items-center gap-3">
+                <img src="https://picsum.photos/id/64/100/100" alt="管理员头像" class="w-10 h-10 rounded-full object-cover">
+                <div>
+                    <p class="font-medium text-sm">王管理员</p>
+                    <p class="text-gray-500 text-xs">超级管理员</p>
+                </div>
+                <button class="ml-auto text-gray-400 hover:text-danger transition-colors">
+                    <i class="fa fa-sign-out"></i>
+                </button>
+            </div>
+        </div>
+    </aside>
+
+    <!-- 主内容区 -->
+    <div class="flex-1 flex flex-col overflow-hidden">
+        <!-- 顶部导航 -->
+        <header class="bg-white shadow-sm py-3 px-6 flex items-center justify-between">
+            <button class="md:hidden text-gray-600">
+                <i class="fa fa-bars text-xl"></i>
+            </button>
+            <div class="flex items-center gap-4">
+                <div class="relative">
+                    <input type="text" placeholder="搜索..." class="pl-10 pr-4 py-2 rounded-lg border border-gray-200 focus:outline-none focus:ring-2 focus:ring-primary/50 w-64">
+                    <i class="fa fa-search absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"></i>
+                </div>
+                <div class="relative">
+                    <button class="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center hover:bg-gray-200 transition-colors relative">
+                        <i class="fa fa-bell-o"></i>
+                        <span class="absolute top-1 right-1 w-2 h-2 bg-danger rounded-full"></span>
+                    </button>
+                </div>
+                <div class="relative">
+                    <button class="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center hover:bg-gray-200 transition-colors">
+                        <i class="fa fa-envelope-o"></i>
+                    </button>
+                </div>
+            </div>
+        </header>
+
+        <!-- 页面内容 -->
+        <main class="flex-1 overflow-y-auto p-6 bg-gray-50">
+            <div class="mb-6">
+                <h2 class="text-[clamp(1.5rem,3vw,2rem)] font-bold">仪表盘</h2>
+                <p class="text-gray-500">欢迎回来，王管理员！以下是平台最新数据概览</p>
+            </div>
+
+            <!-- 数据统计卡片 -->
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+                <!-- 用户统计 -->
+                <div class="stat-card">
+                    <div class="flex items-start justify-between">
+                        <div>
+                            <p class="text-gray-500 text-sm mb-1">总用户数</p>
+                            <h3 class="text-3xl font-bold">1,286</h3>
+                            <p class="text-success text-sm mt-2 flex items-center">
+                                <i class="fa fa-arrow-up mr-1"></i> 12.5% <span class="text-gray-500 ml-1">较上月</span>
+                            </p>
+                        </div>
+                        <div class="w-12 h-12 rounded-full bg-info/10 flex items-center justify-center text-info">
+                            <i class="fa fa-users text-xl"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 作品统计 -->
+                <div class="stat-card">
+                    <div class="flex items-start justify-between">
+                        <div>
+                            <p class="text-gray-500 text-sm mb-1">总作品数</p>
+                            <h3 class="text-3xl font-bold">3,752</h3>
+                            <p class="text-success text-sm mt-2 flex items-center">
+                                <i class="fa fa-arrow-up mr-1"></i> 8.3% <span class="text-gray-500 ml-1">较上月</span>
+                            </p>
+                        </div>
+                        <div class="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center text-primary">
+                            <i class="fa fa-book text-xl"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 待审核作品 -->
+                <div class="stat-card">
+                    <div class="flex items-start justify-between">
+                        <div>
+                            <p class="text-gray-500 text-sm mb-1">待审核作品</p>
+                            <h3 class="text-3xl font-bold">24</h3>
+                            <p class="text-danger text-sm mt-2 flex items-center">
+                                <i class="fa fa-arrow-up mr-1"></i> 4.2% <span class="text-gray-500 ml-1">较昨日</span>
+                            </p>
+                        </div>
+                        <div class="w-12 h-12 rounded-full bg-warning/10 flex items-center justify-center text-warning">
+                            <i class="fa fa-clock-o text-xl"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 活动统计 -->
+                <div class="stat-card">
+                    <div class="flex items-start justify-between">
+                        <div>
+                            <p class="text-gray-500 text-sm mb-1">进行中活动</p>
+                            <h3 class="text-3xl font-bold">5</h3>
+                            <p class="text-gray-500 text-sm mt-2 flex items-center">
+                                <i class="fa fa-calendar-check-o mr-1"></i> 下周将新增3场
+                            </p>
+                        </div>
+                        <div class="w-12 h-12 rounded-full bg-success/10 flex items-center justify-center text-success">
+                            <i class="fa fa-calendar text-xl"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 图表区域 -->
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
+                <!-- 活跃度趋势图 -->
+                <div class="bg-white rounded-xl shadow-sm p-5 lg:col-span-2">
+                    <div class="flex items-center justify-between mb-6">
+                        <h3 class="font-bold text-lg">平台活跃度趋势</h3>
+                        <div class="flex gap-2">
+                            <button class="px-3 py-1 text-sm bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors">周</button>
+                            <button class="px-3 py-1 text-sm bg-primary text-white rounded-lg">月</button>
+                            <button class="px-3 py-1 text-sm bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors">年</button>
+                        </div>
+                    </div>
+                    <div class="h-80">
+                        <canvas id="activityChart"></canvas>
+                    </div>
+                </div>
+
+                <!-- 作品分类占比 -->
+                <div class="bg-white rounded-xl shadow-sm p-5">
+                    <h3 class="font-bold text-lg mb-6">作品分类占比</h3>
+                    <div class="h-80 flex items-center justify-center">
+                        <canvas id="categoryChart"></canvas>
+                    </div>
+                    <div class="grid grid-cols-2 gap-2 mt-4">
+                        <div class="flex items-center gap-2">
+                            <span class="w-3 h-3 rounded-full bg-primary"></span>
+                            <span class="text-sm">诗歌 (42%)</span>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <span class="w-3 h-3 rounded-full bg-info"></span>
+                            <span class="text-sm">散文 (28%)</span>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <span class="w-3 h-3 rounded-full bg-success"></span>
+                            <span class="text-sm">小说 (18%)</span>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <span class="w-3 h-3 rounded-full bg-warning"></span>
+                            <span class="text-sm">摄影配文 (12%)</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 快捷操作与待办事项 -->
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <!-- 快捷操作 -->
+                <div class="lg:col-span-1">
+                    <h3 class="font-bold text-lg mb-4">快捷操作</h3>
+                    <div class="space-y-3">
+                        <a href="work-review.html" class="quick-action">
+                            <div class="w-10 h-10 rounded-full bg-warning/10 flex items-center justify-center text-warning">
+                                <i class="fa fa-check-square-o"></i>
+                            </div>
+                            <div>
+                                <p class="font-medium">审核作品</p>
+                                <p class="text-gray-500 text-sm">处理24篇待审核作品</p>
+                            </div>
+                        </a>
+                        <a href="create-activity.html" class="quick-action">
+                            <div class="w-10 h-10 rounded-full bg-success/10 flex items-center justify-center text-success">
+                                <i class="fa fa-plus-circle"></i>
+                            </div>
+                            <div>
+                                <p class="font-medium">创建活动</p>
+                                <p class="text-gray-500 text-sm">发布新的文学社活动</p>
+                            </div>
+                        </a>
+                        <a href="user-management.html" class="quick-action">
+                            <div class="w-10 h-10 rounded-full bg-info/10 flex items-center justify-center text-info">
+                                <i class="fa fa-user-plus"></i>
+                            </div>
+                            <div>
+                                <p class="font-medium">管理用户</p>
+                                <p class="text-gray-500 text-sm">查看用户列表和详情</p>
+                            </div>
+                        </a>
+                        <a href="system-announcement.html" class="quick-action">
+                            <div class="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center text-primary">
+                                <i class="fa fa-bullhorn"></i>
+                            </div>
+                            <div>
+                                <p class="font-medium">发布公告</p>
+                                <p class="text-gray-500 text-sm">向用户推送平台公告</p>
+                            </div>
+                        </a>
+                    </div>
+                </div>
+
+                <!-- 待办事项与近期活动 -->
+                <div class="lg:col-span-2">
+                    <div class="flex items-center justify-between mb-4">
+                        <h3 class="font-bold text-lg">待办事项</h3>
+                        <a href="#" class="text-primary text-sm hover:underline">查看全部</a>
+                    </div>
+                    <div class="bg-white rounded-xl shadow-sm overflow-hidden">
+                        <div class="divide-y">
+                            <div class="p-4 flex items-center justify-between">
+                                <div class="flex items-start gap-3">
+                                    <div class="w-6 h-6 rounded-full border-2 border-danger flex-shrink-0 mt-0.5"></div>
+                                    <div>
+                                        <p class="font-medium">审核"秋日创作大赛"投稿</p>
+                                        <p class="text-gray-500 text-sm">截止时间：今天 18:00</p>
+                                    </div>
+                                </div>
+                                <span class="px-2 py-1 bg-danger/10 text-danger text-xs rounded-full">紧急</span>
+                            </div>
+                            <div class="p-4 flex items-center justify-between">
+                                <div class="flex items-start gap-3">
+                                    <div class="w-6 h-6 rounded-full border-2 border-warning flex-shrink-0 mt-0.5"></div>
+                                    <div>
+                                        <p class="font-medium">确认"田野采风"活动场地</p>
+                                        <p class="text-gray-500 text-sm">截止时间：明天 12:00</p>
+                                    </div>
+                                </div>
+                                <span class="px-2 py-1 bg-warning/10 text-warning text-xs rounded-full">中等</span>
+                            </div>
+                            <div class="p-4 flex items-center justify-between">
+                                <div class="flex items-start gap-3">
+                                    <div class="w-6 h-6 rounded-full border-2 border-gray-300 flex-shrink-0 mt-0.5"></div>
+                                    <div>
+                                        <p class="font-medium">更新10月平台运营报表</p>
+                                        <p class="text-gray-500 text-sm">截止时间：10月31日</p>
+                                    </div>
+                                </div>
+                                <span class="px-2 py-1 bg-gray-100 text-gray-600 text-xs rounded-full">常规</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 近期活动 -->
+                    <div class="mt-6">
+                        <div class="flex items-center justify-between mb-4">
+                            <h3 class="font-bold text-lg">近期活动</h3>
+                            <a href="activity-management.html" class="text-primary text-sm hover:underline">管理活动</a>
+                        </div>
+                        <div class="bg-white rounded-xl shadow-sm overflow-hidden">
+                            <div class="divide-y">
+                                <div class="p-4 flex items-center justify-between">
+                                    <div class="flex items-start gap-3">
+                                        <div class="w-10 h-10 bg-success/10 rounded-lg flex items-center justify-center text-success flex-shrink-0">
+                                            <i class="fa fa-calendar"></i>
+                                        </div>
+                                        <div>
+                                            <p class="font-medium">秋日田野采风</p>
+                                            <p class="text-gray-500 text-sm">10月22日 09:00-16:00 · 青禾农场</p>
+                                            <p class="text-gray-500 text-xs mt-1">已报名：24人 / 限额：30人</p>
+                                        </div>
+                                    </div>
+                                    <a href="activity-detail.html" class="text-primary hover:underline text-sm">详情</a>
+                                </div>
+                                <div class="p-4 flex items-center justify-between">
+                                    <div class="flex items-start gap-3">
+                                        <div class="w-10 h-10 bg-primary/10 rounded-lg flex items-center justify-center text-primary flex-shrink-0">
+                                            <i class="fa fa-calendar"></i>
+                                        </div>
+                                        <div>
+                                            <p class="font-medium">诗歌创作工作坊</p>
+                                            <p class="text-gray-500 text-sm">10月28日 14:00-17:30 · 麦田书屋</p>
+                                            <p class="text-gray-500 text-xs mt-1">已报名：18人 / 限额：25人</p>
+                                        </div>
+                                    </div>
+                                    <a href="activity-detail.html" class="text-primary hover:underline text-sm">详情</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        // 初始化图表
+        document.addEventListener('DOMContentLoaded', function() {
+            // 活跃度趋势图
+            const activityCtx = document.getElementById('activityChart').getContext('2d');
+            new Chart(activityCtx, {
+                type: 'line',
+                data: {
+                    labels: ['1日', '5日', '10日', '15日', '20日', '25日', '30日'],
+                    datasets: [
+                        {
+                            label: '作品发布',
+                            data: [42, 56, 48, 62, 78, 65, 72],
+                            borderColor: '#F5C332',
+                            backgroundColor: 'rgba(245, 195, 50, 0.1)',
+                            tension: 0.3,
+                            fill: true
+                        },
+                        {
+                            label: '用户活跃',
+                            data: [128, 145, 132, 165, 182, 175, 190],
+                            borderColor: '#2196F3',
+                            backgroundColor: 'rgba(33, 150, 243, 0.1)',
+                            tension: 0.3,
+                            fill: true
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'top',
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true
+                        }
+                    }
+                }
+            });
+
+            // 作品分类占比图
+            const categoryCtx = document.getElementById('categoryChart').getContext('2d');
+            new Chart(categoryCtx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['诗歌', '散文', '小说', '摄影配文'],
+                    datasets: [{
+                        data: [42, 28, 18, 12],
+                        backgroundColor: [
+                            '#F5C332',
+                            '#2196F3',
+                            '#4CAF50',
+                            '#FF9800'
+                        ],
+                        borderWidth: 0,
+                        hoverOffset: 5
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    cutout: '70%',
+                    plugins: {
+                        legend: {
+                            display: false
+                        }
+                    }
+                }
+            });
+        });
+    </script>
+</body>
+</html>

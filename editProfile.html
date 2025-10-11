@@ -1,0 +1,535 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>编辑个人资料 - 麦芒文学社</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        cream: '#FFFDF5',      // 奶油白底色
+                        gold: '#FFD747',       // 明亮黄色
+                        goldLight: '#FFF3C0',  // 浅金色
+                        goldDark: '#F5C332',   // 深一点的金色
+                        wheat: '#FFEDCC',      // 小麦色
+                        text: '#594B36',       // 文字颜色
+                    },
+                    fontFamily: {
+                        sans: ['"Nunito"', 'sans-serif'],
+                        display: ['"Quicksand"', 'sans-serif'],
+                        serif: ['"Noto Serif SC"', 'serif']
+                    }
+                }
+            }
+        }
+    </script>
+    <style type="text/tailwindcss">
+        @layer utilities {
+            .float-random {
+                animation: float 8s ease-in-out infinite;
+            }
+            .spin-slow {
+                animation: spin 20s linear infinite;
+            }
+            .wheat-pattern {
+                background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23FFD747' fill-opacity='0.1'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+            }
+            .card-lift {
+                transition: all 0.3s ease;
+            }
+            .card-lift:hover {
+                transform: translateY(-5px);
+                box-shadow: 0 15px 30px rgba(0, 0, 0, 0.08);
+            }
+            .input-focus {
+                @apply focus:border-gold focus:outline-none focus:ring-1 focus:ring-gold transition-all;
+            }
+            .tag-item {
+                @apply bg-wheat text-text/80 text-sm px-3 py-1 rounded-full cursor-pointer transition-all;
+            }
+            .tag-item.active {
+                @apply bg-gold/10 text-gold;
+            }
+        }
+
+        @keyframes float {
+            0% { transform: translateY(0px) rotate(0deg); }
+            50% { transform: translateY(-12px) rotate(2deg); }
+            100% { transform: translateY(0px) rotate(0deg); }
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700&family=Noto+Serif+SC:wght@400;600;700&family=Quicksand:wght@500;600;700&display=swap" rel="stylesheet">
+</head>
+<body class="bg-cream wheat-pattern text-text antialiased min-h-screen flex flex-col">
+    <!-- 导航栏 -->
+    <nav class="relative z-50 py-4 px-4 md:px-8 bg-cream/90 backdrop-blur-sm sticky top-0 shadow-sm">
+        <div class="flex flex-wrap justify-between items-center">
+            <div class="flex items-center">
+                <div class="w-10 h-10 rounded-full bg-gold flex items-center justify-center mr-3 spin-slow">
+                    <i class="fa fa-pencil text-white"></i>
+                </div>
+                <div class="text-2xl md:text-3xl font-display">
+                    <span class="text-gold">麦</span>
+                    <span class="text-text">芒</span>
+                    <span class="text-goldDark">文学社</span>
+                </div>
+            </div>
+            
+            <div class="flex flex-wrap gap-2 md:gap-6 justify-end mt-4 md:mt-0">
+                <a href="about.html" class="px-3 py-2 text-text hover:text-gold transition-colors">关于我们</a>
+                <a href="works.html" class="px-3 py-2 text-text hover:text-gold transition-colors">青春作品</a>
+                <a href="activities.html" class="px-3 py-2 text-text hover:text-gold transition-colors">田间活动</a>
+                <a href="activities.html#ai-helper-link" class="px-3 py-2 text-text hover:text-gold transition-colors">
+                    <i class="fa fa-lightbulb-o mr-1"></i> AI助手
+                </a>
+                <div class="relative group">
+                    <button class="flex items-center px-3 py-2">
+                        <img src="https://picsum.photos/id/64/100/100" alt="用户头像" class="w-8 h-8 rounded-full mr-2 object-cover">
+                        <span>林清禾</span>
+                        <i class="fa fa-angle-down ml-1 text-xs"></i>
+                    </button>
+                    <div class="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-md py-2 hidden group-hover:block z-50">
+                        <a href="user-center.html" class="block px-4 py-2 text-sm hover:bg-wheat transition-colors">
+                            <i class="fa fa-user-o mr-2"></i> 个人中心
+                        </a>
+                        <a href="user-edit.html" class="block px-4 py-2 text-sm hover:bg-wheat transition-colors">
+                            <i class="fa fa-cog mr-2"></i> 账号设置
+                        </a>
+                        <div class="border-t border-gray-100 my-1"></div>
+                        <a href="login.html" class="block px-4 py-2 text-sm text-red-500 hover:bg-wheat transition-colors">
+                            <i class="fa fa-sign-out mr-2"></i> 退出登录
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- 主内容区 -->
+    <main class="flex-grow relative z-10 container mx-auto px-4 py-12">
+        <div class="max-w-4xl mx-auto">
+            <div class="flex items-center mb-8">
+                <a href="user-center.html" class="text-text/70 hover:text-text transition-colors mr-4">
+                    <i class="fa fa-angle-left"></i> 返回个人中心
+                </a>
+                <h1 class="text-2xl md:text-3xl font-display text-text">编辑个人资料</h1>
+            </div>
+            
+            <div class="bg-white rounded-2xl shadow-md p-6 md:p-8 card-lift">
+                <form id="profile-form" class="space-y-8">
+                    <!-- 头像上传 -->
+                    <div>
+                        <h2 class="text-lg font-medium text-text mb-4">头像设置</h2>
+                        <div class="flex items-center">
+                            <div class="w-24 h-24 rounded-full overflow-hidden border-2 border-wheat mr-6">
+                                <img src="https://picsum.photos/id/64/200/200" alt="当前头像" class="w-full h-full object-cover" id="current-avatar">
+                            </div>
+                            <div>
+                                <button type="button" class="bg-gold hover:bg-goldDark text-white font-medium px-4 py-2 rounded-lg transition-colors mr-3">
+                                    <i class="fa fa-upload mr-1"></i> 上传新头像
+                                </button>
+                                <input type="file" id="avatar-upload" accept="image/*" class="hidden">
+                                <p class="text-sm text-text/60 mt-2">支持JPG、PNG格式，建议尺寸200x200px</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="border-t border-gray-100 pt-6"></div>
+                    
+                    <!-- 基本信息 -->
+                    <div>
+                        <h2 class="text-lg font-medium text-text mb-6">基本信息</h2>
+                        
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div>
+                                <label for="nickname" class="block text-text font-medium mb-2">昵称 <span class="text-red-500">*</span></label>
+                                <input type="text" id="nickname" value="林清禾" placeholder="请输入你的昵称" 
+                                    class="w-full px-4 py-3 rounded-lg border border-wheat input-focus">
+                            </div>
+                            
+                            <div>
+                                <label for="gender" class="block text-text font-medium mb-2">性别</label>
+                                <select id="gender" class="w-full px-4 py-3 rounded-lg border border-wheat input-focus">
+                                    <option value="">请选择</option>
+                                    <option value="male">男</option>
+                                    <option value="female" selected>女</option>
+                                    <option value="secret">保密</option>
+                                </select>
+                            </div>
+                            
+                            <div>
+                                <label for="phone" class="block text-text font-medium mb-2">手机号</label>
+                                <div class="relative">
+                                    <span class="absolute left-3 top-1/2 transform -translate-y-1/2 text-text/50">
+                                        <i class="fa fa-phone"></i>
+                                    </span>
+                                    <input type="tel" id="phone" value="138****8877" disabled 
+                                        class="w-full pl-10 px-4 py-3 rounded-lg border border-gray-200 bg-gray-50 text-text/60">
+                                    <a href="#" class="absolute right-3 top-1/2 transform -translate-y-1/2 text-gold text-sm hover:underline">修改</a>
+                                </div>
+                            </div>
+                            
+                            <div>
+                                <label for="email" class="block text-text font-medium mb-2">邮箱</label>
+                                <div class="relative">
+                                    <span class="absolute left-3 top-1/2 transform -translate-y-1/2 text-text/50">
+                                        <i class="fa fa-envelope-o"></i>
+                                    </span>
+                                    <input type="email" id="email" value="qinghe@example.com" placeholder="请输入你的邮箱" 
+                                        class="w-full pl-10 px-4 py-3 rounded-lg border border-wheat input-focus">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="border-t border-gray-100 pt-6"></div>
+                    
+                    <!-- 个人简介 -->
+                    <div>
+                        <label for="bio" class="block text-text font-medium mb-2">个人简介</label>
+                        <textarea id="bio" rows="4" placeholder="请简单介绍一下自己..." 
+                            class="w-full px-4 py-3 rounded-lg border border-wheat input-focus">热爱诗歌与自然的创作者，喜欢在田野中寻找灵感，相信文字能捕捉生活中最细微的美好。</textarea>
+                        <p class="text-right text-sm text-text/60 mt-2"><span id="bio-count">102</span>/300 字</p>
+                    </div>
+                    
+                    <div class="border-t border-gray-100 pt-6"></div>
+                    
+                    <!-- 创作标签 -->
+                    <div>
+                        <label class="block text-text font-medium mb-4">创作标签 <span class="text-sm text-text/60">(选择你擅长或感兴趣的领域)</span></label>
+                        
+                        <div class="flex flex-wrap gap-2 mb-4">
+                            <span class="tag-item active">诗歌</span>
+                            <span class="tag-item active">自然</span>
+                            <span class="tag-item active">田野</span>
+                            <span class="tag-item active">季节</span>
+                            <span class="tag-item active">散文</span>
+                            <span class="tag-item">小说</span>
+                            <span class="tag-item">现代诗</span>
+                            <span class="tag-item">古体诗</span>
+                            <span class="tag-item">摄影配文</span>
+                            <span class="tag-item">旅行文学</span>
+                            <span class="tag-item">儿童文学</span>
+                        </div>
+                        
+                        <div>
+                            <label for="custom-tag" class="block text-text font-medium mb-2">添加自定义标签</label>
+                            <div class="flex gap-3">
+                                <input type="text" id="custom-tag" placeholder="输入标签后按回车添加" 
+                                    class="flex-grow px-4 py-3 rounded-lg border border-wheat input-focus">
+                                <button type="button" id="add-tag" class="bg-wheat hover:bg-gold/20 text-text px-4 py-3 rounded-lg transition-colors">
+                                    添加
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="border-t border-gray-100 pt-6"></div>
+                    
+                    <!-- 社交媒体 -->
+                    <div>
+                        <h2 class="text-lg font-medium text-text mb-4">社交媒体</h2>
+                        <p class="text-sm text-text/60 mb-4">绑定你的社交媒体账号，方便作品分享</p>
+                        
+                        <div class="space-y-4">
+                            <div>
+                                <label for="weibo" class="block text-text font-medium mb-2">新浪微博</label>
+                                <div class="relative">
+                                    <span class="absolute left-3 top-1/2 transform -translate-y-1/2 text-text/50">
+                                        <i class="fa fa-weibo"></i>
+                                    </span>
+                                    <input type="text" id="weibo" value="@林清禾的诗" placeholder="请输入你的微博账号" 
+                                        class="w-full pl-10 px-4 py-3 rounded-lg border border-wheat input-focus">
+                                </div>
+                            </div>
+                            
+                            <div>
+                                <label for="wechat" class="block text-text font-medium mb-2">微信公众号</label>
+                                <div class="relative">
+                                    <span class="absolute left-3 top-1/2 transform -translate-y-1/2 text-text/50">
+                                        <i class="fa fa-weixin"></i>
+                                    </span>
+                                    <input type="text" id="wechat" placeholder="请输入你的微信公众号" 
+                                        class="w-full pl-10 px-4 py-3 rounded-lg border border-wheat input-focus">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- 提交按钮 -->
+                    <div class="flex justify-end gap-4 pt-4">
+                        <button type="button" class="px-6 py-3 border border-wheat text-text rounded-lg hover:bg-wheat transition-colors">
+                            取消
+                        </button>
+                        <button type="submit" class="px-6 py-3 bg-gold hover:bg-goldDark text-white rounded-lg transition-colors">
+                            保存修改
+                        </button>
+                    </div>
+                </form>
+            </div>
+            
+            <!-- 账号安全 -->
+            <div class="bg-white rounded-2xl shadow-md p-6 md:p-8 mt-8 card-lift">
+                <h2 class="text-lg font-medium text-text mb-6">账号安全</h2>
+                
+                <div class="space-y-6">
+                    <div class="flex justify-between items-center pb-6 border-b border-gray-100">
+                        <div>
+                            <h3 class="font-medium">修改密码</h3>
+                            <p class="text-sm text-text/60 mt-1">建议定期更换密码，保障账号安全</p>
+                        </div>
+                        <a href="change-password.html" class="text-gold hover:text-goldDark transition-colors">
+                            立即修改 <i class="fa fa-angle-right ml-1"></i>
+                        </a>
+                    </div>
+                    
+                    <div class="flex justify-between items-center">
+                        <div>
+                            <h3 class="font-medium">账号注销</h3>
+                            <p class="text-sm text-text/60 mt-1">注销后将删除所有个人数据，且无法恢复</p>
+                        </div>
+                        <button type="button" class="text-red-500 hover:text-red-600 transition-colors delete-account">
+                            账号注销 <i class="fa fa-angle-right ml-1"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- 页脚 -->
+    <footer class="relative z-10 bg-text text-white py-12 px-4 mt-16">
+        <div class="container mx-auto">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8 mb-10">
+                <div>
+                    <div class="flex items-center mb-6">
+                        <div class="w-10 h-10 rounded-full bg-gold flex items-center justify-center mr-3">
+                            <i class="fa fa-pencil text-white"></i>
+                        </div>
+                        <div class="text-2xl font-display">
+                            <span class="text-gold">麦</span>
+                            <span class="text-cream">芒</span>
+                            <span class="text-goldLight">文学社</span>
+                        </div>
+                    </div>
+                    <p class="text-white/80">
+                        青春如穗，文字如芒。我们在文字的田野里，播种、生长、收获。
+                    </p>
+                </div>
+                
+                <div>
+                    <h4 class="text-xl font-display text-gold mb-4">联系我们</h4>
+                    <ul class="space-y-3 text-white/80">
+                        <li class="flex items-center"><i class="fa fa-envelope-o mr-2 text-goldLight"></i> wheat@maimang.org</li>
+                        <li class="flex items-center"><i class="fa fa-map-marker mr-2 text-goldLight"></i> 青春路88号麦田书屋</li>
+                        <li class="flex items-center"><i class="fa fa-phone mr-2 text-goldLight"></i> 138-xxxx-8877</li>
+                    </ul>
+                </div>
+                
+                <div>
+                    <h4 class="text-xl font-display text-gold mb-4">关注我们</h4>
+                    <p class="text-white/80 mb-4">在社交媒体上，感受文字的生长力量</p>
+                    <div class="flex space-x-4">
+                        <a href="#" class="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center hover:bg-gold transition-colors">
+                            <i class="fa fa-weixin"></i>
+                        </a>
+                        <a href="#" class="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center hover:bg-gold transition-colors">
+                            <i class="fa fa-weibo"></i>
+                        </a>
+                        <a href="#" class="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center hover:bg-gold transition-colors">
+                            <i class="fa fa-instagram"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="border-t border-white/20 pt-6 text-center text-white/60 text-sm">
+                <p>© 2023 麦芒文学社 | 青春如穗，文字如芒 | 在文字的田野里收获成长</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- 账号注销确认弹窗 -->
+    <div id="delete-modal" class="fixed inset-0 bg-black/50 z-50 flex items-center justify-center hidden">
+        <div class="bg-white rounded-2xl p-6 max-w-md w-full mx-4">
+            <div class="text-center mb-6">
+                <div class="w-16 h-16 rounded-full bg-red-100 flex items-center justify-center mx-auto mb-4">
+                    <i class="fa fa-exclamation-triangle text-red-500 text-2xl"></i>
+                </div>
+                <h3 class="text-xl font-medium text-text">确认账号注销</h3>
+                <p class="text-text/70 mt-2">注销后所有数据将永久删除，无法恢复</p>
+            </div>
+            
+            <div class="mb-6">
+                <label for="delete-reason" class="block text-text font-medium mb-2">注销原因</label>
+                <select id="delete-reason" class="w-full px-4 py-3 rounded-lg border border-wheat input-focus">
+                    <option value="">请选择注销原因</option>
+                    <option value="time">没有时间参与</option>
+                    <option value="content">内容不符合预期</option>
+                    <option value="experience">使用体验不好</option>
+                    <option value="other">其他原因</option>
+                </select>
+            </div>
+            
+            <div class="flex justify-center gap-4">
+                <button id="cancel-delete" class="px-6 py-3 border border-wheat text-text rounded-lg hover:bg-wheat transition-colors">
+                    取消
+                </button>
+                <button id="confirm-delete" class="px-6 py-3 bg-red-500 hover:bg-red-600 text-white rounded-lg transition-colors">
+                    确认注销
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // 头像上传功能
+            const avatarUploadBtn = document.querySelector('button:has(.fa-upload)');
+            const avatarUploadInput = document.getElementById('avatar-upload');
+            const currentAvatar = document.getElementById('current-avatar');
+            
+            avatarUploadBtn.addEventListener('click', () => {
+                avatarUploadInput.click();
+            });
+            
+            avatarUploadInput.addEventListener('change', (e) => {
+                if (e.target.files && e.target.files[0]) {
+                    const reader = new FileReader();
+                    
+                    reader.onload = (e) => {
+                        currentAvatar.src = e.target.result;
+                        alert('头像上传成功，点击保存修改生效');
+                    }
+                    
+                    reader.readAsDataURL(e.target.files[0]);
+                }
+            });
+            
+            // 个人简介字数统计
+            const bioTextarea = document.getElementById('bio');
+            const bioCount = document.getElementById('bio-count');
+            
+            bioTextarea.addEventListener('input', () => {
+                const length = bioTextarea.value.length;
+                bioCount.textContent = length;
+                
+                if (length > 300) {
+                    bioCount.classList.add('text-red-500');
+                } else {
+                    bioCount.classList.remove('text-red-500');
+                }
+            });
+            
+            // 创作标签选择
+            const tagItems = document.querySelectorAll('.tag-item');
+            
+            tagItems.forEach(tag => {
+                tag.addEventListener('click', () => {
+                    tag.classList.toggle('active');
+                });
+            });
+            
+            // 添加自定义标签
+            const customTagInput = document.getElementById('custom-tag');
+            const addTagBtn = document.getElementById('add-tag');
+            
+            function addCustomTag() {
+                const tagText = customTagInput.value.trim();
+                
+                if (tagText && tagText.length <= 6) {
+                    // 检查标签是否已存在
+                    const existingTags = Array.from(document.querySelectorAll('.tag-item')).map(tag => tag.textContent.trim());
+                    
+                    if (!existingTags.includes(tagText)) {
+                        const newTag = document.createElement('span');
+                        newTag.className = 'tag-item active';
+                        newTag.textContent = tagText;
+                        
+                        newTag.addEventListener('click', () => {
+                            newTag.classList.toggle('active');
+                        });
+                        
+                        // 插入到标签列表的前面
+                        document.querySelector('.flex.flex-wrap.gap-2.mb-4').insertBefore(newTag, document.querySelector('.flex.flex-wrap.gap-2.mb-4').firstChild);
+                        customTagInput.value = '';
+                    } else {
+                        alert('该标签已存在');
+                    }
+                } else if (tagText.length > 6) {
+                    alert('标签长度不能超过6个字符');
+                }
+            }
+            
+            addTagBtn.addEventListener('click', addCustomTag);
+            
+            customTagInput.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter') {
+                    e.preventDefault();
+                    addCustomTag();
+                }
+            });
+            
+            // 表单提交
+            document.getElementById('profile-form').addEventListener('submit', (e) => {
+                e.preventDefault();
+                
+                // 模拟表单提交
+                alert('个人资料修改成功！');
+                window.location.href = 'user-center.html';
+            });
+            
+            // 账号注销功能
+            const deleteAccountBtns = document.querySelectorAll('.delete-account');
+            const deleteModal = document.getElementById('delete-modal');
+            const cancelDeleteBtn = document.getElementById('cancel-delete');
+            const confirmDeleteBtn = document.getElementById('confirm-delete');
+            
+            deleteAccountBtns.forEach(btn => {
+                btn.addEventListener('click', () => {
+                    deleteModal.classList.remove('hidden');
+                    document.body.style.overflow = 'hidden';
+                });
+            });
+            
+            cancelDeleteBtn.addEventListener('click', () => {
+                deleteModal.classList.add('hidden');
+                document.body.style.overflow = '';
+            });
+            
+            confirmDeleteBtn.addEventListener('click', () => {
+                const reason = document.getElementById('delete-reason').value;
+                
+                if (!reason) {
+                    alert('请选择注销原因');
+                    return;
+                }
+                
+                if (confirm('确定要注销账号吗？此操作不可撤销！')) {
+                    alert('账号注销申请已提交，将在3个工作日内处理');
+                    deleteModal.classList.add('hidden');
+                    document.body.style.overflow = '';
+                    window.location.href = 'login.html';
+                }
+            });
+            
+            // 点击模态框外部关闭
+            deleteModal.addEventListener('click', (e) => {
+                if (e.target === deleteModal) {
+                    deleteModal.classList.add('hidden');
+                    document.body.style.overflow = '';
+                }
+            });
+        });
+    </script>
+</body>
+</html>

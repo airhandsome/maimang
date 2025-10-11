@@ -90,14 +90,19 @@
   }
 }
 
-/* Custom light, fresh palette helpers */
-.bg-cream { background-color: #FFF9E6; }
-.text-leaf { color: #6AAA7F; }
-.bg-leaf { background-color: #6AAA7F; }
-.text-gold { color: #FFD166; }
-.bg-gold { background-color: #FFD166; }
-.text-mint { color: #99D8A8; }
-.bg-mint { background-color: #99D8A8; }
+/* 麦芒文学社主题色彩 */
+.bg-cream { background-color: #FFFDF5; }
+.text-cream { color: #FFFDF5; }
+.text-gold { color: #FFD747; }
+.bg-gold { background-color: #FFD747; }
+.text-goldLight { color: #FFF3C0; }
+.bg-goldLight { background-color: #FFF3C0; }
+.text-goldDark { color: #F5C332; }
+.bg-goldDark { background-color: #F5C332; }
+.text-wheat { color: #FFEDCC; }
+.bg-wheat { background-color: #FFEDCC; }
+.text-text { color: #594B36; }
+.bg-text { background-color: #594B36; }
 
 /* Subtle motion and elevation */
 @keyframes float {
@@ -125,7 +130,21 @@
 
 /* Form focus helper */
 .form-focus { outline: none; }
-.form-focus:focus { border-color: #FFD166; box-shadow: 0 0 0 2px rgba(255,209,102,.2); }
+.form-focus:focus { border-color: #FFD747; box-shadow: 0 0 0 2px rgba(255,215,71,.2); }
+
+/* 输入框焦点样式 */
+.input-focus {
+  @apply focus:border-gold focus:outline-none focus:ring-1 focus:ring-gold transition-all;
+}
+
+/* 卡片悬停效果 */
+.card-lift {
+  transition: all 0.3s ease;
+}
+.card-lift:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 15px 30px rgba(0, 0, 0, 0.08);
+}
 
 /* Extra helpers for activity page */
 .spin-slow { animation: spin 20s linear infinite; }
@@ -143,4 +162,26 @@
 
 .gradient-youth {
   background: linear-gradient(135deg, #84cc16 0%, #22c55e 100%);
+}
+
+/* 管理员侧边栏样式 */
+.sidebar-item {
+  @apply flex items-center gap-3 px-4 py-3 text-gray-600 hover:bg-yellow-50 hover:text-yellow-700 rounded-lg transition-all duration-200;
+}
+
+.sidebar-item.active {
+  @apply bg-yellow-500 text-white;
+}
+
+.sidebar-item.active:hover {
+  @apply bg-yellow-600 text-white;
+}
+
+/* 管理员页面样式 */
+.stat-card {
+  @apply bg-white rounded-xl shadow-sm p-5 transition-all hover:shadow-md hover:-translate-y-1;
+}
+
+.quick-action {
+  @apply flex items-center gap-3 p-4 bg-white rounded-xl shadow-sm cursor-pointer transition-all hover:shadow-md;
 }

@@ -1,0 +1,455 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>登录/注册 - 麦芒文学社</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        cream: '#FFFDF5',      // 奶油白底色
+                        gold: '#FFD747',       // 明亮黄色
+                        goldLight: '#FFF3C0',  // 浅金色
+                        goldDark: '#F5C332',   // 深一点的金色
+                        wheat: '#FFEDCC',      // 小麦色
+                        text: '#594B36',       // 文字颜色
+                    },
+                    fontFamily: {
+                        sans: ['"Nunito"', 'sans-serif'],
+                        display: ['"Quicksand"', 'sans-serif'],
+                        serif: ['"Noto Serif SC"', 'serif']
+                    }
+                }
+            }
+        }
+    </script>
+    <style type="text/tailwindcss">
+        @layer utilities {
+            .float-random {
+                animation: float 8s ease-in-out infinite;
+            }
+            .spin-slow {
+                animation: spin 20s linear infinite;
+            }
+            .wheat-pattern {
+                background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23FFD747' fill-opacity='0.1'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+            }
+            .card-lift {
+                transition: all 0.3s ease;
+            }
+            .card-lift:hover {
+                transform: translateY(-5px);
+                box-shadow: 0 15px 30px rgba(0, 0, 0, 0.08);
+            }
+            .input-focus {
+                @apply focus:border-gold focus:outline-none focus:ring-1 focus:ring-gold transition-all;
+            }
+        }
+
+        @keyframes float {
+            0% { transform: translateY(0px) rotate(0deg); }
+            50% { transform: translateY(-12px) rotate(2deg); }
+            100% { transform: translateY(0px) rotate(0deg); }
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700&family=Noto+Serif+SC:wght@400;600;700&family=Quicksand:wght@500;600;700&display=swap" rel="stylesheet">
+</head>
+<body class="bg-cream wheat-pattern text-text antialiased min-h-screen flex flex-col">
+    <!-- 漂浮装饰元素 -->
+    <div class="fixed inset-0 z-0 overflow-hidden pointer-events-none opacity-10">
+        <div class="absolute top-[20%] right-[15%] text-7xl font-display text-gold float-random" style="animation-delay: 0.5s">登</div>
+        <div class="absolute top-[40%] left-[10%] text-6xl font-display text-text float-random" style="animation-delay: 1s">录</div>
+        <div class="absolute bottom-[30%] right-[8%] text-6xl font-display text-gold float-random" style="animation-delay: 2s">注</div>
+        <div class="absolute bottom-[50%] left-[25%] text-5xl font-display text-text float-random" style="animation-delay: 3s">册</div>
+    </div>
+
+    <!-- 导航栏 -->
+    <nav class="relative z-50 py-4 px-4 md:px-8 bg-cream/90 backdrop-blur-sm sticky top-0 shadow-sm">
+        <div class="flex flex-wrap justify-between items-center">
+            <div class="flex items-center">
+                <div class="w-10 h-10 rounded-full bg-gold flex items-center justify-center mr-3 spin-slow">
+                    <i class="fa fa-pencil text-white"></i>
+                </div>
+                <div class="text-2xl md:text-3xl font-display">
+                    <span class="text-gold">麦</span>
+                    <span class="text-text">芒</span>
+                    <span class="text-goldDark">文学社</span>
+                </div>
+            </div>
+            
+            <div class="flex flex-wrap gap-2 md:gap-6 justify-end mt-4 md:mt-0">
+                <a href="about.html" class="px-3 py-2 text-text hover:text-gold transition-colors">关于我们</a>
+                <a href="works.html" class="px-3 py-2 text-text hover:text-gold transition-colors">青春作品</a>
+                <a href="activities.html" class="px-3 py-2 text-text hover:text-gold transition-colors">田间活动</a>
+                <a href="activities.html#ai-helper-link" class="px-3 py-2 text-text hover:text-gold transition-colors">
+                    <i class="fa fa-lightbulb-o mr-1"></i> AI助手
+                </a>
+                <a href="login.html" class="px-4 py-2 bg-gold text-white rounded-full hover:bg-goldDark transition-colors shadow-sm">登录 / 注册</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- 主内容区 -->
+    <main class="flex-grow relative z-10 container mx-auto px-4 py-12 md:py-20">
+        <div class="max-w-5xl mx-auto">
+            <div class="text-center mb-12">
+                <h1 class="text-4xl md:text-5xl font-display text-gold mb-4">
+                    加入麦芒的文字田野
+                </h1>
+                <p class="text-lg text-text/80 max-w-2xl mx-auto">
+                    登录你的账号，开始记录灵感，参与活动，与志同道合的文友相遇
+                </p>
+            </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                <!-- 登录表单 -->
+                <div class="bg-white rounded-2xl shadow-md p-8 card-lift">
+                    <div class="text-center mb-6">
+                        <h2 class="text-2xl font-display text-text">账号登录</h2>
+                        <p class="text-text/60 mt-1">欢迎回来，继续你的文学之旅</p>
+                    </div>
+                    
+                    <form id="login-form" class="space-y-5">
+                        <div>
+                            <label for="login-account" class="block text-text font-medium mb-2">手机号/邮箱</label>
+                            <div class="relative">
+                                <span class="absolute left-3 top-1/2 transform -translate-y-1/2 text-text/50">
+                                    <i class="fa fa-user"></i>
+                                </span>
+                                <input type="text" id="login-account" placeholder="请输入手机号或邮箱" 
+                                    class="w-full pl-10 pr-4 py-3 rounded-lg border border-wheat input-focus">
+                            </div>
+                        </div>
+                        
+                        <div>
+                            <label for="login-password" class="block text-text font-medium mb-2">密码</label>
+                            <div class="relative">
+                                <span class="absolute left-3 top-1/2 transform -translate-y-1/2 text-text/50">
+                                    <i class="fa fa-lock"></i>
+                                </span>
+                                <input type="password" id="login-password" placeholder="请输入密码" 
+                                    class="w-full pl-10 pr-10 py-3 rounded-lg border border-wheat input-focus">
+                                <button type="button" class="absolute right-3 top-1/2 transform -translate-y-1/2 text-text/50 toggle-password">
+                                    <i class="fa fa-eye-slash"></i>
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <div class="flex justify-between items-center">
+                            <label class="flex items-center text-sm text-text/70">
+                                <input type="checkbox" class="mr-2">
+                                <span>记住我</span>
+                            </label>
+                            <a href="#" class="text-sm text-gold hover:text-goldDark transition-colors">忘记密码？</a>
+                        </div>
+                        
+                        <button type="submit" class="w-full bg-gold hover:bg-goldDark text-white font-bold py-3 rounded-lg transition-colors">
+                            登录账号
+                        </button>
+                        
+                        <div class="text-center text-text/60 text-sm">
+                            还没有账号？ <a href="#" class="text-gold hover:underline switch-form">立即注册</a>
+                        </div>
+                    </form>
+                    
+                    <div class="mt-6 pt-6 border-t border-gray-100">
+                        <p class="text-center text-text/60 text-sm mb-4">或使用以下方式登录</p>
+                        <div class="flex justify-center space-x-4">
+                            <a href="#" class="w-10 h-10 rounded-full bg-[#07C160]/10 flex items-center justify-center text-[#07C160] hover:bg-[#07C160]/20 transition-colors">
+                                <i class="fa fa-weixin"></i>
+                            </a>
+                            <a href="#" class="w-10 h-10 rounded-full bg-[#1DA1F2]/10 flex items-center justify-center text-[#1DA1F2] hover:bg-[#1DA1F2]/20 transition-colors">
+                                <i class="fa fa-qq"></i>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 注册表单 -->
+                <div class="bg-white rounded-2xl shadow-md p-8 card-lift hidden" id="register-form-container">
+                    <div class="text-center mb-6">
+                        <h2 class="text-2xl font-display text-text">账号注册</h2>
+                        <p class="text-text/60 mt-1">加入我们，开启你的文学创作之旅</p>
+                    </div>
+                    
+                    <form id="register-form" class="space-y-5">
+                        <div>
+                            <label for="register-phone" class="block text-text font-medium mb-2">手机号</label>
+                            <div class="relative">
+                                <span class="absolute left-3 top-1/2 transform -translate-y-1/2 text-text/50">
+                                    <i class="fa fa-phone"></i>
+                                </span>
+                                <input type="tel" id="register-phone" placeholder="请输入手机号" 
+                                    class="w-full pl-10 pr-4 py-3 rounded-lg border border-wheat input-focus">
+                            </div>
+                        </div>
+                        
+                        <div>
+                            <label for="register-code" class="block text-text font-medium mb-2">验证码</label>
+                            <div class="relative">
+                                <span class="absolute left-3 top-1/2 transform -translate-y-1/2 text-text/50">
+                                    <i class="fa fa-shield"></i>
+                                </span>
+                                <input type="text" id="register-code" placeholder="请输入验证码" 
+                                    class="w-full pl-10 pr-32 py-3 rounded-lg border border-wheat input-focus">
+                                <button type="button" id="send-code" class="absolute right-2 top-1/2 transform -translate-y-1/2 bg-gold/10 text-gold px-4 py-1.5 rounded-lg text-sm hover:bg-gold/20 transition-colors">
+                                    获取验证码
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <div>
+                            <label for="register-password" class="block text-text font-medium mb-2">设置密码</label>
+                            <div class="relative">
+                                <span class="absolute left-3 top-1/2 transform -translate-y-1/2 text-text/50">
+                                    <i class="fa fa-lock"></i>
+                                </span>
+                                <input type="password" id="register-password" placeholder="请设置密码（6-16位）" 
+                                    class="w-full pl-10 pr-10 py-3 rounded-lg border border-wheat input-focus">
+                                <button type="button" class="absolute right-3 top-1/2 transform -translate-y-1/2 text-text/50 toggle-password">
+                                    <i class="fa fa-eye-slash"></i>
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <div>
+                            <label for="register-name" class="block text-text font-medium mb-2">昵称</label>
+                            <div class="relative">
+                                <span class="absolute left-3 top-1/2 transform -translate-y-1/2 text-text/50">
+                                    <i class="fa fa-user-circle"></i>
+                                </span>
+                                <input type="text" id="register-name" placeholder="请设置你的昵称" 
+                                    class="w-full pl-10 pr-4 py-3 rounded-lg border border-wheat input-focus">
+                            </div>
+                        </div>
+                        
+                        <div class="flex items-start">
+                            <input type="checkbox" id="register-agreement" class="mt-1 mr-3">
+                            <label for="register-agreement" class="text-sm text-text/70">
+                                我已阅读并同意<a href="#" class="text-gold hover:underline">用户协议</a>和<a href="#" class="text-gold hover:underline">隐私政策</a>
+                            </label>
+                        </div>
+                        
+                        <button type="submit" class="w-full bg-gold hover:bg-goldDark text-white font-bold py-3 rounded-lg transition-colors">
+                            注册账号
+                        </button>
+                        
+                        <div class="text-center text-text/60 text-sm">
+                            已有账号？ <a href="#" class="text-gold hover:underline switch-form">立即登录</a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            
+            <!-- 社员专属入口 -->
+            <div class="mt-10 bg-gold/5 rounded-2xl p-6 md:p-8">
+                <div class="flex flex-col md:flex-row items-center justify-between">
+                    <div class="mb-6 md:mb-0 md:mr-6">
+                        <h3 class="text-xl font-display text-text mb-2">正式社员通道</h3>
+                        <p class="text-text/70 max-w-md">
+                            如果你是麦芒文学社正式社员，请通过专属通道登录，获取更多社员权益
+                        </p>
+                    </div>
+                    <a href="#" class="inline-block bg-gold hover:bg-goldDark text-white font-bold px-6 py-3 rounded-full transition-all transform hover:scale-105">
+                        社员专属登录 <i class="fa fa-id-card-o ml-1"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- 页脚 -->
+    <footer class="relative z-10 bg-text text-white py-12 px-4 mt-16">
+        <div class="container mx-auto">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8 mb-10">
+                <div>
+                    <div class="flex items-center mb-6">
+                        <div class="w-10 h-10 rounded-full bg-gold flex items-center justify-center mr-3">
+                            <i class="fa fa-pencil text-white"></i>
+                        </div>
+                        <div class="text-2xl font-display">
+                            <span class="text-gold">麦</span>
+                            <span class="text-cream">芒</span>
+                            <span class="text-goldLight">文学社</span>
+                        </div>
+                    </div>
+                    <p class="text-white/80">
+                        青春如穗，文字如芒。我们在文字的田野里，播种、生长、收获。
+                    </p>
+                </div>
+                
+                <div>
+                    <h4 class="text-xl font-display text-gold mb-4">联系我们</h4>
+                    <ul class="space-y-3 text-white/80">
+                        <li class="flex items-center"><i class="fa fa-envelope-o mr-2 text-goldLight"></i> wheat@maimang.org</li>
+                        <li class="flex items-center"><i class="fa fa-map-marker mr-2 text-goldLight"></i> 青春路88号麦田书屋</li>
+                        <li class="flex items-center"><i class="fa fa-phone mr-2 text-goldLight"></i> 138-xxxx-8877</li>
+                    </ul>
+                </div>
+                
+                <div>
+                    <h4 class="text-xl font-display text-gold mb-4">关注我们</h4>
+                    <p class="text-white/80 mb-4">在社交媒体上，感受文字的生长力量</p>
+                    <div class="flex space-x-4">
+                        <a href="#" class="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center hover:bg-gold transition-colors">
+                            <i class="fa fa-weixin"></i>
+                        </a>
+                        <a href="#" class="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center hover:bg-gold transition-colors">
+                            <i class="fa fa-weibo"></i>
+                        </a>
+                        <a href="#" class="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center hover:bg-gold transition-colors">
+                            <i class="fa fa-instagram"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="border-t border-white/20 pt-6 text-center text-white/60 text-sm">
+                <p>© 2023 麦芒文学社 | 青春如穗，文字如芒 | 在文字的田野里收获成长</p>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // 登录/注册表单切换
+            const loginForm = document.querySelector('#login-form').parentElement;
+            const registerForm = document.getElementById('register-form-container');
+            const switchButtons = document.querySelectorAll('.switch-form');
+            
+            switchButtons.forEach(button => {
+                button.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    loginForm.classList.toggle('hidden');
+                    registerForm.classList.toggle('hidden');
+                });
+            });
+            
+            // 密码显示/隐藏切换
+            const togglePasswordButtons = document.querySelectorAll('.toggle-password');
+            
+            togglePasswordButtons.forEach(button => {
+                button.addEventListener('click', () => {
+                    const icon = button.querySelector('i');
+                    const input = button.parentElement.querySelector('input');
+                    
+                    if (input.type === 'password') {
+                        input.type = 'text';
+                        icon.classList.remove('fa-eye-slash');
+                        icon.classList.add('fa-eye');
+                    } else {
+                        input.type = 'password';
+                        icon.classList.remove('fa-eye');
+                        icon.classList.add('fa-eye-slash');
+                    }
+                });
+            });
+            
+            // 验证码倒计时
+            const sendCodeButton = document.getElementById('send-code');
+            let countdown = 60;
+            
+            sendCodeButton.addEventListener('click', () => {
+                const phoneInput = document.getElementById('register-phone');
+                const phoneValue = phoneInput.value.trim();
+                
+                if (!phoneValue || !/^1[3-9]\d{9}$/.test(phoneValue)) {
+                    alert('请输入正确的手机号');
+                    return;
+                }
+                
+                // 开始倒计时
+                sendCodeButton.disabled = true;
+                sendCodeButton.textContent = `重新发送(${countdown}s)`;
+                
+                const timer = setInterval(() => {
+                    countdown--;
+                    sendCodeButton.textContent = `重新发送(${countdown}s)`;
+                    
+                    if (countdown <= 0) {
+                        clearInterval(timer);
+                        sendCodeButton.disabled = false;
+                        sendCodeButton.textContent = '获取验证码';
+                        countdown = 60;
+                    }
+                }, 1000);
+                
+                // 模拟发送验证码
+                console.log(`向${phoneValue}发送验证码`);
+            });
+            
+            // 登录表单提交
+            document.getElementById('login-form').addEventListener('submit', (e) => {
+                e.preventDefault();
+                
+                const account = document.getElementById('login-account').value.trim();
+                const password = document.getElementById('login-password').value.trim();
+                
+                if (!account) {
+                    alert('请输入手机号或邮箱');
+                    return;
+                }
+                
+                if (!password) {
+                    alert('请输入密码');
+                    return;
+                }
+                
+                // 模拟登录成功，跳转到个人中心
+                alert('登录成功，即将进入个人中心');
+                window.location.href = 'user-center.html';
+            });
+            
+            // 注册表单提交
+            document.getElementById('register-form').addEventListener('submit', (e) => {
+                e.preventDefault();
+                
+                const phone = document.getElementById('register-phone').value.trim();
+                const code = document.getElementById('register-code').value.trim();
+                const password = document.getElementById('register-password').value.trim();
+                const name = document.getElementById('register-name').value.trim();
+                const agreement = document.getElementById('register-agreement').checked;
+                
+                if (!phone || !/^1[3-9]\d{9}$/.test(phone)) {
+                    alert('请输入正确的手机号');
+                    return;
+                }
+                
+                if (!code || code.length !== 6) {
+                    alert('请输入正确的验证码');
+                    return;
+                }
+                
+                if (!password || password.length < 6 || password.length > 16) {
+                    alert('请设置6-16位的密码');
+                    return;
+                }
+                
+                if (!name) {
+                    alert('请设置你的昵称');
+                    return;
+                }
+                
+                if (!agreement) {
+                    alert('请阅读并同意用户协议和隐私政策');
+                    return;
+                }
+                
+                // 模拟注册成功，跳转到登录
+                alert('注册成功，请登录');
+                registerForm.classList.add('hidden');
+                loginForm.classList.remove('hidden');
+            });
+        });
+    </script>
+</body>
+</html>

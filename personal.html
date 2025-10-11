@@ -1,0 +1,511 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>个人中心 - 麦芒文学社</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.8/dist/chart.umd.min.js"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        cream: '#FFFDF5',      // 奶油白底色
+                        gold: '#FFD747',       // 明亮黄色
+                        goldLight: '#FFF3C0',  // 浅金色
+                        goldDark: '#F5C332',   // 深一点的金色
+                        wheat: '#FFEDCC',      // 小麦色
+                        text: '#594B36',       // 文字颜色
+                    },
+                    fontFamily: {
+                        sans: ['"Nunito"', 'sans-serif'],
+                        display: ['"Quicksand"', 'sans-serif'],
+                        serif: ['"Noto Serif SC"', 'serif']
+                    }
+                }
+            }
+        }
+    </script>
+    <style type="text/tailwindcss">
+        @layer utilities {
+            .float-random {
+                animation: float 8s ease-in-out infinite;
+            }
+            .spin-slow {
+                animation: spin 20s linear infinite;
+            }
+            .wheat-pattern {
+                background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23FFD747' fill-opacity='0.1'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+            }
+            .card-lift {
+                transition: all 0.3s ease;
+            }
+            .card-lift:hover {
+                transform: translateY(-5px);
+                box-shadow: 0 15px 30px rgba(0, 0, 0, 0.08);
+            }
+            .progress-bar {
+                height: 6px;
+                background-color: wheat;
+                border-radius: 3px;
+                overflow: hidden;
+            }
+            .progress-value {
+                height: 100%;
+                background-color: gold;
+                border-radius: 3px;
+                transition: width 1s ease;
+            }
+        }
+
+        @keyframes float {
+            0% { transform: translateY(0px) rotate(0deg); }
+            50% { transform: translateY(-12px) rotate(2deg); }
+            100% { transform: translateY(0px) rotate(0deg); }
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700&family=Noto+Serif+SC:wght@400;600;700&family=Quicksand:wght@500;600;700&display=swap" rel="stylesheet">
+</head>
+<body class="bg-cream wheat-pattern text-text antialiased min-h-screen flex flex-col">
+    <!-- 导航栏 -->
+    <nav class="relative z-50 py-4 px-4 md:px-8 bg-cream/90 backdrop-blur-sm sticky top-0 shadow-sm">
+        <div class="flex flex-wrap justify-between items-center">
+            <div class="flex items-center">
+                <div class="w-10 h-10 rounded-full bg-gold flex items-center justify-center mr-3 spin-slow">
+                    <i class="fa fa-pencil text-white"></i>
+                </div>
+                <div class="text-2xl md:text-3xl font-display">
+                    <span class="text-gold">麦</span>
+                    <span class="text-text">芒</span>
+                    <span class="text-goldDark">文学社</span>
+                </div>
+            </div>
+            
+            <div class="flex flex-wrap gap-2 md:gap-6 justify-end mt-4 md:mt-0">
+                <a href="about.html" class="px-3 py-2 text-text hover:text-gold transition-colors">关于我们</a>
+                <a href="works.html" class="px-3 py-2 text-text hover:text-gold transition-colors">青春作品</a>
+                <a href="activities.html" class="px-3 py-2 text-text hover:text-gold transition-colors">田间活动</a>
+                <a href="activities.html#ai-helper-link" class="px-3 py-2 text-text hover:text-gold transition-colors">
+                    <i class="fa fa-lightbulb-o mr-1"></i> AI助手
+                </a>
+                <div class="relative group">
+                    <button class="flex items-center px-3 py-2">
+                        <img src="https://picsum.photos/id/64/100/100" alt="用户头像" class="w-8 h-8 rounded-full mr-2 object-cover">
+                        <span>林清禾</span>
+                        <i class="fa fa-angle-down ml-1 text-xs"></i>
+                    </button>
+                    <div class="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-md py-2 hidden group-hover:block z-50">
+                        <a href="user-center.html" class="block px-4 py-2 text-sm hover:bg-wheat transition-colors">
+                            <i class="fa fa-user-o mr-2"></i> 个人中心
+                        </a>
+                        <a href="user-edit.html" class="block px-4 py-2 text-sm hover:bg-wheat transition-colors">
+                            <i class="fa fa-cog mr-2"></i> 账号设置
+                        </a>
+                        <div class="border-t border-gray-100 my-1"></div>
+                        <a href="login.html" class="block px-4 py-2 text-sm text-red-500 hover:bg-wheat transition-colors">
+                            <i class="fa fa-sign-out mr-2"></i> 退出登录
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- 主内容区 -->
+    <main class="flex-grow relative z-10 container mx-auto px-4 py-12">
+        <div class="max-w-6xl mx-auto">
+            <!-- 用户信息头部 -->
+            <div class="bg-white rounded-2xl shadow-md overflow-hidden mb-10">
+                <div class="h-32 md:h-48 bg-gradient-to-r from-gold/20 to-gold/5 relative">
+                    <div class="absolute -bottom-16 left-6 md:left-10">
+                        <div class="w-32 h-32 rounded-full border-4 border-white overflow-hidden shadow-md">
+                            <img src="https://picsum.photos/id/64/200/200" alt="林清禾" class="w-full h-full object-cover">
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="pt-20 pb-6 px-6 md:px-10 md:pt-24 md:pb-10">
+                    <div class="flex flex-col md:flex-row md:items-end justify-between">
+                        <div>
+                            <div class="flex items-center mb-2">
+                                <h1 class="text-2xl md:text-3xl font-display text-text mr-3">林清禾</h1>
+                                <span class="bg-gold/10 text-gold text-xs px-2 py-1 rounded-full">麦穗级社员</span>
+                            </div>
+                            <p class="text-text/70 mb-4 md:mb-0">热爱诗歌与自然的创作者 | 加入于 2021-03-15</p>
+                        </div>
+                        <a href="user-edit.html" class="inline-flex items-center text-gold hover:text-goldDark transition-colors mt-4 md:mt-0">
+                            <i class="fa fa-pencil mr-1"></i> 编辑个人资料
+                        </a>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                <!-- 左侧：数据统计 -->
+                <div class="lg:col-span-1 space-y-8">
+                    <!-- 社员等级 -->
+                    <div class="bg-white rounded-2xl shadow-md p-6 card-lift">
+                        <h3 class="text-lg font-display text-text mb-4 flex items-center">
+                            <i class="fa fa-trophy text-gold mr-2"></i> 社员等级
+                        </h3>
+                        
+                        <div class="text-center mb-6">
+                            <div class="inline-block p-3 bg-gold/10 rounded-full mb-3">
+                                <i class="fa fa-star text-2xl text-gold"></i>
+                            </div>
+                            <h4 class="text-xl font-medium">麦穗级</h4>
+                            <p class="text-sm text-text/60 mt-1">距离下一等级还需 35 积分</p>
+                        </div>
+                        
+                        <div class="mb-2 flex justify-between text-sm">
+                            <span>当前积分：65/100</span>
+                            <span>下一级：稻穗级</span>
+                        </div>
+                        <div class="progress-bar">
+                            <div class="progress-value" style="width: 65%"></div>
+                        </div>
+                        
+                        <div class="mt-4 pt-4 border-t border-gray-100">
+                            <p class="text-sm text-text/70 mb-3">如何获取积分？</p>
+                            <ul class="text-xs text-text/60 space-y-1">
+                                <li class="flex items-start">
+                                    <i class="fa fa-circle text-gold text-[6px] mt-1.5 mr-2"></i>
+                                    <span>发布作品：+5 积分/篇</span>
+                                </li>
+                                <li class="flex items-start">
+                                    <i class="fa fa-circle text-gold text-[6px] mt-1.5 mr-2"></i>
+                                    <span>参与活动：+10 积分/次</span>
+                                </li>
+                                <li class="flex items-start">
+                                    <i class="fa fa-circle text-gold text-[6px] mt-1.5 mr-2"></i>
+                                    <span>作品被推荐：+20 积分/次</span>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                    
+                    <!-- 数据概览 -->
+                    <div class="bg-white rounded-2xl shadow-md p-6 card-lift">
+                        <h3 class="text-lg font-display text-text mb-6 flex items-center">
+                            <i class="fa fa-bar-chart text-gold mr-2"></i> 创作数据
+                        </h3>
+                        
+                        <div class="space-y-6">
+                            <div>
+                                <div class="flex justify-between mb-1">
+                                    <span class="text-sm text-text/70">已发布作品</span>
+                                    <span class="text-sm font-medium">12 篇</span>
+                                </div>
+                                <div class="progress-bar">
+                                    <div class="progress-value" style="width: 70%"></div>
+                                </div>
+                            </div>
+                            
+                            <div>
+                                <div class="flex justify-between mb-1">
+                                    <span class="text-sm text-text/70">参与活动</span>
+                                    <span class="text-sm font-medium">8 次</span>
+                                </div>
+                                <div class="progress-bar">
+                                    <div class="progress-value" style="width: 50%"></div>
+                                </div>
+                            </div>
+                            
+                            <div>
+                                <div class="flex justify-between mb-1">
+                                    <span class="text-sm text-text/70">获得点赞</span>
+                                    <span class="text-sm font-medium">246 个</span>
+                                </div>
+                                <div class="progress-bar">
+                                    <div class="progress-value" style="width: 80%"></div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="mt-6 pt-6 border-t border-gray-100">
+                            <canvas id="creationChart" width="400" height="200"></canvas>
+                        </div>
+                    </div>
+                    
+                    <!-- 个人标签 -->
+                    <div class="bg-white rounded-2xl shadow-md p-6 card-lift">
+                        <h3 class="text-lg font-display text-text mb-4 flex items-center">
+                            <i class="fa fa-tags text-gold mr-2"></i> 创作标签
+                        </h3>
+                        
+                        <div class="flex flex-wrap gap-2">
+                            <span class="bg-gold/10 text-gold text-sm px-3 py-1 rounded-full">诗歌</span>
+                            <span class="bg-wheat text-text/80 text-sm px-3 py-1 rounded-full">自然</span>
+                            <span class="bg-wheat text-text/80 text-sm px-3 py-1 rounded-full">田野</span>
+                            <span class="bg-wheat text-text/80 text-sm px-3 py-1 rounded-full">季节</span>
+                            <span class="bg-wheat text-text/80 text-sm px-3 py-1 rounded-full">散文</span>
+                            <span class="bg-wheat text-text/80 text-sm px-3 py-1 rounded-full">摄影配文</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 右侧：内容区 -->
+                <div class="lg:col-span-2 space-y-8">
+                    <!-- 待办提醒 -->
+                    <div class="bg-gold/5 rounded-2xl p-6">
+                        <h3 class="text-lg font-display text-text mb-4 flex items-center">
+                            <i class="fa fa-bell text-gold mr-2"></i> 待办提醒
+                        </h3>
+                        
+                        <div class="space-y-4">
+                            <div class="bg-white rounded-xl p-4 shadow-sm flex items-start">
+                                <div class="w-10 h-10 rounded-full bg-gold/10 flex items-center justify-center mr-4 flex-shrink-0">
+                                    <i class="fa fa-calendar text-gold"></i>
+                                </div>
+                                <div class="flex-grow">
+                                    <h4 class="font-medium">本周末"秋日田野采风"活动即将开始</h4>
+                                    <p class="text-sm text-text/70 mt-1">你已报名参加，活动时间：10月22日 09:00-16:00</p>
+                                    <div class="mt-3 flex gap-3">
+                                        <a href="activity-detail.html" class="text-sm text-gold hover:text-goldDark transition-colors">查看详情</a>
+                                        <a href="#" class="text-sm text-text/60 hover:text-text transition-colors">取消报名</a>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="bg-white rounded-xl p-4 shadow-sm flex items-start">
+                                <div class="w-10 h-10 rounded-full bg-gold/10 flex items-center justify-center mr-4 flex-shrink-0">
+                                    <i class="fa fa-pencil text-gold"></i>
+                                </div>
+                                <div class="flex-grow">
+                                    <h4 class="font-medium">你的作品《麦田里的风》收到了3条新评论</h4>
+                                    <p class="text-sm text-text/70 mt-1">快去看看大家的反馈吧</p>
+                                    <div class="mt-3">
+                                        <a href="my-works.html#work-123" class="text-sm text-gold hover:text-goldDark transition-colors">查看评论</a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- 最新作品 -->
+                    <div class="bg-white rounded-2xl shadow-md overflow-hidden card-lift">
+                        <div class="px-6 py-5 border-b border-gray-100 flex justify-between items-center">
+                            <h3 class="text-lg font-display text-text flex items-center">
+                                <i class="fa fa-book text-gold mr-2"></i> 我的最新作品
+                            </h3>
+                            <a href="my-works.html" class="text-sm text-gold hover:text-goldDark transition-colors">查看全部</a>
+                        </div>
+                        
+                        <div class="p-6">
+                            <div class="space-y-6">
+                                <div class="border-l-4 border-gold pl-4 py-1">
+                                    <h4 class="font-medium text-lg">《秋日麦浪》</h4>
+                                    <p class="text-sm text-text/60 mt-1">发布于 2023-10-05 · 诗歌</p>
+                                    <p class="text-text/80 mt-3 line-clamp-2">
+                                        风吹过田野的轮廓<br>
+                                        麦穗低垂，如时光的重量<br>
+                                        每一粒果实里，都藏着<br>
+                                        整个夏天的阳光
+                                    </p>
+                                    <div class="mt-3 flex items-center text-sm text-text/60">
+                                        <span class="mr-4"><i class="fa fa-eye mr-1"></i> 128</span>
+                                        <span class="mr-4"><i class="fa fa-heart mr-1"></i> 36</span>
+                                        <span><i class="fa fa-comment mr-1"></i> 5</span>
+                                    </div>
+                                </div>
+                                
+                                <div class="border-l-4 border-wheat pl-4 py-1">
+                                    <h4 class="font-medium text-lg">《与稻草人对话》</h4>
+                                    <p class="text-sm text-text/60 mt-1">发布于 2023-09-20 · 散文</p>
+                                    <p class="text-text/80 mt-3 line-clamp-2">
+                                        田野中央的稻草人，戴着褪色的草帽，沉默地站了整个夏天。我坐在它脚下，听风穿过麦芒的声音，像一首古老的歌谣...
+                                    </p>
+                                    <div class="mt-3 flex items-center text-sm text-text/60">
+                                        <span class="mr-4"><i class="fa fa-eye mr-1"></i> 95</span>
+                                        <span class="mr-4"><i class="fa fa-heart mr-1"></i> 24</span>
+                                        <span><i class="fa fa-comment mr-1"></i> 3</span>
+                                    </div>
+                                </div>
+                                
+                                <div class="border-l-4 border-wheat pl-4 py-1">
+                                    <h4 class="font-medium text-lg">《晨露》</h4>
+                                    <p class="text-sm text-text/60 mt-1">发布于 2023-09-08 · 诗歌</p>
+                                    <p class="text-text/80 mt-3 line-clamp-2">
+                                        草叶尖的珍珠<br>
+                                        是月亮遗落的信笺<br>
+                                        阳光读过后<br>
+                                        便化作一缕轻烟
+                                    </p>
+                                    <div class="mt-3 flex items-center text-sm text-text/60">
+                                        <span class="mr-4"><i class="fa fa-eye mr-1"></i> 156</span>
+                                        <span class="mr-4"><i class="fa fa-heart mr-1"></i> 42</span>
+                                        <span><i class="fa fa-comment mr-1"></i> 8</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- 近期活动 -->
+                    <div class="bg-white rounded-2xl shadow-md overflow-hidden card-lift">
+                        <div class="px-6 py-5 border-b border-gray-100 flex justify-between items-center">
+                            <h3 class="text-lg font-display text-text flex items-center">
+                                <i class="fa fa-map-marker text-gold mr-2"></i> 我的近期活动
+                            </h3>
+                            <a href="my-activities.html" class="text-sm text-gold hover:text-goldDark transition-colors">查看全部</a>
+                        </div>
+                        
+                        <div class="p-6">
+                            <div class="space-y-6">
+                                <div class="flex flex-col md:flex-row gap-4">
+                                    <div class="w-full md:w-40 h-32 rounded-lg overflow-hidden flex-shrink-0">
+                                        <img src="https://picsum.photos/id/183/400/300" alt="秋日田野采风" class="w-full h-full object-cover">
+                                    </div>
+                                    <div>
+                                        <h4 class="font-medium">秋日田野采风</h4>
+                                        <p class="text-sm text-text/60 mt-1">
+                                            <i class="fa fa-calendar mr-1"></i> 2023-10-22 09:00-16:00
+                                            <span class="mx-2">|</span>
+                                            <i class="fa fa-map-marker mr-1"></i> 青禾农场
+                                        </p>
+                                        <p class="text-sm text-text/80 mt-2 line-clamp-2">
+                                            走进秋日的田野，观察农作物的成熟，体验收割的乐趣，在自然中寻找创作灵感。
+                                        </p>
+                                        <div class="mt-3 flex items-center">
+                                            <span class="inline-block bg-gold/10 text-gold text-xs px-2 py-1 rounded-full">已报名</span>
+                                            <a href="activity-detail.html" class="ml-3 text-sm text-gold hover:text-goldDark transition-colors">详情</a>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="flex flex-col md:flex-row gap-4">
+                                    <div class="w-full md:w-40 h-32 rounded-lg overflow-hidden flex-shrink-0">
+                                        <img src="https://picsum.photos/id/175/400/300" alt="诗歌创作分享会" class="w-full h-full object-cover">
+                                    </div>
+                                    <div>
+                                        <h4 class="font-medium">诗歌创作分享会</h4>
+                                        <p class="text-sm text-text/60 mt-1">
+                                            <i class="fa fa-calendar mr-1"></i> 2023-10-15 14:30-17:00
+                                            <span class="mx-2">|</span>
+                                            <i class="fa fa-map-marker mr-1"></i> 麦田书屋
+                                        </p>
+                                        <p class="text-sm text-text/80 mt-2 line-clamp-2">
+                                            与社员们分享近期的诗歌创作，互相点评，共同进步，特邀本地诗人王老师莅临指导。
+                                        </p>
+                                        <div class="mt-3 flex items-center">
+                                            <span class="inline-block bg-green-100 text-green-600 text-xs px-2 py-1 rounded-full">已参与</span>
+                                            <a href="activity-review.html" class="ml-3 text-sm text-gold hover:text-goldDark transition-colors">回顾</a>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- 页脚 -->
+    <footer class="relative z-10 bg-text text-white py-12 px-4 mt-16">
+        <div class="container mx-auto">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8 mb-10">
+                <div>
+                    <div class="flex items-center mb-6">
+                        <div class="w-10 h-10 rounded-full bg-gold flex items-center justify-center mr-3">
+                            <i class="fa fa-pencil text-white"></i>
+                        </div>
+                        <div class="text-2xl font-display">
+                            <span class="text-gold">麦</span>
+                            <span class="text-cream">芒</span>
+                            <span class="text-goldLight">文学社</span>
+                        </div>
+                    </div>
+                    <p class="text-white/80">
+                        青春如穗，文字如芒。我们在文字的田野里，播种、生长、收获。
+                    </p>
+                </div>
+                
+                <div>
+                    <h4 class="text-xl font-display text-gold mb-4">联系我们</h4>
+                    <ul class="space-y-3 text-white/80">
+                        <li class="flex items-center"><i class="fa fa-envelope-o mr-2 text-goldLight"></i> wheat@maimang.org</li>
+                        <li class="flex items-center"><i class="fa fa-map-marker mr-2 text-goldLight"></i> 青春路88号麦田书屋</li>
+                        <li class="flex items-center"><i class="fa fa-phone mr-2 text-goldLight"></i> 138-xxxx-8877</li>
+                    </ul>
+                </div>
+                
+                <div>
+                    <h4 class="text-xl font-display text-gold mb-4">关注我们</h4>
+                    <p class="text-white/80 mb-4">在社交媒体上，感受文字的生长力量</p>
+                    <div class="flex space-x-4">
+                        <a href="#" class="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center hover:bg-gold transition-colors">
+                            <i class="fa fa-weixin"></i>
+                        </a>
+                        <a href="#" class="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center hover:bg-gold transition-colors">
+                            <i class="fa fa-weibo"></i>
+                        </a>
+                        <a href="#" class="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center hover:bg-gold transition-colors">
+                            <i class="fa fa-instagram"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="border-t border-white/20 pt-6 text-center text-white/60 text-sm">
+                <p>© 2023 麦芒文学社 | 青春如穗，文字如芒 | 在文字的田野里收获成长</p>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // 初始化创作数据图表
+            const ctx = document.getElementById('creationChart').getContext('2d');
+            const creationChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: ['6月', '7月', '8月', '9月', '10月'],
+                    datasets: [{
+                        label: '发布作品数',
+                        data: [2, 1, 3, 2, 4],
+                        borderColor: '#FFD747',
+                        backgroundColor: 'rgba(255, 215, 71, 0.1)',
+                        tension: 0.4,
+                        fill: true
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: {
+                            display: false
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                stepSize: 1
+                            }
+                        }
+                    }
+                }
+            });
+            
+            // 模拟进度条动画
+            setTimeout(() => {
+                document.querySelectorAll('.progress-value').forEach(bar => {
+                    const width = bar.style.width;
+                    bar.style.width = '0';
+                    setTimeout(() => {
+                        bar.style.width = width;
+                    }, 300);
+                });
+            }, 500);
+        });
+    </script>
+</body>
+</html>
