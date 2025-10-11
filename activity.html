@@ -1,0 +1,693 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>田间活动 - 麦芒文学社</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        cream: '#FFFDF5',      // 奶油白底色
+                        gold: '#FFD747',       // 明亮黄色
+                        goldLight: '#FFF3C0',  // 浅金色
+                        goldDark: '#F5C332',   // 深一点的金色
+                        wheat: '#FFEDCC',      // 小麦色
+                        text: '#594B36',       // 文字颜色
+                    },
+                    fontFamily: {
+                        sans: ['"Nunito"', 'sans-serif'],
+                        display: ['"Quicksand"', 'sans-serif'],
+                        serif: ['"Noto Serif SC"', 'serif']
+                    }
+                }
+            }
+        }
+    </script>
+    <style type="text/tailwindcss">
+        @layer utilities {
+            .text-float {
+                animation: textFloat 6s ease-in-out infinite;
+            }
+            .float-random {
+                animation: float 8s ease-in-out infinite;
+            }
+            .spin-slow {
+                animation: spin 20s linear infinite;
+            }
+            .wheat-pattern {
+                background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23FFD747' fill-opacity='0.1'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+            }
+            .hover-lift {
+                transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            }
+            .hover-lift:hover {
+                transform: translateY(-8px) rotate(1deg);
+                box-shadow: 0 15px 30px rgba(0, 0, 0, 0.05);
+            }
+            .text-shadow {
+                text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.05);
+            }
+            .activity-date {
+                @apply absolute -top-4 left-6 bg-gold text-white text-sm font-bold px-3 py-1 rounded-full;
+            }
+            .activity-tag {
+                @apply absolute top-4 right-4 bg-white/90 text-gold text-xs font-medium px-2 py-1 rounded-full backdrop-blur-sm;
+            }
+            .scrollbar-hide::-webkit-scrollbar {
+                display: none;
+            }
+            .scrollbar-hide {
+                -ms-overflow-style: none;
+                scrollbar-width: none;
+            }
+        }
+
+        @keyframes float {
+            0% { transform: translateY(0px) rotate(0deg); }
+            50% { transform: translateY(-12px) rotate(2deg); }
+            100% { transform: translateY(0px) rotate(0deg); }
+        }
+
+        @keyframes textFloat {
+            0% { transform: translateY(0px); }
+            50% { transform: translateY(-8px); }
+            100% { transform: translateY(0px); }
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700&family=Noto+Serif+SC:wght@400;600;700&family=Quicksand:wght@500;600;700&display=swap" rel="stylesheet">
+</head>
+<body class="bg-cream wheat-pattern text-text antialiased">
+    <!-- 漂浮装饰元素 -->
+    <div class="fixed inset-0 z-0 overflow-hidden pointer-events-none opacity-10">
+        <div class="absolute top-[10%] right-[8%] text-7xl font-display text-gold float-random" style="animation-delay: 0.5s">田</div>
+        <div class="absolute top-[40%] left-[5%] text-6xl font-display text-text float-random" style="animation-delay: 1s">野</div>
+        <div class="absolute bottom-[20%] right-[15%] text-6xl font-display text-gold float-random" style="animation-delay: 2s">读</div>
+        <div class="absolute bottom-[50%] left-[25%] text-5xl font-display text-text float-random" style="animation-delay: 3s">诗</div>
+    </div>
+
+    <!-- 导航栏 -->
+    <nav class="relative z-50 py-4 px-4 md:px-8 bg-cream/90 backdrop-blur-sm sticky top-0 shadow-sm">
+        <div class="flex flex-wrap justify-between items-center">
+            <div class="flex items-center">
+                <div class="w-10 h-10 rounded-full bg-gold flex items-center justify-center mr-3 spin-slow">
+                    <i class="fa fa-pencil text-white"></i>
+                </div>
+                <div class="text-2xl md:text-3xl font-display">
+                    <span class="text-gold">麦</span>
+                    <span class="text-text">芒</span>
+                    <span class="text-goldDark">文学社</span>
+                </div>
+            </div>
+            
+            <div class="flex flex-wrap gap-2 md:gap-6 justify-end mt-4 md:mt-0">
+                <a href="index.html#about" class="px-3 py-2 text-text hover:text-gold transition-colors">关于我们</a>
+                <a href="works.html" class="px-3 py-2 text-text hover:text-gold transition-colors">青春作品</a>
+                <a href="#" class="px-3 py-2 text-gold border-b-2 border-gold font-medium">田间活动</a>
+                <a href="index.html#login" class="px-4 py-2 bg-gold text-white rounded-full hover:bg-goldDark transition-colors shadow-sm">登录 / 注册</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- 头部区域 -->
+    <header class="relative z-10 py-16 md:py-24 px-4 overflow-hidden">
+        <div class="absolute inset-0 z-0">
+            <div class="absolute inset-0 bg-gradient-to-b from-gold/10 to-cream/90"></div>
+            <img src="https://picsum.photos/id/119/1920/1080" alt="田间活动背景" class="w-full h-full object-cover object-center opacity-30">
+        </div>
+        
+        <div class="relative z-10 max-w-4xl mx-auto text-center">
+            <h1 class="text-5xl md:text-7xl font-display leading-tight mb-6 text-gold text-shadow">
+                田间活动
+            </h1>
+            <p class="text-xl md:text-2xl font-sans max-w-2xl mx-auto mb-8 text-text">
+                在自然的课堂里，让文字与麦穗一起生长
+            </p>
+            
+            <!-- 活动分类筛选 -->
+            <div class="flex flex-wrap justify-center gap-3 mb-4">
+                <button class="px-4 py-2 bg-gold text-white rounded-full text-sm font-medium hover:bg-goldDark transition-colors">
+                    全部活动
+                </button>
+                <button class="px-4 py-2 bg-white text-text rounded-full text-sm font-medium hover:bg-goldLight transition-colors">
+                    诗歌朗诵
+                </button>
+                <button class="px-4 py-2 bg-white text-text rounded-full text-sm font-medium hover:bg-goldLight transition-colors">
+                    写作工坊
+                </button>
+                <button class="px-4 py-2 bg-white text-text rounded-full text-sm font-medium hover:bg-goldLight transition-colors">
+                    田野采风
+                </button>
+                <button class="px-4 py-2 bg-white text-text rounded-full text-sm font-medium hover:bg-goldLight transition-colors">
+                    收获分享
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <main class="relative z-10 container mx-auto px-4 py-12">
+        <!-- 即将举行的活动 -->
+        <section class="mb-20">
+            <div class="flex items-center justify-between mb-10">
+                <h2 class="text-3xl md:text-4xl font-display text-text inline-block relative">
+                    即将举行
+                    <span class="absolute -bottom-3 left-0 w-1/2 h-1 bg-gold"></span>
+                </h2>
+                <span class="hidden md:inline-block px-3 py-1 bg-gold/10 text-gold rounded-full text-sm font-medium">
+                    3场活动即将开始
+                </span>
+            </div>
+
+            <!-- 重点活动 -->
+            <div class="bg-white rounded-2xl overflow-hidden shadow-md mb-10 hover-lift">
+                <div class="grid grid-cols-1 lg:grid-cols-5">
+                    <div class="lg:col-span-2 relative h-64 lg:h-auto">
+                        <img src="https://picsum.photos/id/132/800/600" alt="麦田诗歌节" class="w-full h-full object-cover">
+                        <div class="activity-date">10月28日</div>
+                        <div class="activity-tag">
+                            <i class="fa fa-microphone mr-1"></i> 诗歌朗诵
+                        </div>
+                        <div class="absolute top-4 left-4 bg-gold text-white text-xs font-bold px-2 py-1 rounded flex items-center">
+                            <i class="fa fa-star mr-1"></i> 重点活动
+                        </div>
+                    </div>
+                    <div class="lg:col-span-3 p-8">
+                        <h3 class="text-2xl md:text-3xl font-display text-text mb-3">第六届麦田诗歌节</h3>
+                        <div class="flex flex-wrap items-center gap-x-6 gap-y-2 mb-6 text-text/70">
+                            <div class="flex items-center">
+                                <i class="fa fa-calendar mr-2 text-gold"></i> 2023.10.28 14:00-17:30
+                            </div>
+                            <div class="flex items-center">
+                                <i class="fa fa-map-marker mr-2 text-gold"></i> 青禾农场主会场
+                            </div>
+                            <div class="flex items-center">
+                                <i class="fa fa-user mr-2 text-gold"></i> 限60人
+                            </div>
+                        </div>
+                        <p class="text-text/80 mb-6 leading-relaxed">
+                            第六届麦田诗歌节将在金秋时节如约而至，我们将在金色的麦浪中朗诵原创诗歌，邀请知名诗人现场点评指导。活动包括诗歌创作分享、即兴朗诵、诗歌接龙等环节，让文字随秋风在田野间飘荡。
+                        </p>
+                        <div class="flex flex-wrap items-center gap-4">
+                            <span class="text-sm text-text/60"><i class="fa fa-clock-o mr-1 text-gold"></i> 活动时长：约3.5小时</span>
+                            <span class="text-sm text-text/60"><i class="fa fa-leaf mr-1 text-gold"></i> 适合人群：诗歌爱好者</span>
+                        </div>
+                        <div class="mt-6">
+                            <a href="#" class="inline-block bg-gold hover:bg-goldDark text-white font-bold px-6 py-2 rounded-full transition-all transform hover:scale-105">
+                                立即报名 <i class="fa fa-ticket ml-1"></i>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 其他即将举行的活动 -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                <!-- 活动1 -->
+                <div class="bg-white rounded-xl overflow-hidden shadow-md hover-lift relative">
+                    <div class="h-48 overflow-hidden">
+                        <img src="https://picsum.photos/id/110/600/400" alt="秋日写作工坊" class="w-full h-full object-cover transition-transform duration-700 hover:scale-110">
+                        <div class="activity-date">11月5日</div>
+                        <div class="activity-tag">
+                            <i class="fa fa-pencil mr-1"></i> 写作工坊
+                        </div>
+                    </div>
+                    <div class="p-6">
+                        <h3 class="text-xl font-display text-text mb-2">秋日写作工坊：收获的文字</h3>
+                        <div class="flex flex-wrap items-center gap-x-4 gap-y-1 mb-4 text-sm text-text/70">
+                            <div class="flex items-center"><i class="fa fa-clock-o mr-1 text-gold"></i> 10:00-12:00</div>
+                            <div class="flex items-center"><i class="fa fa-map-marker mr-1 text-gold"></i> 麦田书屋</div>
+                        </div>
+                        <p class="text-text/80 mb-4 text-sm line-clamp-2">
+                            以"收获"为主题的写作工作坊，在专业作家的指导下，将秋日的感悟转化为文字，记录季节的馈赠。
+                        </p>
+                        <a href="#" class="text-gold hover:text-goldDark inline-flex items-center transition-colors font-medium text-sm">
+                            查看详情 <i class="fa fa-angle-right ml-1"></i>
+                        </a>
+                    </div>
+                </div>
+
+                <!-- 活动2 -->
+                <div class="bg-white rounded-xl overflow-hidden shadow-md hover-lift relative">
+                    <div class="h-48 overflow-hidden">
+                        <img src="https://picsum.photos/id/129/600/400" alt="田间采风活动" class="w-full h-full object-cover transition-transform duration-700 hover:scale-110">
+                        <div class="activity-date">11月12日</div>
+                        <div class="activity-tag">
+                            <i class="fa fa-camera mr-1"></i> 田野采风
+                        </div>
+                    </div>
+                    <div class="p-6">
+                        <h3 class="text-xl font-display text-text mb-2">初冬田野采风：寻找季节的痕迹</h3>
+                        <div class="flex flex-wrap items-center gap-x-4 gap-y-1 mb-4 text-sm text-text/70">
+                            <div class="flex items-center"><i class="fa fa-clock-o mr-1 text-gold"></i> 09:30-16:00</div>
+                            <div class="flex items-center"><i class="fa fa-map-marker mr-1 text-gold"></i> 清溪湿地</div>
+                        </div>
+                        <p class="text-text/80 mb-4 text-sm line-clamp-2">
+                            走出书房，走进自然，在初冬的田野间寻找创作灵感，用文字和镜头记录季节变换的微妙痕迹。
+                        </p>
+                        <a href="#" class="text-gold hover:text-goldDark inline-flex items-center transition-colors font-medium text-sm">
+                            查看详情 <i class="fa fa-angle-right ml-1"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 往期活动回顾 -->
+        <section class="mb-20">
+            <div class="flex items-center justify-between mb-10">
+                <h2 class="text-3xl md:text-4xl font-display text-text inline-block relative">
+                    往期回顾
+                    <span class="absolute -bottom-3 left-0 w-1/2 h-1 bg-gold"></span>
+                </h2>
+                <a href="#" class="text-gold hover:text-goldDark transition-colors font-medium flex items-center">
+                    查看全部活动 <i class="fa fa-angle-right ml-1"></i>
+                </a>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                <!-- 往期活动1 -->
+                <div class="bg-white rounded-xl overflow-hidden shadow-md hover-lift group">
+                    <div class="h-56 overflow-hidden relative">
+                        <img src="https://picsum.photos/id/134/600/400" alt="春耕诗歌会" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110">
+                        <div class="absolute inset-0 bg-gradient-to-t from-text/70 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end">
+                            <div class="p-4 text-white">
+                                <span class="text-sm">2023.04.05</span>
+                                <p class="font-medium">共32人参与</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="p-6">
+                        <h3 class="text-xl font-display text-text mb-2">春耕诗歌会：泥土里的诗行</h3>
+                        <p class="text-text/80 mb-4 text-sm line-clamp-3">
+                            在播种的季节，我们来到田间地头，朗诵与土地、生命和希望有关的诗歌，在新翻的泥土气息中感受文字的力量。
+                        </p>
+                        <a href="#" class="text-gold hover:text-goldDark inline-flex items-center transition-colors font-medium text-sm">
+                            活动回顾 <i class="fa fa-long-arrow-right ml-1"></i>
+                        </a>
+                    </div>
+                </div>
+
+                <!-- 往期活动2 -->
+                <div class="bg-white rounded-xl overflow-hidden shadow-md hover-lift group">
+                    <div class="h-56 overflow-hidden relative">
+                        <img src="https://picsum.photos/id/142/600/400" alt="夏日读书分享会" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110">
+                        <div class="absolute inset-0 bg-gradient-to-t from-text/70 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end">
+                            <div class="p-4 text-white">
+                                <span class="text-sm">2023.07.15</span>
+                                <p class="font-medium">共45人参与</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="p-6">
+                        <h3 class="text-xl font-display text-text mb-2">夏日读书分享会：树荫下的文字</h3>
+                        <p class="text-text/80 mb-4 text-sm line-clamp-3">
+                            炎炎夏日，我们在老槐树下分享各自喜爱的书籍，讨论文字如何像树荫一样为我们提供心灵的庇护。
+                        </p>
+                        <a href="#" class="text-gold hover:text-goldDark inline-flex items-center transition-colors font-medium text-sm">
+                            活动回顾 <i class="fa fa-long-arrow-right ml-1"></i>
+                        </a>
+                    </div>
+                </div>
+
+                <!-- 往期活动3 -->
+                <div class="bg-white rounded-xl overflow-hidden shadow-md hover-lift group">
+                    <div class="h-56 overflow-hidden relative">
+                        <img src="https://picsum.photos/id/163/600/400" alt="中秋诗会" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110">
+                        <div class="absolute inset-0 bg-gradient-to-t from-text/70 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end">
+                            <div class="p-4 text-white">
+                                <span class="text-sm">2023.09.29</span>
+                                <p class="font-medium">共58人参与</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="p-6">
+                        <h3 class="text-xl font-display text-text mb-2">中秋诗会：月光下的吟诵</h3>
+                        <p class="text-text/80 mb-4 text-sm line-clamp-3">
+                            中秋月圆之夜，我们围坐在一起，吟诵关于月亮、故乡和思念的诗歌，让文字随着月光洒满田野。
+                        </p>
+                        <a href="#" class="text-gold hover:text-goldDark inline-flex items-center transition-colors font-medium text-sm">
+                            活动回顾 <i class="fa fa-long-arrow-right ml-1"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 活动精彩瞬间（修改后画廊版） -->
+        <section class="mb-20">
+            <div class="text-center mb-12">
+                <h2 class="text-3xl md:text-4xl font-display text-text inline-block relative">
+                    精彩瞬间
+                    <span class="absolute -bottom-3 left-1/2 transform -translate-x-1/2 w-1/2 h-1 bg-gold"></span>
+                </h2>
+                <p class="mt-4 text-text/70 max-w-2xl mx-auto">
+                    每一次相聚都是珍贵的回忆，每一个瞬间都值得被记录
+                </p>
+            </div>
+
+            <!-- 大图展示区域 -->
+            <div class="mb-6 rounded-xl overflow-hidden shadow-md bg-white p-2">
+                <div class="aspect-video relative">
+                    <img id="gallery-main" src="https://picsum.photos/id/111/1200/675" alt="活动精彩瞬间" class="w-full h-full object-cover transition-opacity duration-300">
+                    <div class="absolute bottom-4 left-4 bg-text/70 text-white px-3 py-1 rounded-full text-sm backdrop-blur-sm">
+                        <span id="image-caption">麦田诗歌朗诵现场</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 缩略图滚动区域 -->
+            <div class="relative">
+                <!-- 滚动控制按钮 -->
+                <button id="scroll-left" class="absolute left-0 top-1/2 -translate-y-1/2 z-10 bg-white/80 hover:bg-white text-gold w-10 h-10 rounded-full flex items-center justify-center shadow-md backdrop-blur-sm transition-all">
+                    <i class="fa fa-angle-left text-xl"></i>
+                </button>
+                
+                <!-- 缩略图容器 -->
+                <div class="overflow-x-auto pb-2 scrollbar-hide" style="scrollbar-width: none;">
+                    <div class="flex gap-3 pl-12 pr-12 min-w-max">
+                        <!-- 缩略图项 -->
+                        <div class="gallery-thumb cursor-pointer w-24 h-24 rounded-lg overflow-hidden border-2 border-gold hover-lift">
+                            <img src="https://picsum.photos/id/111/200/200" alt="麦田诗歌朗诵现场" data-caption="麦田诗歌朗诵现场" class="w-full h-full object-cover">
+                        </div>
+                        <div class="gallery-thumb cursor-pointer w-24 h-24 rounded-lg overflow-hidden border-2 border-transparent hover:border-gold hover-lift">
+                            <img src="https://picsum.photos/id/125/200/200" alt="写作工坊交流" data-caption="写作工坊交流" class="w-full h-full object-cover">
+                        </div>
+                        <div class="gallery-thumb cursor-pointer w-24 h-24 rounded-lg overflow-hidden border-2 border-transparent hover:border-gold hover-lift">
+                            <img src="https://picsum.photos/id/137/200/200" alt="田间采风活动" data-caption="田间采风活动" class="w-full h-full object-cover">
+                        </div>
+                        <div class="gallery-thumb cursor-pointer w-24 h-24 rounded-lg overflow-hidden border-2 border-transparent hover:border-gold hover-lift">
+                            <img src="https://picsum.photos/id/148/200/200" alt="中秋诗会现场" data-caption="中秋诗会现场" class="w-full h-full object-cover">
+                        </div>
+                        <div class="gallery-thumb cursor-pointer w-24 h-24 rounded-lg overflow-hidden border-2 border-transparent hover:border-gold hover-lift">
+                            <img src="https://picsum.photos/id/152/200/200" alt="作者分享会" data-caption="作者分享会" class="w-full h-full object-cover">
+                        </div>
+                        <div class="gallery-thumb cursor-pointer w-24 h-24 rounded-lg overflow-hidden border-2 border-transparent hover:border-gold hover-lift">
+                            <img src="https://picsum.photos/id/167/200/200" alt="诗歌创作现场" data-caption="诗歌创作现场" class="w-full h-full object-cover">
+                        </div>
+                        <div class="gallery-thumb cursor-pointer w-24 h-24 rounded-lg overflow-hidden border-2 border-transparent hover:border-gold hover-lift">
+                            <img src="https://picsum.photos/id/177/200/200" alt="作品朗诵会" data-caption="作品朗诵会" class="w-full h-full object-cover">
+                        </div>
+                        <div class="gallery-thumb cursor-pointer w-24 h-24 rounded-lg overflow-hidden border-2 border-transparent hover:border-gold hover-lift">
+                            <img src="https://picsum.photos/id/180/200/200" alt="文学交流会" data-caption="文学交流会" class="w-full h-full object-cover">
+                        </div>
+                        <div class="gallery-thumb cursor-pointer w-24 h-24 rounded-lg overflow-hidden border-2 border-transparent hover:border-gold hover-lift">
+                            <img src="https://picsum.photos/id/184/200/200" alt="自然观察活动" data-caption="自然观察活动" class="w-full h-full object-cover">
+                        </div>
+                        <div class="gallery-thumb cursor-pointer w-24 h-24 rounded-lg overflow-hidden border-2 border-transparent hover:border-gold hover-lift">
+                            <img src="https://picsum.photos/id/192/200/200" alt="书籍分享会" data-caption="书籍分享会" class="w-full h-full object-cover">
+                        </div>
+                    </div>
+                </div>
+                
+                <button id="scroll-right" class="absolute right-0 top-1/2 -translate-y-1/2 z-10 bg-white/80 hover:bg-white text-gold w-10 h-10 rounded-full flex items-center justify-center shadow-md backdrop-blur-sm transition-all">
+                    <i class="fa fa-angle-right text-xl"></i>
+                </button>
+            </div>
+
+            <div class="text-center mt-8">
+                <a href="#" class="inline-block border-2 border-gold text-gold hover:bg-gold hover:text-white font-medium px-6 py-2 rounded-full transition-colors">
+                    查看全部照片 <i class="fa fa-images ml-1"></i>
+                </a>
+            </div>
+        </section>
+
+        <!-- 活动报名须知 -->
+        <section class="mb-20 bg-wheat/30 rounded-2xl p-8 md:p-10">
+            <h2 class="text-3xl md:text-4xl font-display text-text mb-8 text-center">
+                活动报名须知
+            </h2>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                <div>
+                    <h3 class="text-xl font-display text-text mb-4 flex items-center">
+                        <i class="fa fa-info-circle text-gold mr-2"></i> 报名方式
+                    </h3>
+                    <ul class="space-y-3 text-text/80">
+                        <li class="flex items-start">
+                            <i class="fa fa-check-circle text-gold mt-1 mr-2"></i>
+                            <span>点击活动详情页中的"立即报名"按钮，填写个人信息</span>
+                        </li>
+                        <li class="flex items-start">
+                            <i class="fa fa-check-circle text-gold mt-1 mr-2"></i>
+                            <span>报名成功后将收到邮件确认及活动详情</span>
+                        </li>
+                        <li class="flex items-start">
+                            <i class="fa fa-check-circle text-gold mt-1 mr-2"></i>
+                            <span>部分户外活动需缴纳少量物料费，详情见各活动说明</span>
+                        </li>
+                        <li class="flex items-start">
+                            <i class="fa fa-check-circle text-gold mt-1 mr-2"></i>
+                            <span>活动名额有限，先到先得，额满即止</span>
+                        </li>
+                    </ul>
+                </div>
+                
+                <div>
+                    <h3 class="text-xl font-display text-text mb-4 flex items-center">
+                        <i class="fa fa-exclamation-circle text-gold mr-2"></i> 注意事项
+                    </h3>
+                    <ul class="space-y-3 text-text/80">
+                        <li class="flex items-start">
+                            <i class="fa fa-check-circle text-gold mt-1 mr-2"></i>
+                            <span>请提前15分钟到达活动现场签到，迟到可能影响参与体验</span>
+                        </li>
+                        <li class="flex items-start">
+                            <i class="fa fa-check-circle text-gold mt-1 mr-2"></i>
+                            <span>田野活动请穿着舒适的衣物和鞋子，做好防晒或防雨准备</span>
+                        </li>
+                        <li class="flex items-start">
+                            <i class="fa fa-check-circle text-gold mt-1 mr-2"></i>
+                            <span>写作类活动建议携带笔记本和笔，也可带电脑或平板</span>
+                        </li>
+                        <li class="flex items-start">
+                            <i class="fa fa-check-circle text-gold mt-1 mr-2"></i>
+                            <span>如无法参加，请提前24小时告知，以便将名额让给其他参与者</span>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <!-- 活动预告订阅 -->
+        <section class="bg-gold text-white rounded-2xl p-8 md:p-12 text-center">
+            <h2 class="text-3xl md:text-4xl font-display mb-6">
+                不错过任何一场精彩活动
+            </h2>
+            <p class="text-white/90 max-w-2xl mx-auto mb-8 text-lg">
+                订阅我们的活动预告，第一时间获取最新活动信息，优先获得报名资格
+            </p>
+            
+            <form class="max-w-md mx-auto flex flex-col sm:flex-row gap-3">
+                <input type="email" placeholder="输入你的邮箱地址" class="flex-1 px-4 py-3 rounded-full focus:outline-none text-text">
+                <button type="submit" class="bg-text hover:bg-text/80 text-white font-bold px-6 py-3 rounded-full transition-colors whitespace-nowrap">
+                    订阅活动预告
+                </button>
+            </form>
+            <p class="text-white/70 text-sm mt-4">
+                我们尊重你的隐私，不会向第三方分享你的信息
+            </p>
+        </section>
+    </main>
+
+    <!-- 页脚 -->
+    <footer class="relative z-10 bg-text text-white py-12 px-4 mt-16">
+        <div class="container mx-auto">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8 mb-10">
+                <div>
+                    <div class="flex items-center mb-6">
+                        <div class="w-10 h-10 rounded-full bg-gold flex items-center justify-center mr-3">
+                            <i class="fa fa-pencil text-white"></i>
+                        </div>
+                        <div class="text-2xl font-display">
+                            <span class="text-gold">麦</span>
+                            <span class="text-cream">芒</span>
+                            <span class="text-goldLight">文学社</span>
+                        </div>
+                    </div>
+                    <p class="text-white/80">
+                        青春如穗，文字如芒。我们在文字的田野里，播种、生长、收获。
+                    </p>
+                </div>
+                
+                <div>
+                    <h4 class="text-xl font-display text-gold mb-4">联系我们</h4>
+                    <ul class="space-y-3 text-white/80">
+                        <li class="flex items-center"><i class="fa fa-envelope-o mr-2 text-goldLight"></i> wheat@maimang.org</li>
+                        <li class="flex items-center"><i class="fa fa-map-marker mr-2 text-goldLight"></i> 青春路88号麦田书屋</li>
+                        <li class="flex items-center"><i class="fa fa-phone mr-2 text-goldLight"></i> 138-xxxx-8877</li>
+                    </ul>
+                </div>
+                
+                <div>
+                    <h4 class="text-xl font-display text-gold mb-4">关注我们</h4>
+                    <p class="text-white/80 mb-4">在社交媒体上，感受文字的生长力量</p>
+                    <div class="flex space-x-4">
+                        <a href="#" class="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center hover:bg-gold transition-colors">
+                            <i class="fa fa-weixin"></i>
+                        </a>
+                        <a href="#" class="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center hover:bg-gold transition-colors">
+                            <i class="fa fa-weibo"></i>
+                        </a>
+                        <a href="#" class="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center hover:bg-gold transition-colors">
+                            <i class="fa fa-instagram"></i>
+                        </a>
+                    </div>
+                    
+                    <div class="mt-8">
+                        <h5 class="text-white/80 mb-2">订阅我们的电子麦报</h5>
+                        <form class="flex">
+                            <input type="email" placeholder="你的邮箱" class="px-4 py-2 rounded-l-lg focus:outline-none text-text flex-1">
+                            <button type="submit" class="bg-gold text-white px-4 py-2 rounded-r-lg hover:bg-goldDark transition-colors">
+                                订阅
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="border-t border-white/20 pt-6 text-center text-white/60 text-sm">
+                <p>© 2023 麦芒文学社 | 青春如穗，文字如芒 | 在文字的田野里收获成长</p>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // 滚动显示动画
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add('opacity-100', 'translate-y-0');
+                        entry.target.classList.remove('opacity-0', 'translate-y-10');
+                    }
+                });
+            }, { threshold: 0.1 });
+
+            // 为所有主要区块添加动画
+            document.querySelectorAll('section').forEach(item => {
+                item.classList.add('transition-all', 'duration-700', 'opacity-0', 'translate-y-10');
+                observer.observe(item);
+            });
+
+            // 平滑滚动
+            document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+                anchor.addEventListener('click', function (e) {
+                    e.preventDefault();
+                    const targetId = this.getAttribute('href');
+                    if (targetId !== '#') {
+                        const targetElement = document.querySelector(targetId);
+                        if (targetElement) {
+                            window.scrollTo({
+                                top: targetElement.offsetTop - 80,
+                                behavior: 'smooth'
+                            });
+                        }
+                    }
+                });
+            });
+
+            // 图片加载动画
+            const images = document.querySelectorAll('img');
+            images.forEach(img => {
+                img.classList.add('opacity-0', 'transition-opacity', 'duration-700');
+                img.onload = function() {
+                    this.classList.remove('opacity-0');
+                    this.classList.add('opacity-100');
+                }
+                if (img.complete) {
+                    img.classList.remove('opacity-0');
+                    img.classList.add('opacity-100');
+                }
+            });
+
+            // 活动分类筛选交互
+            const filterButtons = document.querySelectorAll('.flex-wrap button');
+            filterButtons.forEach(button => {
+                button.addEventListener('click', () => {
+                    // 移除所有按钮的活跃状态
+                    filterButtons.forEach(btn => {
+                        btn.classList.remove('bg-gold', 'text-white');
+                        btn.classList.add('bg-white', 'text-text');
+                    });
+                    
+                    // 设置当前按钮为活跃状态
+                    button.classList.remove('bg-white', 'text-text');
+                    button.classList.add('bg-gold', 'text-white');
+                });
+            });
+
+            // 画廊功能实现
+            const mainImage = document.getElementById('gallery-main');
+            const imageCaption = document.getElementById('image-caption');
+            const thumbnails = document.querySelectorAll('.gallery-thumb');
+            const scrollLeftBtn = document.getElementById('scroll-left');
+            const scrollRightBtn = document.getElementById('scroll-right');
+            const thumbnailContainer = document.querySelector('.overflow-x-auto');
+            
+            // 缩略图点击事件
+            thumbnails.forEach(thumb => {
+                thumb.addEventListener('click', () => {
+                    // 移除所有缩略图的选中状态
+                    thumbnails.forEach(t => t.classList.remove('border-gold'));
+                    thumbnails.forEach(t => t.classList.add('border-transparent'));
+                    
+                    // 添加当前缩略图的选中状态
+                    thumb.classList.remove('border-transparent');
+                    thumb.classList.add('border-gold');
+                    
+                    // 获取缩略图信息并更新大图
+                    const thumbImg = thumb.querySelector('img');
+                    const largeSrc = thumbImg.src.replace('/200/200', '/1200/675'); // 替换为大图尺寸
+                    
+                    // 添加强制加载效果
+                    mainImage.style.opacity = '0.5';
+                    const tempImg = new Image();
+                    tempImg.src = largeSrc;
+                    tempImg.onload = function() {
+                        mainImage.src = largeSrc;
+                        mainImage.style.opacity = '1';
+                        imageCaption.textContent = thumbImg.dataset.caption;
+                    }
+                });
+            });
+            
+            // 滚动控制
+            scrollLeftBtn.addEventListener('click', () => {
+                thumbnailContainer.scrollBy({ left: -300, behavior: 'smooth' });
+            });
+            
+            scrollRightBtn.addEventListener('click', () => {
+                thumbnailContainer.scrollBy({ left: 300, behavior: 'smooth' });
+            });
+            
+            // 隐藏滚动条但保留功能
+            thumbnailContainer.addEventListener('scroll', () => {
+                // 根据滚动位置显示/隐藏控制按钮
+                if (thumbnailContainer.scrollLeft <= 50) {
+                    scrollLeftBtn.classList.add('opacity-50', 'pointer-events-none');
+                } else {
+                    scrollLeftBtn.classList.remove('opacity-50', 'pointer-events-none');
+                }
+                
+                const maxScroll = thumbnailContainer.scrollWidth - thumbnailContainer.clientWidth - 50;
+                if (thumbnailContainer.scrollLeft >= maxScroll) {
+                    scrollRightBtn.classList.add('opacity-50', 'pointer-events-none');
+                } else {
+                    scrollRightBtn.classList.remove('opacity-50', 'pointer-events-none');
+                }
+            });
+            
+            // 初始化按钮状态
+            scrollLeftBtn.classList.add('opacity-50', 'pointer-events-none');
+        });
+    </script>
+</body>
+</html>

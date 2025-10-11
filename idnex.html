@@ -1,0 +1,590 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>麦芒文学社 - 青春如穗，文字如芒</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        cream: '#FFFDF5',      // 奶油白底色，更明亮
+                        light: '#FFFEF8',      // 超浅底色
+                        gold: '#FFD747',       // 明亮黄色
+                        goldLight: '#FFF3C0',  // 浅金色
+                        goldDark: '#F5C332',   // 深一点的金色
+                        wheat: '#FFEDCC',      // 小麦色
+                        text: '#594B36',       // 文字颜色，温暖的深棕色
+                    },
+                    fontFamily: {
+                        sans: ['"Nunito"', 'sans-serif'],
+                        display: ['"Quicksand"', 'sans-serif']
+                    }
+                }
+            }
+        }
+    </script>
+    <style type="text/tailwindcss">
+        @layer utilities {
+            .text-float {
+                animation: textFloat 6s ease-in-out infinite;
+            }
+            .float-random {
+                animation: float 8s ease-in-out infinite;
+            }
+            .spin-slow {
+                animation: spin 20s linear infinite;
+            }
+            .wheat-pattern {
+                background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23FFD747' fill-opacity='0.1'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+            }
+            .diagonal-cut {
+                clip-path: polygon(0 0, 100% 0, 100% 90%, 0 100%);
+            }
+            .hover-lift {
+                transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            }
+            .hover-lift:hover {
+                transform: translateY(-8px) rotate(1deg);
+                box-shadow: 0 15px 30px rgba(0, 0, 0, 0.05);
+            }
+            .text-shadow {
+                text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.05);
+            }
+            .form-focus {
+                @apply focus:border-gold focus:ring-2 focus:ring-gold/20 focus:outline-none;
+            }
+        }
+
+        @keyframes float {
+            0% { transform: translateY(0px) rotate(0deg); }
+            50% { transform: translateY(-12px) rotate(2deg); }
+            100% { transform: translateY(0px) rotate(0deg); }
+        }
+
+        @keyframes textFloat {
+            0% { transform: translateY(0px); }
+            50% { transform: translateY(-8px); }
+            100% { transform: translateY(0px); }
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700&family=Quicksand:wght@500;600;700&display=swap" rel="stylesheet">
+</head>
+<body class="bg-cream wheat-pattern text-text antialiased">
+    <!-- 漂浮装饰元素 -->
+    <div class="fixed inset-0 z-0 overflow-hidden pointer-events-none opacity-20">
+        <div class="absolute top-[8%] left-[3%] text-5xl font-display text-gold float-random" style="animation-delay: 0s">麦</div>
+        <div class="absolute top-[25%] right-[8%] text-4xl font-display text-text float-random" style="animation-delay: 1s">芒</div>
+        <div class="absolute bottom-[25%] left-[15%] text-6xl font-display text-gold float-random" style="animation-delay: 2s">青</div>
+        <div class="absolute bottom-[35%] right-[12%] text-3xl font-display text-gold float-random" style="animation-delay: 3s">春</div>
+        <div class="absolute top-[55%] left-[8%] text-4xl font-display text-text float-random" style="animation-delay: 1.5s">收</div>
+        <div class="absolute top-[15%] right-[18%] text-5xl font-display text-gold float-random" style="animation-delay: 2.5s">获</div>
+    </div>
+
+    <!-- 导航栏 -->
+    <nav class="relative z-50 py-4 px-4 md:px-8 bg-cream/90 backdrop-blur-sm sticky top-0 shadow-sm">
+        <div class="flex flex-wrap justify-between items-center">
+            <div class="flex items-center">
+                <div class="w-10 h-10 rounded-full bg-gold flex items-center justify-center mr-3 spin-slow">
+                    <i class="fa fa-pencil text-white"></i>
+                </div>
+                <div class="text-2xl md:text-3xl font-display">
+                    <span class="text-gold">麦</span>
+                    <span class="text-text">芒</span>
+                    <span class="text-goldDark">文学社</span>
+                </div>
+            </div>
+            
+            <div class="flex flex-wrap gap-2 md:gap-6 justify-end mt-4 md:mt-0">
+                <a href="#about" class="px-3 py-2 text-text hover:text-gold transition-colors">关于我们</a>
+                <a href="#works" class="px-3 py-2 text-text hover:text-gold transition-colors">青春作品</a>
+                <a href="#activities" class="px-3 py-2 text-text hover:text-gold transition-colors">田间活动</a>
+                <a href="#login" class="px-4 py-2 bg-gold text-white rounded-full hover:bg-goldDark transition-colors shadow-sm">登录 / 注册</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- 头部区域 -->
+    <header class="relative z-10 min-h-[85vh] flex items-center justify-center px-4 overflow-hidden">
+        <div class="absolute inset-0 z-0">
+            <div class="absolute inset-0 bg-gradient-to-b from-gold/5 to-cream/80"></div>
+            <img src="https://picsum.photos/id/142/1920/1080" alt="麦田背景" class="w-full h-full object-cover object-center opacity-50">
+        </div>
+        
+        <div class="relative z-10 text-center max-w-4xl">
+            <h1 class="text-5xl md:text-8xl font-display leading-none mb-6 text-gold text-shadow">
+                <span class="block transform -rotate-1">青春如穗</span>
+                <span class="block transform rotate-1 text-text">文字如芒</span>
+            </h1>
+            <p class="text-xl md:text-2xl font-sans max-w-2xl mx-auto mb-8 text-text">
+                我们在文字的田野里播种、生长、收获，让每一个字符都带着阳光的温度
+            </p>
+            <a href="#join" class="inline-block bg-gold hover:bg-goldDark text-white font-bold px-8 py-3 rounded-full transition-all transform hover:scale-105 hover:shadow-md">
+                加入这片田野
+            </a>
+        </div>
+    </header>
+
+    <main class="relative z-10 container mx-auto px-4 py-16">
+        <!-- 关于我们 -->
+        <section id="about" class="mb-24">
+            <div class="text-center mb-12">
+                <h2 class="text-4xl md:text-5xl font-display text-text inline-block relative">
+                    我们的故事
+                    <span class="absolute -bottom-3 left-1/2 transform -translate-x-1/2 w-3/4 h-1 bg-gold"></span>
+                </h2>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-10 items-center">
+                <div class="order-2 md:order-1">
+                    <h3 class="text-2xl font-display text-gold mb-6">麦芒的意义</h3>
+                    <p class="mb-4 leading-relaxed text-lg">
+                        麦芒是麦穗上守护果实的锋芒，既坚韧又温柔。我们相信文字也该如此——带着青春的锐气，又饱含成长的温度。
+                    </p>
+                    <p class="mb-8 leading-relaxed text-lg">
+                        麦芒文学社诞生于2018年的金色秋天，一群热爱文字的年轻人在麦田边约定：要让每一个文字都像麦粒般饱满，像麦芒般真诚。
+                    </p>
+                    
+                    <div class="grid grid-cols-3 gap-4 text-center">
+                        <div class="bg-white p-5 rounded-xl shadow-sm hover-lift">
+                            <div class="text-3xl text-gold mb-3"><i class="fa fa-book"></i></div>
+                            <p class="text-text font-medium">500+ 原创作品</p>
+                        </div>
+                        <div class="bg-white p-5 rounded-xl shadow-sm hover-lift">
+                            <div class="text-3xl text-gold mb-3"><i class="fa fa-users"></i></div>
+                            <p class="text-text font-medium">120+ 社员</p>
+                        </div>
+                        <div class="bg-white p-5 rounded-xl shadow-sm hover-lift">
+                            <div class="text-3xl text-gold mb-3"><i class="fa fa-calendar"></i></div>
+                            <p class="text-text font-medium">45+ 田野活动</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="order-1 md:order-2 relative">
+                    <div class="w-full h-[420px] rounded-xl overflow-hidden shadow-md transform rotate-1">
+                        <img src="https://picsum.photos/id/119/600/800" alt="麦芒文学社活动" class="w-full h-full object-cover">
+                    </div>
+                    <div class="absolute -bottom-6 -left-6 w-36 h-36 rounded-xl overflow-hidden shadow-md transform -rotate-6 hidden md:block">
+                        <img src="https://picsum.photos/id/120/300/300" alt="文学社细节" class="w-full h-full object-cover">
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 作品展示 -->
+        <section id="works" class="mb-24">
+            <div class="text-center mb-12">
+                <h2 class="text-4xl md:text-5xl font-display text-text inline-block relative">
+                    文字的果实
+                    <span class="absolute -bottom-3 left-1/2 transform -translate-x-1/2 w-3/4 h-1 bg-gold"></span>
+                </h2>
+                <p class="mt-4 text-text/80 max-w-2xl mx-auto text-lg">每一篇作品都是我们在青春田野里收获的果实</p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                <!-- 作品1 -->
+                <div class="bg-white rounded-xl overflow-hidden shadow-md hover-lift">
+                    <div class="h-52 relative overflow-hidden">
+                        <img src="https://picsum.photos/id/118/600/400" alt="作品配图" class="w-full h-full object-cover transition-transform duration-700 hover:scale-110">
+                        <div class="absolute inset-0 bg-gradient-to-t from-text/60 to-transparent"></div>
+                        <div class="absolute bottom-4 left-4 text-white">
+                            <span class="px-3 py-1 bg-gold/90 text-white text-sm rounded-full">诗歌</span>
+                        </div>
+                    </div>
+                    <div class="p-6">
+                        <h3 class="text-xl font-display text-text mb-2">《麦田上的云》</h3>
+                        <p class="text-sm text-gold mb-3">作者：风之子 | 2023.06</p>
+                        <p class="text-text/80 mb-4 line-clamp-3">
+                            云在麦田上投下影子<br>
+                            像未写完的诗行<br>
+                            麦芒刺破阳光<br>
+                            落下一地碎金<br>
+                            我们躺在田埂上<br>
+                            让风读我们的青春
+                        </p>
+                        <a href="#" class="text-gold hover:text-goldDark inline-flex items-center transition-colors font-medium">
+                            阅读全文 <i class="fa fa-long-arrow-right ml-1"></i>
+                        </a>
+                    </div>
+                </div>
+
+                <!-- 作品2 -->
+                <div class="bg-white rounded-xl overflow-hidden shadow-md hover-lift transform translate-y-6">
+                    <div class="h-52 relative overflow-hidden">
+                        <img src="https://picsum.photos/id/164/600/400" alt="作品配图" class="w-full h-full object-cover transition-transform duration-700 hover:scale-110">
+                        <div class="absolute inset-0 bg-gradient-to-t from-text/60 to-transparent"></div>
+                        <div class="absolute bottom-4 left-4 text-white">
+                            <span class="px-3 py-1 bg-gold/90 text-white text-sm rounded-full">散文</span>
+                        </div>
+                    </div>
+                    <div class="p-6">
+                        <h3 class="text-xl font-display text-text mb-2">《晒谷场的黄昏》</h3>
+                        <p class="text-sm text-gold mb-3">作者：麦小穗 | 2023.08</p>
+                        <p class="text-text/80 mb-4 line-clamp-3">
+                            夕阳把晒谷场变成金色的海洋，谷粒在木锨翻动间跳跃，像无数个饱满的词语。爷爷说，好的文字要像晒透的谷子，经得起时间的晾晒，每一粒都有分量。
+                        </p>
+                        <a href="#" class="text-gold hover:text-goldDark inline-flex items-center transition-colors font-medium">
+                            阅读全文 <i class="fa fa-long-arrow-right ml-1"></i>
+                        </a>
+                    </div>
+                </div>
+
+                <!-- 作品3 -->
+                <div class="bg-white rounded-xl overflow-hidden shadow-md hover-lift">
+                    <div class="h-52 relative overflow-hidden">
+                        <img src="https://picsum.photos/id/122/600/400" alt="作品配图" class="w-full h-full object-cover transition-transform duration-700 hover:scale-110">
+                        <div class="absolute inset-0 bg-gradient-to-t from-text/60 to-transparent"></div>
+                        <div class="absolute bottom-4 left-4 text-white">
+                            <span class="px-3 py-1 bg-gold/90 text-white text-sm rounded-full">小说</span>
+                        </div>
+                    </div>
+                    <div class="p-6">
+                        <h3 class="text-xl font-display text-text mb-2">《稻草人日记》</h3>
+                        <p class="text-sm text-gold mb-3">作者：禾火 | 2023.07</p>
+                        <p class="text-text/80 mb-4 line-clamp-3">
+                            作为田野里的守望者，我见证了四季轮回。那些被风吹散的秘密，那些在月光下交换的心事，都藏在麦芒的缝隙里。直到有一天，一个写诗的女孩发现了我...
+                        </p>
+                        <a href="#" class="text-gold hover:text-goldDark inline-flex items-center transition-colors font-medium">
+                            阅读全文 <i class="fa fa-long-arrow-right ml-1"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <div class="mt-16 text-center">
+                <a href="#" class="inline-block border-2 border-gold text-gold hover:bg-gold hover:text-white px-6 py-3 rounded-full transition-colors transform hover:rotate-1 font-medium">
+                    查看更多收获 <i class="fa fa-arrow-right ml-2"></i>
+                </a>
+            </div>
+        </section>
+
+        <!-- 活动部分 -->
+        <section id="activities" class="mb-24">
+            <div class="text-center mb-12">
+                <h2 class="text-4xl md:text-5xl font-display text-text inline-block relative">
+                    田间活动
+                    <span class="absolute -bottom-3 left-1/2 transform -translate-x-1/2 w-3/4 h-1 bg-gold"></span>
+                </h2>
+                <p class="mt-4 text-text/80 max-w-2xl mx-auto text-lg">在自然中寻找灵感，在交流中共同成长</p>
+            </div>
+
+            <div class="relative">
+                <!-- 麦芒状时间线 -->
+                <div class="absolute left-0 md:left-1/2 top-0 bottom-0 w-1.5 bg-goldLight transform md:translate-x-0"></div>
+                
+                <!-- 活动1 -->
+                <div class="relative z-10 mb-16 md:mb-24">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
+                        <div class="md:text-right order-2 md:order-1">
+                            <span class="inline-block px-3 py-1 bg-gold text-white text-sm mb-3 transform rotate-1 rounded-full">即将开始</span>
+                            <h3 class="text-2xl font-display text-text mb-3">麦田诗歌朗诵会</h3>
+                            <p class="text-text/80 mb-4 text-lg">
+                                在金黄的麦田边，让诗歌随麦浪一起起伏。我们将朗读原创诗歌，听风吹过麦穗的声音，让自然成为最好的背景音乐。
+                            </p>
+                            <div class="flex items-center justify-end space-x-6">
+                                <span class="flex items-center text-gold"><i class="fa fa-calendar-o mr-2"></i> 6.18 周六</span>
+                                <span class="flex items-center text-gold"><i class="fa fa-map-marker mr-2"></i> 城郊麦田</span>
+                            </div>
+                        </div>
+                        <div class="order-1 md:order-2">
+                            <div class="w-full h-64 rounded-xl overflow-hidden shadow-md transform -rotate-1">
+                                <img src="https://picsum.photos/id/106/600/400" alt="麦田诗歌朗诵会" class="w-full h-full object-cover transition-transform duration-700 hover:scale-105">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 活动2 -->
+                <div class="relative z-10">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
+                        <div>
+                            <div class="w-full h-64 rounded-xl overflow-hidden shadow-md transform rotate-1">
+                                <img src="https://picsum.photos/id/132/600/400" alt="晒谷场创作工作坊" class="w-full h-full object-cover transition-transform duration-700 hover:scale-105">
+                            </div>
+                        </div>
+                        <div>
+                            <span class="inline-block px-3 py-1 bg-gold text-white text-sm mb-3 transform -rotate-1 rounded-full">即将开始</span>
+                            <h3 class="text-2xl font-display text-text mb-3">晒谷场创作工作坊</h3>
+                            <p class="text-text/80 mb-4 text-lg">
+                                以"收获"为主题，在传统晒谷场进行集体创作。我们将使用自然材料拼贴诗句，让文字与大地产生直接的连接。
+                            </p>
+                            <div class="flex items-center space-x-6">
+                                <span class="flex items-center text-gold"><i class="fa fa-calendar-o mr-2"></i> 7.2 周六</span>
+                                <span class="flex items-center text-gold"><i class="fa fa-map-marker mr-2"></i> 老谷场文创园</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 加入我们 -->
+        <section id="join" class="mb-16">
+            <div class="max-w-4xl mx-auto bg-white diagonal-cut shadow-md overflow-hidden">
+                <div class="p-8 md:p-12 relative z-10">
+                    <div class="absolute top-0 right-0 w-40 h-40 bg-gold/10 rounded-full -mr-20 -mt-20"></div>
+                    <div class="absolute bottom-0 left-0 w-60 h-60 bg-goldLight/30 rounded-full -ml-30 -mb-30"></div>
+                    
+                    <h2 class="text-4xl md:text-5xl font-display text-center mb-8 text-text relative">
+                        播下你的种子
+                    </h2>
+
+                    <p class="text-center mb-10 text-text/80 max-w-2xl mx-auto relative text-lg">
+                        每一个热爱文字的人都是一粒种子，加入我们，在这片文学的田野里扎根、生长
+                    </p>
+
+                    <form class="space-y-6 relative">
+                        <div>
+                            <label for="name" class="block text-text mb-2 font-medium">你的名字</label>
+                            <input type="text" id="name" placeholder="像麦穗一样独特的名字" class="w-full bg-cream border border-gold/30 text-text p-3 rounded-lg form-focus transition-all">
+                        </div>
+                        
+                        <div>
+                            <label for="inspiration" class="block text-text mb-2 font-medium">什么让你像麦芒一样锋芒毕露？</label>
+                            <textarea id="inspiration" rows="3" placeholder="是某本书、某个瞬间，还是对世界的好奇？" class="w-full bg-cream border border-gold/30 text-text p-3 rounded-lg form-focus transition-all"></textarea>
+                        </div>
+                        
+                        <div>
+                            <label for="words" class="block text-text mb-2 font-medium">用三个词描述你和文字的关系</label>
+                            <input type="text" id="words" placeholder="例如：共生/记录/表达" class="w-full bg-cream border border-gold/30 text-text p-3 rounded-lg form-focus transition-all">
+                        </div>
+                        
+                        <button type="submit" class="w-full bg-gold hover:bg-goldDark text-white font-bold py-3 rounded-lg transition-colors transform hover:scale-[1.02] shadow-sm">
+                            种下我的文字种子
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </section>
+
+        <!-- 登录和注册区域 -->
+        <section id="login" class="mb-16">
+            <div class="max-w-5xl mx-auto">
+                <div class="text-center mb-12">
+                    <h2 class="text-4xl md:text-5xl font-display text-text inline-block relative">
+                        社员登录
+                        <span class="absolute -bottom-3 left-1/2 transform -translate-x-1/2 w-3/4 h-1 bg-gold"></span>
+                    </h2>
+                    <p class="mt-4 text-text/80 max-w-2xl mx-auto text-lg">加入我们的文学社区，分享你的创作与感悟</p>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                    <!-- 登录表单 -->
+                    <div class="bg-white p-8 rounded-xl shadow-sm hover-lift">
+                        <h3 class="text-2xl font-display text-text mb-6 flex items-center">
+                            <i class="fa fa-sign-in text-gold mr-3"></i> 已有账号？登录
+                        </h3>
+                        
+                        <form class="space-y-5">
+                            <div>
+                                <label for="login-email" class="block text-text mb-2">电子邮箱</label>
+                                <div class="relative">
+                                    <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-gold">
+                                        <i class="fa fa-envelope"></i>
+                                    </span>
+                                    <input type="email" id="login-email" placeholder="请输入你的邮箱" class="w-full bg-cream border border-gold/30 text-text p-3 pl-10 rounded-lg form-focus transition-all">
+                                </div>
+                            </div>
+                            
+                            <div>
+                                <label for="login-password" class="block text-text mb-2">密码</label>
+                                <div class="relative">
+                                    <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-gold">
+                                        <i class="fa fa-lock"></i>
+                                    </span>
+                                    <input type="password" id="login-password" placeholder="请输入你的密码" class="w-full bg-cream border border-gold/30 text-text p-3 pl-10 rounded-lg form-focus transition-all">
+                                </div>
+                            </div>
+                            
+                            <div class="flex justify-between items-center">
+                                <label class="flex items-center text-text/80">
+                                    <input type="checkbox" class="mr-2 text-gold">
+                                    记住我
+                                </label>
+                                <a href="#" class="text-gold hover:text-goldDark transition-colors">忘记密码？</a>
+                            </div>
+                            
+                            <button type="submit" class="w-full bg-gold hover:bg-goldDark text-white font-bold py-3 rounded-lg transition-colors">
+                                登录账号
+                            </button>
+                        </form>
+                    </div>
+                    
+                    <!-- 注册表单 -->
+                    <div class="bg-white p-8 rounded-xl shadow-sm hover-lift">
+                        <h3 class="text-2xl font-display text-text mb-6 flex items-center">
+                            <i class="fa fa-user-plus text-gold mr-3"></i> 新用户？注册
+                        </h3>
+                        
+                        <form class="space-y-5">
+                            <div>
+                                <label for="register-name" class="block text-text mb-2">你的笔名</label>
+                                <div class="relative">
+                                    <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-gold">
+                                        <i class="fa fa-pencil"></i>
+                                    </span>
+                                    <input type="text" id="register-name" placeholder="你在文学社的笔名" class="w-full bg-cream border border-gold/30 text-text p-3 pl-10 rounded-lg form-focus transition-all">
+                                </div>
+                            </div>
+                            
+                            <div>
+                                <label for="register-email" class="block text-text mb-2">电子邮箱</label>
+                                <div class="relative">
+                                    <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-gold">
+                                        <i class="fa fa-envelope"></i>
+                                    </span>
+                                    <input type="email" id="register-email" placeholder="用于登录和通知" class="w-full bg-cream border border-gold/30 text-text p-3 pl-10 rounded-lg form-focus transition-all">
+                                </div>
+                            </div>
+                            
+                            <div>
+                                <label for="register-password" class="block text-text mb-2">设置密码</label>
+                                <div class="relative">
+                                    <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-gold">
+                                        <i class="fa fa-lock"></i>
+                                    </span>
+                                    <input type="password" id="register-password" placeholder="至少8个字符" class="w-full bg-cream border border-gold/30 text-text p-3 pl-10 rounded-lg form-focus transition-all">
+                                </div>
+                            </div>
+                            
+                            <div>
+                                <label class="flex items-start text-text/80">
+                                    <input type="checkbox" class="mt-1 mr-2 text-gold">
+                                    <span>我已阅读并同意<a href="#" class="text-gold hover:underline">社员协议</a>和<a href="#" class="text-gold hover:underline">隐私政策</a></span>
+                                </label>
+                            </div>
+                            
+                            <button type="submit" class="w-full bg-gold hover:bg-goldDark text-white font-bold py-3 rounded-lg transition-colors">
+                                创建账号
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- 页脚 -->
+    <footer class="relative z-10 bg-text text-white py-12 px-4">
+        <div class="container mx-auto">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8 mb-10">
+                <div>
+                    <div class="flex items-center mb-6">
+                        <div class="w-10 h-10 rounded-full bg-gold flex items-center justify-center mr-3">
+                            <i class="fa fa-pencil text-white"></i>
+                        </div>
+                        <div class="text-2xl font-display">
+                            <span class="text-gold">麦</span>
+                            <span class="text-cream">芒</span>
+                            <span class="text-goldLight">文学社</span>
+                        </div>
+                    </div>
+                    <p class="text-white/80">
+                        青春如穗，文字如芒。我们在文字的田野里，播种、生长、收获。
+                    </p>
+                </div>
+                
+                <div>
+                    <h4 class="text-xl font-display text-gold mb-4">联系我们</h4>
+                    <ul class="space-y-3 text-white/80">
+                        <li class="flex items-center"><i class="fa fa-envelope-o mr-2 text-goldLight"></i> wheat@maimang.org</li>
+                        <li class="flex items-center"><i class="fa fa-map-marker mr-2 text-goldLight"></i> 青春路88号麦田书屋</li>
+                        <li class="flex items-center"><i class="fa fa-phone mr-2 text-goldLight"></i> 138-xxxx-8877</li>
+                    </ul>
+                </div>
+                
+                <div>
+                    <h4 class="text-xl font-display text-gold mb-4">关注我们</h4>
+                    <p class="text-white/80 mb-4">在社交媒体上，感受文字的生长力量</p>
+                    <div class="flex space-x-4">
+                        <a href="#" class="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center hover:bg-gold transition-colors">
+                            <i class="fa fa-weixin"></i>
+                        </a>
+                        <a href="#" class="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center hover:bg-gold transition-colors">
+                            <i class="fa fa-weibo"></i>
+                        </a>
+                        <a href="#" class="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center hover:bg-gold transition-colors">
+                            <i class="fa fa-instagram"></i>
+                        </a>
+                    </div>
+                    
+                    <div class="mt-8">
+                        <h5 class="text-white/80 mb-2">订阅我们的电子麦报</h5>
+                        <form class="flex">
+                            <input type="email" placeholder="你的邮箱" class="px-4 py-2 rounded-l-lg focus:outline-none text-text flex-1">
+                            <button type="submit" class="bg-gold text-white px-4 py-2 rounded-r-lg hover:bg-goldDark transition-colors">
+                                订阅
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="border-t border-white/20 pt-6 text-center text-white/60 text-sm">
+                <p>© 2023 麦芒文学社 | 青春如穗，文字如芒 | 在文字的田野里收获成长</p>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // 滚动动画效果
+        document.addEventListener('DOMContentLoaded', () => {
+            // 滚动显示动画
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add('opacity-100', 'translate-y-0');
+                        entry.target.classList.remove('opacity-0', 'translate-y-10');
+                    }
+                });
+            }, { threshold: 0.1 });
+
+            // 为所有主要区块添加动画
+            document.querySelectorAll('section > div').forEach(section => {
+                section.classList.add('transition-all', 'duration-1000', 'opacity-0', 'translate-y-10');
+                observer.observe(section);
+            });
+
+            // 平滑滚动
+            document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+                anchor.addEventListener('click', function (e) {
+                    e.preventDefault();
+                    const targetId = this.getAttribute('href');
+                    const targetElement = document.querySelector(targetId);
+                    
+                    if (targetElement) {
+                        window.scrollTo({
+                            top: targetElement.offsetTop - 80,
+                            behavior: 'smooth'
+                        });
+                    }
+                });
+            });
+
+            // 图片加载动画
+            const images = document.querySelectorAll('img');
+            images.forEach(img => {
+                img.classList.add('opacity-0', 'transition-opacity', 'duration-700');
+                img.onload = function() {
+                    this.classList.remove('opacity-0');
+                    this.classList.add('opacity-100');
+                }
+                // 如果图片已经加载完成
+                if (img.complete) {
+                    img.classList.remove('opacity-0');
+                    img.classList.add('opacity-100');
+                }
+            });
+        });
+    </script>
+</body>
+</html>

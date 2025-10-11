@@ -1,0 +1,558 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>关于我们 - 麦芒文学社</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        cream: '#FFFDF5',      // 奶油白底色
+                        gold: '#FFD747',       // 明亮黄色
+                        goldLight: '#FFF3C0',  // 浅金色
+                        goldDark: '#F5C332',   // 深一点的金色
+                        wheat: '#FFEDCC',      // 小麦色
+                        text: '#594B36',       // 文字颜色
+                    },
+                    fontFamily: {
+                        sans: ['"Nunito"', 'sans-serif'],
+                        display: ['"Quicksand"', 'sans-serif'],
+                        serif: ['"Noto Serif SC"', 'serif']
+                    }
+                }
+            }
+        }
+    </script>
+    <style type="text/tailwindcss">
+        @layer utilities {
+            .text-float {
+                animation: textFloat 6s ease-in-out infinite;
+            }
+            .float-random {
+                animation: float 8s ease-in-out infinite;
+            }
+            .spin-slow {
+                animation: spin 20s linear infinite;
+            }
+            .wheat-pattern {
+                background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23FFD747' fill-opacity='0.1'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+            }
+            .hover-lift {
+                transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            }
+            .hover-lift:hover {
+                transform: translateY(-8px) rotate(1deg);
+                box-shadow: 0 15px 30px rgba(0, 0, 0, 0.05);
+            }
+            .text-shadow {
+                text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.05);
+            }
+            .timeline-dot::before {
+                content: '';
+                position: absolute;
+                left: -34px;
+                top: 6px;
+                width: 16px;
+                height: 16px;
+                border-radius: 50%;
+                background-color: gold;
+                border: 3px solid cream;
+            }
+            .timeline-line::before {
+                content: '';
+                position: absolute;
+                left: -27px;
+                top: 22px;
+                bottom: -22px;
+                width: 2px;
+                background-color: wheat;
+            }
+        }
+
+        @keyframes float {
+            0% { transform: translateY(0px) rotate(0deg); }
+            50% { transform: translateY(-12px) rotate(2deg); }
+            100% { transform: translateY(0px) rotate(0deg); }
+        }
+
+        @keyframes textFloat {
+            0% { transform: translateY(0px); }
+            50% { transform: translateY(-8px); }
+            100% { transform: translateY(0px); }
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700&family=Noto+Serif+SC:wght@400;600;700&family=Quicksand:wght@500;600;700&display=swap" rel="stylesheet">
+</head>
+<body class="bg-cream wheat-pattern text-text antialiased">
+    <!-- 漂浮装饰元素 -->
+    <div class="fixed inset-0 z-0 overflow-hidden pointer-events-none opacity-10">
+        <div class="absolute top-[15%] right-[10%] text-7xl font-display text-gold float-random" style="animation-delay: 0.5s">文</div>
+        <div class="absolute top-[30%] left-[8%] text-6xl font-display text-text float-random" style="animation-delay: 1s">学</div>
+        <div class="absolute bottom-[30%] right-[12%] text-6xl font-display text-gold float-random" style="animation-delay: 2s">梦</div>
+        <div class="absolute bottom-[40%] left-[20%] text-5xl font-display text-text float-random" style="animation-delay: 3s">想</div>
+    </div>
+
+    <!-- 导航栏 -->
+    <nav class="relative z-50 py-4 px-4 md:px-8 bg-cream/90 backdrop-blur-sm sticky top-0 shadow-sm">
+        <div class="flex flex-wrap justify-between items-center">
+            <div class="flex items-center">
+                <div class="w-10 h-10 rounded-full bg-gold flex items-center justify-center mr-3 spin-slow">
+                    <i class="fa fa-pencil text-white"></i>
+                </div>
+                <div class="text-2xl md:text-3xl font-display">
+                    <span class="text-gold">麦</span>
+                    <span class="text-text">芒</span>
+                    <span class="text-goldDark">文学社</span>
+                </div>
+            </div>
+            
+            <div class="flex flex-wrap gap-2 md:gap-6 justify-end mt-4 md:mt-0">
+                <a href="#" class="px-3 py-2 text-gold border-b-2 border-gold font-medium">关于我们</a>
+                <a href="works.html" class="px-3 py-2 text-text hover:text-gold transition-colors">青春作品</a>
+                <a href="activities.html" class="px-3 py-2 text-text hover:text-gold transition-colors">田间活动</a>
+                <a href="activities.html#ai-helper-link" class="px-3 py-2 text-text hover:text-gold transition-colors">
+                    <i class="fa fa-lightbulb-o mr-1"></i> AI助手
+                </a>
+                <a href="#login" class="px-4 py-2 bg-gold text-white rounded-full hover:bg-goldDark transition-colors shadow-sm">登录 / 注册</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- 头部区域 -->
+    <header class="relative z-10 py-16 md:py-24 px-4 overflow-hidden">
+        <div class="absolute inset-0 z-0">
+            <div class="absolute inset-0 bg-gradient-to-b from-gold/10 to-cream/90"></div>
+            <img src="https://picsum.photos/id/175/1920/1080" alt="关于我们背景" class="w-full h-full object-cover object-center opacity-30">
+        </div>
+        
+        <div class="relative z-10 max-w-4xl mx-auto text-center">
+            <h1 class="text-5xl md:text-7xl font-display leading-tight mb-6 text-gold text-shadow">
+                关于我们
+            </h1>
+            <p class="text-xl md:text-2xl font-sans max-w-2xl mx-auto mb-8 text-text">
+                青春如穗，文字如芒。我们在文字的田野里，播种、生长、收获。
+            </p>
+            <div class="inline-block bg-white/80 backdrop-blur-sm px-6 py-3 rounded-full shadow-sm">
+                <p class="text-text/80"><i class="fa fa-calendar text-gold mr-2"></i> 成立于2018年 · 已有5年历程 · 300+社员</p>
+            </div>
+        </div>
+    </header>
+
+    <main class="relative z-10 container mx-auto px-4 py-12">
+        <!-- 社团简介 -->
+        <section class="mb-20">
+            <div class="max-w-4xl mx-auto">
+                <h2 class="text-3xl md:text-4xl font-display text-text inline-block relative mb-10">
+                    社团简介
+                    <span class="absolute -bottom-3 left-0 w-1/2 h-1 bg-gold"></span>
+                </h2>
+                
+                <div class="bg-white rounded-2xl shadow-md p-8 md:p-10 hover-lift">
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-8 items-center">
+                        <div class="md:col-span-1">
+                            <div class="rounded-xl overflow-hidden h-64 md:h-full">
+                                <img src="https://picsum.photos/id/169/600/800" alt="麦芒文学社" class="w-full h-full object-cover">
+                            </div>
+                        </div>
+                        <div class="md:col-span-2">
+                            <p class="text-text/80 mb-6 leading-relaxed">
+                                麦芒文学社成立于2018年，是一个以自然为灵感源泉，以文字为表达媒介的青年文学社团。我们相信，最真挚的文字往往来自对生活最本真的观察与体验。
+                            </p>
+                            <p class="text-text/80 mb-6 leading-relaxed">
+                                "麦芒"象征着我们的理念：如同麦穗上的芒刺，虽微小却坚韧，虽朴素却闪耀着阳光的光泽。我们鼓励社员走出书房，走进田野，在自然中寻找创作的灵感。
+                            </p>
+                            <p class="text-text/80 leading-relaxed">
+                                五年来，我们组织了近百场文学活动，出版了6本社员作品集，培养了众多青年作者。我们的作品多以自然、乡村、青春为主题，形成了独特的创作风格。
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 我们的理念 -->
+        <section class="mb-20">
+            <div class="text-center mb-12">
+                <h2 class="text-3xl md:text-4xl font-display text-text inline-block relative">
+                    我们的理念
+                    <span class="absolute -bottom-3 left-1/2 transform -translate-x-1/2 w-1/2 h-1 bg-gold"></span>
+                </h2>
+            </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-5xl mx-auto">
+                <!-- 理念1 -->
+                <div class="bg-white rounded-2xl shadow-md p-6 md:p-8 hover-lift text-center">
+                    <div class="w-16 h-16 rounded-full bg-gold/10 flex items-center justify-center mb-6 mx-auto">
+                        <i class="fa fa-leaf text-gold text-2xl"></i>
+                    </div>
+                    <h3 class="text-xl font-display text-text mb-4">源于自然</h3>
+                    <p class="text-text/80 leading-relaxed">
+                        我们相信自然是最好的老师和灵感来源，鼓励社员在田野、山林、溪边寻找创作的素材与感动。
+                    </p>
+                </div>
+                
+                <!-- 理念2 -->
+                <div class="bg-white rounded-2xl shadow-md p-6 md:p-8 hover-lift text-center">
+                    <div class="w-16 h-16 rounded-full bg-gold/10 flex items-center justify-center mb-6 mx-auto">
+                        <i class="fa fa-pencil text-gold text-2xl"></i>
+                    </div>
+                    <h3 class="text-xl font-display text-text mb-4">忠于内心</h3>
+                    <p class="text-text/80 leading-relaxed">
+                        文字是内心的镜子，我们鼓励真诚的表达，反对空洞的技巧，让每一个字都承载真实的情感。
+                    </p>
+                </div>
+                
+                <!-- 理念3 -->
+                <div class="bg-white rounded-2xl shadow-md p-6 md:p-8 hover-lift text-center">
+                    <div class="w-16 h-16 rounded-full bg-gold/10 flex items-center justify-center mb-6 mx-auto">
+                        <i class="fa fa-users text-gold text-2xl"></i>
+                    </div>
+                    <h3 class="text-xl font-display text-text mb-4">成于社群</h3>
+                    <p class="text-text/80 leading-relaxed">
+                        文学创作不是孤独的旅程，通过交流、分享与互助，我们一起成长，共同进步。
+                    </p>
+                </div>
+            </div>
+        </section>
+
+        <!-- 发展历程 -->
+        <section class="mb-20">
+            <div class="max-w-4xl mx-auto">
+                <h2 class="text-3xl md:text-4xl font-display text-text inline-block relative mb-10">
+                    发展历程
+                    <span class="absolute -bottom-3 left-0 w-1/2 h-1 bg-gold"></span>
+                </h2>
+                
+                <div class="relative pl-10 md:pl-16">
+                    <!-- 2018年 -->
+                    <div class="mb-12 relative timeline-dot timeline-line">
+                        <h3 class="text-xl font-display text-gold mb-3">2018年 · 诞生</h3>
+                        <div class="bg-white rounded-xl shadow-md p-6 hover-lift">
+                            <p class="text-text/80">
+                                由8名热爱文学与自然的青年学生发起成立，在校园内举办了首场"春日读诗会"，吸引了30余名文学爱好者参与。
+                            </p>
+                        </div>
+                    </div>
+                    
+                    <!-- 2019年 -->
+                    <div class="mb-12 relative timeline-dot timeline-line">
+                        <h3 class="text-xl font-display text-gold mb-3">2019年 · 成长</h3>
+                        <div class="bg-white rounded-xl shadow-md p-6 hover-lift">
+                            <p class="text-text/80">
+                                社员增至80人，首次走出校园举办"田野采风"活动，出版第一本社员作品集《麦尖上的诗》，获得当地文学界关注。
+                            </p>
+                        </div>
+                    </div>
+                    
+                    <!-- 2021年 -->
+                    <div class="mb-12 relative timeline-dot timeline-line">
+                        <h3 class="text-xl font-display text-gold mb-3">2021年 · 突破</h3>
+                        <div class="bg-white rounded-xl shadow-md p-6 hover-lift">
+                            <p class="text-text/80">
+                                举办首届"麦田诗歌节"，吸引周边城市文学爱好者参与，社员作品开始在省级文学刊物发表，社团影响力扩大。
+                            </p>
+                        </div>
+                    </div>
+                    
+                    <!-- 2023年 -->
+                    <div class="relative timeline-dot">
+                        <h3 class="text-xl font-display text-gold mb-3">2023年 · 跨越</h3>
+                        <div class="bg-white rounded-xl shadow-md p-6 hover-lift">
+                            <p class="text-text/80">
+                                社员人数突破300人，与多家文化机构建立合作关系，推出"AI诗歌助手"线上工具，探索传统文学与现代科技的结合。
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 核心团队 -->
+        <section class="mb-20">
+            <div class="text-center mb-12">
+                <h2 class="text-3xl md:text-4xl font-display text-text inline-block relative">
+                    核心团队
+                    <span class="absolute -bottom-3 left-1/2 transform -translate-x-1/2 w-1/2 h-1 bg-gold"></span>
+                </h2>
+                <p class="mt-4 text-text/70 max-w-2xl mx-auto">
+                    一群热爱文学的年轻人，用热情与专业推动社团发展
+                </p>
+            </div>
+            
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 max-w-5xl mx-auto">
+                <!-- 团队成员1 -->
+                <div class="bg-white rounded-2xl shadow-md overflow-hidden hover-lift">
+                    <div class="h-64 overflow-hidden">
+                        <img src="https://picsum.photos/id/64/400/600" alt="林清禾" class="w-full h-full object-cover transition-transform duration-700 hover:scale-110">
+                    </div>
+                    <div class="p-6 text-center">
+                        <h3 class="text-xl font-display text-text mb-1">林清禾</h3>
+                        <p class="text-gold mb-3">社长</p>
+                        <p class="text-text/70 text-sm mb-4">
+                            青年诗人，出版诗集《风中的麦芒》，擅长自然主题创作，负责社团整体规划。
+                        </p>
+                        <div class="flex justify-center space-x-3">
+                            <a href="#" class="text-text/60 hover:text-gold transition-colors">
+                                <i class="fa fa-weibo"></i>
+                            </a>
+                            <a href="#" class="text-text/60 hover:text-gold transition-colors">
+                                <i class="fa fa-envelope-o"></i>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 团队成员2 -->
+                <div class="bg-white rounded-2xl shadow-md overflow-hidden hover-lift">
+                    <div class="h-64 overflow-hidden">
+                        <img src="https://picsum.photos/id/91/400/600" alt="王子墨" class="w-full h-full object-cover transition-transform duration-700 hover:scale-110">
+                    </div>
+                    <div class="p-6 text-center">
+                        <h3 class="text-xl font-display text-text mb-1">王子墨</h3>
+                        <p class="text-gold mb-3">活动总监</p>
+                        <p class="text-text/70 text-sm mb-4">
+                            策划师，曾组织近50场文学活动，擅长将文学与自然体验相结合，创造独特参与感。
+                        </p>
+                        <div class="flex justify-center space-x-3">
+                            <a href="#" class="text-text/60 hover:text-gold transition-colors">
+                                <i class="fa fa-weibo"></i>
+                            </a>
+                            <a href="#" class="text-text/60 hover:text-gold transition-colors">
+                                <i class="fa fa-envelope-o"></i>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 团队成员3 -->
+                <div class="bg-white rounded-2xl shadow-md overflow-hidden hover-lift">
+                    <div class="h-64 overflow-hidden">
+                        <img src="https://picsum.photos/id/26/400/600" alt="陈晓棠" class="w-full h-full object-cover transition-transform duration-700 hover:scale-110">
+                    </div>
+                    <div class="p-6 text-center">
+                        <h3 class="text-xl font-display text-text mb-1">陈晓棠</h3>
+                        <p class="text-gold mb-3">创作指导</p>
+                        <p class="text-text/70 text-sm mb-4">
+                            作家，小说《青麦》获省级文学奖，负责社员创作指导与作品点评，经验丰富。
+                        </p>
+                        <div class="flex justify-center space-x-3">
+                            <a href="#" class="text-text/60 hover:text-gold transition-colors">
+                                <i class="fa fa-weibo"></i>
+                            </a>
+                            <a href="#" class="text-text/60 hover:text-gold transition-colors">
+                                <i class="fa fa-envelope-o"></i>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 团队成员4 -->
+                <div class="bg-white rounded-2xl shadow-md overflow-hidden hover-lift">
+                    <div class="h-64 overflow-hidden">
+                        <img src="https://picsum.photos/id/22/400/600" alt="李明远" class="w-full h-full object-cover transition-transform duration-700 hover:scale-110">
+                    </div>
+                    <div class="p-6 text-center">
+                        <h3 class="text-xl font-display text-text mb-1">李明远</h3>
+                        <p class="text-gold mb-3">新媒体运营</p>
+                        <p class="text-text/70 text-sm mb-4">
+                            媒体人，负责社团线上平台运营与推广，擅长用新媒体传播文学之美。
+                        </p>
+                        <div class="flex justify-center space-x-3">
+                            <a href="#" class="text-text/60 hover:text-gold transition-colors">
+                                <i class="fa fa-weibo"></i>
+                            </a>
+                            <a href="#" class="text-text/60 hover:text-gold transition-colors">
+                                <i class="fa fa-envelope-o"></i>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 加入我们 -->
+        <section class="mb-20 bg-gold/5 rounded-2xl p-8 md:p-12">
+            <div class="max-w-4xl mx-auto">
+                <div class="text-center mb-10">
+                    <h2 class="text-3xl md:text-4xl font-display text-text inline-block relative">
+                        加入我们
+                        <span class="absolute -bottom-3 left-1/2 transform -translate-x-1/2 w-1/2 h-1 bg-gold"></span>
+                    </h2>
+                    <p class="mt-4 text-text/70 max-w-2xl mx-auto">
+                        无论你是经验丰富的写作者，还是刚刚开始接触文学的新手，只要你热爱文字与自然，我们都欢迎你的加入
+                    </p>
+                </div>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
+                    <div>
+                        <h3 class="text-2xl font-display text-text mb-6">成为麦芒的一员，你将获得：</h3>
+                        
+                        <ul class="space-y-4">
+                            <li class="flex items-start">
+                                <i class="fa fa-check-circle text-gold mt-1 mr-3 text-lg"></i>
+                                <div>
+                                    <h4 class="font-medium">专业的创作指导</h4>
+                                    <p class="text-sm text-text/70">定期的写作工坊与作品点评，提升创作水平</p>
+                                </div>
+                            </li>
+                            <li class="flex items-start">
+                                <i class="fa fa-check-circle text-gold mt-1 mr-3 text-lg"></i>
+                                <div>
+                                    <h4 class="font-medium">丰富的田野活动</h4>
+                                    <p class="text-sm text-text/70">走出室内，在自然中寻找灵感的采风活动</p>
+                                </div>
+                            </li>
+                            <li class="flex items-start">
+                                <i class="fa fa-check-circle text-gold mt-1 mr-3 text-lg"></i>
+                                <div>
+                                    <h4 class="font-medium">作品发表机会</h4>
+                                    <p class="text-sm text-text/70">在社团刊物及合作媒体上发表作品的机会</p>
+                                </div>
+                            </li>
+                            <li class="flex items-start">
+                                <i class="fa fa-check-circle text-gold mt-1 mr-3 text-lg"></i>
+                                <div>
+                                    <h4 class="font-medium">志同道合的朋友</h4>
+                                    <p class="text-sm text-text/70">认识一群热爱文学与自然的朋友，共同成长</p>
+                                </div>
+                            </li>
+                        </ul>
+                        
+                        <div class="mt-8">
+                            <a href="contact.html" class="inline-block bg-gold hover:bg-goldDark text-white font-bold px-6 py-3 rounded-full transition-all transform hover:scale-105">
+                                立即申请加入 <i class="fa fa-arrow-right ml-1"></i>
+                            </a>
+                        </div>
+                    </div>
+                    
+                    <div class="rounded-2xl overflow-hidden shadow-md">
+                        <img src="https://picsum.photos/id/183/800/600" alt="加入我们" class="w-full h-full object-cover">
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- 页脚 -->
+    <footer class="relative z-10 bg-text text-white py-12 px-4 mt-16">
+        <div class="container mx-auto">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8 mb-10">
+                <div>
+                    <div class="flex items-center mb-6">
+                        <div class="w-10 h-10 rounded-full bg-gold flex items-center justify-center mr-3">
+                            <i class="fa fa-pencil text-white"></i>
+                        </div>
+                        <div class="text-2xl font-display">
+                            <span class="text-gold">麦</span>
+                            <span class="text-cream">芒</span>
+                            <span class="text-goldLight">文学社</span>
+                        </div>
+                    </div>
+                    <p class="text-white/80">
+                        青春如穗，文字如芒。我们在文字的田野里，播种、生长、收获。
+                    </p>
+                </div>
+                
+                <div>
+                    <h4 class="text-xl font-display text-gold mb-4">联系我们</h4>
+                    <ul class="space-y-3 text-white/80">
+                        <li class="flex items-center"><i class="fa fa-envelope-o mr-2 text-goldLight"></i> wheat@maimang.org</li>
+                        <li class="flex items-center"><i class="fa fa-map-marker mr-2 text-goldLight"></i> 青春路88号麦田书屋</li>
+                        <li class="flex items-center"><i class="fa fa-phone mr-2 text-goldLight"></i> 138-xxxx-8877</li>
+                    </ul>
+                </div>
+                
+                <div>
+                    <h4 class="text-xl font-display text-gold mb-4">关注我们</h4>
+                    <p class="text-white/80 mb-4">在社交媒体上，感受文字的生长力量</p>
+                    <div class="flex space-x-4">
+                        <a href="#" class="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center hover:bg-gold transition-colors">
+                            <i class="fa fa-weixin"></i>
+                        </a>
+                        <a href="#" class="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center hover:bg-gold transition-colors">
+                            <i class="fa fa-weibo"></i>
+                        </a>
+                        <a href="#" class="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center hover:bg-gold transition-colors">
+                            <i class="fa fa-instagram"></i>
+                        </a>
+                    </div>
+                    
+                    <div class="mt-8">
+                        <h5 class="text-white/80 mb-2">订阅我们的电子麦报</h5>
+                        <form class="flex">
+                            <input type="email" placeholder="你的邮箱" class="px-4 py-2 rounded-l-lg focus:outline-none text-text flex-1">
+                            <button type="submit" class="bg-gold text-white px-4 py-2 rounded-r-lg hover:bg-goldDark transition-colors">
+                                订阅
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="border-t border-white/20 pt-6 text-center text-white/60 text-sm">
+                <p>© 2023 麦芒文学社 | 青春如穗，文字如芒 | 在文字的田野里收获成长</p>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // 滚动显示动画
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add('opacity-100', 'translate-y-0');
+                        entry.target.classList.remove('opacity-0', 'translate-y-10');
+                    }
+                });
+            }, { threshold: 0.1 });
+
+            // 为所有主要区块添加动画
+            document.querySelectorAll('section').forEach(item => {
+                item.classList.add('transition-all', 'duration-700', 'opacity-0', 'translate-y-10');
+                observer.observe(item);
+            });
+
+            // 平滑滚动
+            document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+                anchor.addEventListener('click', function (e) {
+                    e.preventDefault();
+                    const targetId = this.getAttribute('href');
+                    if (targetId !== '#') {
+                        const targetElement = document.querySelector(targetId);
+                        if (targetElement) {
+                            window.scrollTo({
+                                top: targetElement.offsetTop - 80,
+                                behavior: 'smooth'
+                            });
+                        }
+                    }
+                });
+            });
+
+            // 图片加载动画
+            const images = document.querySelectorAll('img');
+            images.forEach(img => {
+                img.classList.add('opacity-0', 'transition-opacity', 'duration-700');
+                img.onload = function() {
+                    this.classList.remove('opacity-0');
+                    this.classList.add('opacity-100');
+                }
+                if (img.complete) {
+                    img.classList.remove('opacity-0');
+                    img.classList.add('opacity-100');
+                }
+            });
+        });
+    </script>
+</body>
+</html>

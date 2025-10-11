@@ -1,0 +1,641 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>联系我们 - 麦芒文学社</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        cream: '#FFFDF5',      // 奶油白底色
+                        gold: '#FFD747',       // 明亮黄色
+                        goldLight: '#FFF3C0',  // 浅金色
+                        goldDark: '#F5C332',   // 深一点的金色
+                        wheat: '#FFEDCC',      // 小麦色
+                        text: '#594B36',       // 文字颜色
+                    },
+                    fontFamily: {
+                        sans: ['"Nunito"', 'sans-serif'],
+                        display: ['"Quicksand"', 'sans-serif'],
+                        serif: ['"Noto Serif SC"', 'serif']
+                    }
+                }
+            }
+        }
+    </script>
+    <style type="text/tailwindcss">
+        @layer utilities {
+            .text-float {
+                animation: textFloat 6s ease-in-out infinite;
+            }
+            .float-random {
+                animation: float 8s ease-in-out infinite;
+            }
+            .spin-slow {
+                animation: spin 20s linear infinite;
+            }
+            .wheat-pattern {
+                background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23FFD747' fill-opacity='0.1'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+            }
+            .hover-lift {
+                transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            }
+            .hover-lift:hover {
+                transform: translateY(-8px) rotate(1deg);
+                box-shadow: 0 15px 30px rgba(0, 0, 0, 0.05);
+            }
+            .text-shadow {
+                text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.05);
+            }
+            .input-focus {
+                @apply focus:border-gold focus:outline-none focus:ring-1 focus:ring-gold transition-all;
+            }
+        }
+
+        @keyframes float {
+            0% { transform: translateY(0px) rotate(0deg); }
+            50% { transform: translateY(-12px) rotate(2deg); }
+            100% { transform: translateY(0px) rotate(0deg); }
+        }
+
+        @keyframes textFloat {
+            0% { transform: translateY(0px); }
+            50% { transform: translateY(-8px); }
+            100% { transform: translateY(0px); }
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700&family=Noto+Serif+SC:wght@400;600;700&family=Quicksand:wght@500;600;700&display=swap" rel="stylesheet">
+</head>
+<body class="bg-cream wheat-pattern text-text antialiased">
+    <!-- 漂浮装饰元素 -->
+    <div class="fixed inset-0 z-0 overflow-hidden pointer-events-none opacity-10">
+        <div class="absolute top-[20%] right-[15%] text-7xl font-display text-gold float-random" style="animation-delay: 0.5s">联</div>
+        <div class="absolute top-[50%] left-[10%] text-6xl font-display text-text float-random" style="animation-delay: 1s">系</div>
+        <div class="absolute bottom-[25%] right-[8%] text-6xl font-display text-gold float-random" style="animation-delay: 2s">我</div>
+        <div class="absolute bottom-[35%] left-[25%] text-5xl font-display text-text float-random" style="animation-delay: 3s">们</div>
+    </div>
+
+    <!-- 导航栏 -->
+    <nav class="relative z-50 py-4 px-4 md:px-8 bg-cream/90 backdrop-blur-sm sticky top-0 shadow-sm">
+        <div class="flex flex-wrap justify-between items-center">
+            <div class="flex items-center">
+                <div class="w-10 h-10 rounded-full bg-gold flex items-center justify-center mr-3 spin-slow">
+                    <i class="fa fa-pencil text-white"></i>
+                </div>
+                <div class="text-2xl md:text-3xl font-display">
+                    <span class="text-gold">麦</span>
+                    <span class="text-text">芒</span>
+                    <span class="text-goldDark">文学社</span>
+                </div>
+            </div>
+            
+            <div class="flex flex-wrap gap-2 md:gap-6 justify-end mt-4 md:mt-0">
+                <a href="about.html" class="px-3 py-2 text-text hover:text-gold transition-colors">关于我们</a>
+                <a href="works.html" class="px-3 py-2 text-text hover:text-gold transition-colors">青春作品</a>
+                <a href="activities.html" class="px-3 py-2 text-text hover:text-gold transition-colors">田间活动</a>
+                <a href="activities.html#ai-helper-link" class="px-3 py-2 text-text hover:text-gold transition-colors">
+                    <i class="fa fa-lightbulb-o mr-1"></i> AI助手
+                </a>
+                <a href="#login" class="px-4 py-2 bg-gold text-white rounded-full hover:bg-goldDark transition-colors shadow-sm">登录 / 注册</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- 头部区域 -->
+    <header class="relative z-10 py-16 md:py-24 px-4 overflow-hidden">
+        <div class="absolute inset-0 z-0">
+            <div class="absolute inset-0 bg-gradient-to-b from-gold/10 to-cream/90"></div>
+            <img src="https://picsum.photos/id/177/1920/1080" alt="联系我们背景" class="w-full h-full object-cover object-center opacity-30">
+        </div>
+        
+        <div class="relative z-10 max-w-4xl mx-auto text-center">
+            <h1 class="text-5xl md:text-7xl font-display leading-tight mb-6 text-gold text-shadow">
+                联系我们
+            </h1>
+            <p class="text-xl md:text-2xl font-sans max-w-2xl mx-auto mb-8 text-text">
+                无论你有任何疑问、建议或合作意向，都欢迎与我们联系
+            </p>
+            <div class="inline-block bg-white/80 backdrop-blur-sm px-6 py-3 rounded-full shadow-sm">
+                <p class="text-text/80"><i class="fa fa-heart text-gold mr-2"></i> 我们期待听到你的声音</p>
+            </div>
+        </div>
+    </header>
+
+    <main class="relative z-10 container mx-auto px-4 py-12">
+        <!-- 联系方式 -->
+        <section class="mb-20">
+            <div class="text-center mb-12">
+                <h2 class="text-3xl md:text-4xl font-display text-text inline-block relative">
+                    联系方式
+                    <span class="absolute -bottom-3 left-1/2 transform -translate-x-1/2 w-1/2 h-1 bg-gold"></span>
+                </h2>
+            </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-5xl mx-auto">
+                <!-- 联系方式1 -->
+                <div class="bg-white rounded-2xl shadow-md p-6 md:p-8 hover-lift text-center">
+                    <div class="w-16 h-16 rounded-full bg-gold/10 flex items-center justify-center mb-6 mx-auto">
+                        <i class="fa fa-envelope text-gold text-2xl"></i>
+                    </div>
+                    <h3 class="text-xl font-display text-text mb-3">电子邮件</h3>
+                    <p class="text-text/80 mb-4">
+                        发送邮件给我们，我们会在24小时内回复
+                    </p>
+                    <a href="mailto:wheat@maimang.org" class="text-gold hover:text-goldDark transition-colors font-medium">
+                        wheat@maimang.org
+                    </a>
+                </div>
+                
+                <!-- 联系方式2 -->
+                <div class="bg-white rounded-2xl shadow-md p-6 md:p-8 hover-lift text-center">
+                    <div class="w-16 h-16 rounded-full bg-gold/10 flex items-center justify-center mb-6 mx-auto">
+                        <i class="fa fa-phone text-gold text-2xl"></i>
+                    </div>
+                    <h3 class="text-xl font-display text-text mb-3">电话联系</h3>
+                    <p class="text-text/80 mb-4">
+                        工作日上午9点至下午5点，欢迎来电
+                    </p>
+                    <a href="tel:13800008877" class="text-gold hover:text-goldDark transition-colors font-medium">
+                        138-xxxx-8877
+                    </a>
+                </div>
+                
+                <!-- 联系方式3 -->
+                <div class="bg-white rounded-2xl shadow-md p-6 md:p-8 hover-lift text-center">
+                    <div class="w-16 h-16 rounded-full bg-gold/10 flex items-center justify-center mb-6 mx-auto">
+                        <i class="fa fa-map-marker text-gold text-2xl"></i>
+                    </div>
+                    <h3 class="text-xl font-display text-text mb-3">实体空间</h3>
+                    <p class="text-text/80 mb-4">
+                        欢迎来访我们的麦田书屋，需提前预约
+                    </p>
+                    <p class="text-text/80 font-medium">
+                        青春路88号麦田书屋
+                    </p>
+                </div>
+            </div>
+        </section>
+
+        <!-- 社交媒体 -->
+        <section class="mb-20">
+            <div class="text-center mb-12">
+                <h2 class="text-3xl md:text-4xl font-display text-text inline-block relative">
+                    社交媒体
+                    <span class="absolute -bottom-3 left-1/2 transform -translate-x-1/2 w-1/2 h-1 bg-gold"></span>
+                </h2>
+                <p class="mt-4 text-text/70 max-w-2xl mx-auto">
+                    关注我们的社交媒体账号，获取最新活动信息和文学分享
+                </p>
+            </div>
+            
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 max-w-4xl mx-auto">
+                <!-- 微信公众号 -->
+                <div class="bg-white rounded-2xl shadow-md overflow-hidden hover-lift">
+                    <div class="h-48 bg-gold/5 flex items-center justify-center p-6">
+                        <div class="w-36 h-36 bg-white rounded-lg flex items-center justify-center p-2">
+                            <img src="https://picsum.photos/id/237/200/200" alt="微信公众号" class="w-full h-full object-cover">
+                        </div>
+                    </div>
+                    <div class="p-6 text-center">
+                        <h3 class="text-xl font-display text-text mb-2">微信公众号</h3>
+                        <p class="text-text/70 text-sm mb-4">
+                            麦芒文学社
+                        </p>
+                        <p class="text-xs text-text/60">
+                            扫码关注，获取最新活动信息
+                        </p>
+                    </div>
+                </div>
+                
+                <!-- 微博 -->
+                <div class="bg-white rounded-2xl shadow-md overflow-hidden hover-lift">
+                    <div class="h-48 bg-gold/5 flex items-center justify-center">
+                        <i class="fa fa-weibo text-6xl text-gold"></i>
+                    </div>
+                    <div class="p-6 text-center">
+                        <h3 class="text-xl font-display text-text mb-2">新浪微博</h3>
+                        <p class="text-text/70 text-sm mb-4">
+                            @麦芒文学社
+                        </p>
+                        <a href="#" class="text-gold hover:text-goldDark text-sm transition-colors">
+                            点击关注 <i class="fa fa-angle-right ml-1"></i>
+                        </a>
+                    </div>
+                </div>
+                
+                <!-- 小红书 -->
+                <div class="bg-white rounded-2xl shadow-md overflow-hidden hover-lift">
+                    <div class="h-48 bg-gold/5 flex items-center justify-center">
+                        <i class="fa fa-book text-6xl text-gold"></i>
+                    </div>
+                    <div class="p-6 text-center">
+                        <h3 class="text-xl font-display text-text mb-2">小红书</h3>
+                        <p class="text-text/70 text-sm mb-4">
+                            麦芒的文字田野
+                        </p>
+                        <a href="#" class="text-gold hover:text-goldDark text-sm transition-colors">
+                            点击关注 <i class="fa fa-angle-right ml-1"></i>
+                        </a>
+                    </div>
+                </div>
+                
+                <!-- 抖音 -->
+                <div class="bg-white rounded-2xl shadow-md overflow-hidden hover-lift">
+                    <div class="h-48 bg-gold/5 flex items-center justify-center">
+                        <i class="fa fa-video-camera text-6xl text-gold"></i>
+                    </div>
+                    <div class="p-6 text-center">
+                        <h3 class="text-xl font-display text-text mb-2">抖音</h3>
+                        <p class="text-text/70 text-sm mb-4">
+                            麦芒文学社
+                        </p>
+                        <a href="#" class="text-gold hover:text-goldDark text-sm transition-colors">
+                            点击关注 <i class="fa fa-angle-right ml-1"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 联系表单 -->
+        <section class="mb-20">
+            <div class="max-w-4xl mx-auto">
+                <h2 class="text-3xl md:text-4xl font-display text-text inline-block relative mb-10">
+                    给我们留言
+                    <span class="absolute -bottom-3 left-0 w-1/2 h-1 bg-gold"></span>
+                </h2>
+                
+                <div class="bg-white rounded-2xl shadow-md p-8 md:p-10 hover-lift">
+                    <form id="contact-form" class="space-y-6">
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div>
+                                <label for="name" class="block text-text font-medium mb-2">姓名</label>
+                                <input type="text" id="name" placeholder="请输入你的姓名" 
+                                    class="w-full px-4 py-3 rounded-lg border border-wheat input-focus">
+                            </div>
+                            <div>
+                                <label for="email" class="block text-text font-medium mb-2">邮箱</label>
+                                <input type="email" id="email" placeholder="请输入你的邮箱" 
+                                    class="w-full px-4 py-3 rounded-lg border border-wheat input-focus">
+                            </div>
+                        </div>
+                        
+                        <div>
+                            <label for="subject" class="block text-text font-medium mb-2">主题</label>
+                            <select id="subject" class="w-full px-4 py-3 rounded-lg border border-wheat input-focus">
+                                <option value="" disabled selected>请选择留言主题</option>
+                                <option value="join">加入社团咨询</option>
+                                <option value="activity">活动相关咨询</option>
+                                <option value="cooperation">合作意向</option>
+                                <option value="other">其他问题</option>
+                            </select>
+                        </div>
+                        
+                        <div>
+                            <label for="message" class="block text-text font-medium mb-2">留言内容</label>
+                            <textarea id="message" rows="6" placeholder="请输入你的留言内容..." 
+                                class="w-full px-4 py-3 rounded-lg border border-wheat input-focus"></textarea>
+                        </div>
+                        
+                        <div class="flex items-start">
+                            <input type="checkbox" id="agreement" class="mt-1 mr-3">
+                            <label for="agreement" class="text-sm text-text/70">
+                                我同意麦芒文学社根据<a href="#" class="text-gold hover:underline">隐私政策</a>处理我的个人信息，
+                                并同意接收相关回复
+                            </label>
+                        </div>
+                        
+                        <button type="submit" class="bg-gold hover:bg-goldDark text-white font-bold px-8 py-3 rounded-full transition-all transform hover:scale-105">
+                            发送留言 <i class="fa fa-paper-plane ml-2"></i>
+                        </button>
+                    </form>
+                    
+                    <!-- 提交成功提示 -->
+                    <div id="success-message" class="hidden mt-8 p-6 bg-green-50 border border-green-200 rounded-lg text-center">
+                        <div class="w-16 h-16 rounded-full bg-green-100 flex items-center justify-center mb-4 mx-auto">
+                            <i class="fa fa-check text-green-500 text-2xl"></i>
+                        </div>
+                        <h3 class="text-xl font-display text-green-700 mb-2">留言发送成功</h3>
+                        <p class="text-green-600/80">
+                            感谢你的留言，我们会尽快与你联系
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 常见问题 -->
+        <section class="mb-20">
+            <div class="text-center mb-12">
+                <h2 class="text-3xl md:text-4xl font-display text-text inline-block relative">
+                    常见问题
+                    <span class="absolute -bottom-3 left-1/2 transform -translate-x-1/2 w-1/2 h-1 bg-gold"></span>
+                </h2>
+                <p class="mt-4 text-text/70 max-w-2xl mx-auto">
+                    以下是社员和访客经常问到的问题，希望能解答你的疑惑
+                </p>
+            </div>
+            
+            <div class="max-w-3xl mx-auto">
+                <div class="space-y-4">
+                    <!-- 问题1 -->
+                    <div class="bg-white rounded-xl shadow-sm overflow-hidden">
+                        <button class="faq-toggle w-full flex justify-between items-center p-6 text-left focus:outline-none">
+                            <span class="font-medium text-lg">如何加入麦芒文学社？</span>
+                            <i class="fa fa-plus text-gold transition-transform duration-300"></i>
+                        </button>
+                        <div class="faq-content hidden px-6 pb-6">
+                            <p class="text-text/80">
+                                加入我们非常简单，你可以通过以下方式：1) 在本页面填写留言表单，选择"加入社团咨询"主题；2) 发送邮件至wheat@maimang.org，标题注明"申请加入"；3) 关注我们的微信公众号，在菜单中找到"加入我们"入口。我们会在收到申请后与你联系，安排简单的交流面试。
+                            </p>
+                        </div>
+                    </div>
+                    
+                    <!-- 问题2 -->
+                    <div class="bg-white rounded-xl shadow-sm overflow-hidden">
+                        <button class="faq-toggle w-full flex justify-between items-center p-6 text-left focus:outline-none">
+                            <span class="font-medium text-lg">社团活动有什么参与要求吗？</span>
+                            <i class="fa fa-plus text-gold transition-transform duration-300"></i>
+                        </button>
+                        <div class="faq-content hidden px-6 pb-6">
+                            <p class="text-text/80">
+                                我们的活动对社员免费开放，部分特殊活动可能需要分担少量物料费用。非社员可以参加我们的公开活动，但需要提前报名。无论是否为社员，我们都希望参与者能够尊重文学、尊重自然、尊重他人，积极参与交流互动。
+                            </p>
+                        </div>
+                    </div>
+                    
+                    <!-- 问题3 -->
+                    <div class="bg-white rounded-xl shadow-sm overflow-hidden">
+                        <button class="faq-toggle w-full flex justify-between items-center p-6 text-left focus:outline-none">
+                            <span class="font-medium text-lg">可以提交自己的作品给社团吗？</span>
+                            <i class="fa fa-plus text-gold transition-transform duration-300"></i>
+                        </button>
+                        <div class="faq-content hidden px-6 pb-6">
+                            <p class="text-text/80">
+                                当然可以！我们非常欢迎社员和非社员提交自己的作品。你可以将作品发送至我们的邮箱，注明"投稿"。优秀作品将有机会在我们的公众号发表，或入选年度作品集。所有投稿都会收到我们的专业点评。
+                            </p>
+                        </div>
+                    </div>
+                    
+                    <!-- 问题4 -->
+                    <div class="bg-white rounded-xl shadow-sm overflow-hidden">
+                        <button class="faq-toggle w-full flex justify-between items-center p-6 text-left focus:outline-none">
+                            <span class="font-medium text-lg">社团接受企业或机构的合作吗？</span>
+                            <i class="fa fa-plus text-gold transition-transform duration-300"></i>
+                        </button>
+                        <div class="faq-content hidden px-6 pb-6">
+                            <p class="text-text/80">
+                                我们欢迎与理念相符的企业或机构进行合作。合作形式包括活动赞助、场地支持、主题创作等。如果你有合作意向，可以通过本页面的留言表单或直接发送邮件与我们联系，详细说明合作想法，我们会评估后尽快回复。
+                            </p>
+                        </div>
+                    </div>
+                    
+                    <!-- 问题5 -->
+                    <div class="bg-white rounded-xl shadow-sm overflow-hidden">
+                        <button class="faq-toggle w-full flex justify-between items-center p-6 text-left focus:outline-none">
+                            <span class="font-medium text-lg">AI诗歌助手是免费使用的吗？</span>
+                            <i class="fa fa-plus text-gold transition-transform duration-300"></i>
+                        </button>
+                        <div class="faq-content hidden px-6 pb-6">
+                            <p class="text-text/80">
+                                是的，AI诗歌助手对所有用户免费开放使用。社员可以享受更多高级功能，如作品保存、个性化推荐等。我们开发这个工具的目的是帮助更多人激发创作灵感，感受诗歌之美。
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 来访地址 -->
+        <section class="mb-20">
+            <div class="max-w-5xl mx-auto">
+                <h2 class="text-3xl md:text-4xl font-display text-text inline-block relative mb-10">
+                    来访地址
+                    <span class="absolute -bottom-3 left-0 w-1/2 h-1 bg-gold"></span>
+                </h2>
+                
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                    <div class="bg-white rounded-2xl shadow-md overflow-hidden h-96">
+                        <!-- 这里是地图占位，实际项目中可以嵌入Google Maps或百度地图 -->
+                        <img src="https://picsum.photos/id/1031/800/600" alt="麦田书屋地图" class="w-full h-full object-cover">
+                    </div>
+                    
+                    <div class="bg-white rounded-2xl shadow-md p-8 md:p-10 hover-lift">
+                        <h3 class="text-2xl font-display text-text mb-6">麦田书屋</h3>
+                        
+                        <div class="space-y-6">
+                            <div>
+                                <h4 class="text-text font-medium mb-2 flex items-center">
+                                    <i class="fa fa-map-marker text-gold mr-2"></i> 详细地址
+                                </h4>
+                                <p class="text-text/80">
+                                    青春路88号麦田书屋（近青禾公园南门）
+                                </p>
+                            </div>
+                            
+                            <div>
+                                <h4 class="text-text font-medium mb-2 flex items-center">
+                                    <i class="fa fa-clock-o text-gold mr-2"></i> 开放时间
+                                </h4>
+                                <p class="text-text/80 mb-1">周二至周五：10:00 - 18:00</p>
+                                <p class="text-text/80">周六至周日：09:00 - 20:00（周一休息）</p>
+                            </div>
+                            
+                            <div>
+                                <h4 class="text-text font-medium mb-2 flex items-center">
+                                    <i class="fa fa-subway text-gold mr-2"></i> 交通方式
+                                </h4>
+                                <p class="text-text/80 mb-1">地铁：2号线青禾路站D出口，步行10分钟</p>
+                                <p class="text-text/80">公交：123路、456路至青禾公园站下车</p>
+                            </div>
+                            
+                            <div>
+                                <h4 class="text-text font-medium mb-2 flex items-center">
+                                    <i class="fa fa-info-circle text-gold mr-2"></i> 来访须知
+                                </h4>
+                                <p class="text-text/80">
+                                    来访前请提前1-2天预约，可通过电话或邮件预约。书屋提供免费茶水，禁止吸烟和大声喧哗。
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- 页脚 -->
+    <footer class="relative z-10 bg-text text-white py-12 px-4 mt-16">
+        <div class="container mx-auto">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8 mb-10">
+                <div>
+                    <div class="flex items-center mb-6">
+                        <div class="w-10 h-10 rounded-full bg-gold flex items-center justify-center mr-3">
+                            <i class="fa fa-pencil text-white"></i>
+                        </div>
+                        <div class="text-2xl font-display">
+                            <span class="text-gold">麦</span>
+                            <span class="text-cream">芒</span>
+                            <span class="text-goldLight">文学社</span>
+                        </div>
+                    </div>
+                    <p class="text-white/80">
+                        青春如穗，文字如芒。我们在文字的田野里，播种、生长、收获。
+                    </p>
+                </div>
+                
+                <div>
+                    <h4 class="text-xl font-display text-gold mb-4">联系我们</h4>
+                    <ul class="space-y-3 text-white/80">
+                        <li class="flex items-center"><i class="fa fa-envelope-o mr-2 text-goldLight"></i> wheat@maimang.org</li>
+                        <li class="flex items-center"><i class="fa fa-map-marker mr-2 text-goldLight"></i> 青春路88号麦田书屋</li>
+                        <li class="flex items-center"><i class="fa fa-phone mr-2 text-goldLight"></i> 138-xxxx-8877</li>
+                    </ul>
+                </div>
+                
+                <div>
+                    <h4 class="text-xl font-display text-gold mb-4">关注我们</h4>
+                    <p class="text-white/80 mb-4">在社交媒体上，感受文字的生长力量</p>
+                    <div class="flex space-x-4">
+                        <a href="#" class="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center hover:bg-gold transition-colors">
+                            <i class="fa fa-weixin"></i>
+                        </a>
+                        <a href="#" class="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center hover:bg-gold transition-colors">
+                            <i class="fa fa-weibo"></i>
+                        </a>
+                        <a href="#" class="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center hover:bg-gold transition-colors">
+                            <i class="fa fa-instagram"></i>
+                        </a>
+                    </div>
+                    
+                    <div class="mt-8">
+                        <h5 class="text-white/80 mb-2">订阅我们的电子麦报</h5>
+                        <form class="flex">
+                            <input type="email" placeholder="你的邮箱" class="px-4 py-2 rounded-l-lg focus:outline-none text-text flex-1">
+                            <button type="submit" class="bg-gold text-white px-4 py-2 rounded-r-lg hover:bg-goldDark transition-colors">
+                                订阅
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="border-t border-white/20 pt-6 text-center text-white/60 text-sm">
+                <p>© 2023 麦芒文学社 | 青春如穗，文字如芒 | 在文字的田野里收获成长</p>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // 滚动显示动画
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add('opacity-100', 'translate-y-0');
+                        entry.target.classList.remove('opacity-0', 'translate-y-10');
+                    }
+                });
+            }, { threshold: 0.1 });
+
+            // 为所有主要区块添加动画
+            document.querySelectorAll('section').forEach(item => {
+                item.classList.add('transition-all', 'duration-700', 'opacity-0', 'translate-y-10');
+                observer.observe(item);
+            });
+
+            // 平滑滚动
+            document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+                anchor.addEventListener('click', function (e) {
+                    e.preventDefault();
+                    const targetId = this.getAttribute('href');
+                    if (targetId !== '#') {
+                        const targetElement = document.querySelector(targetId);
+                        if (targetElement) {
+                            window.scrollTo({
+                                top: targetElement.offsetTop - 80,
+                                behavior: 'smooth'
+                            });
+                        }
+                    }
+                });
+            });
+
+            // 图片加载动画
+            const images = document.querySelectorAll('img');
+            images.forEach(img => {
+                img.classList.add('opacity-0', 'transition-opacity', 'duration-700');
+                img.onload = function() {
+                    this.classList.remove('opacity-0');
+                    this.classList.add('opacity-100');
+                }
+                if (img.complete) {
+                    img.classList.remove('opacity-0');
+                    img.classList.add('opacity-100');
+                }
+            });
+
+            // 常见问题折叠功能
+            const faqToggles = document.querySelectorAll('.faq-toggle');
+            faqToggles.forEach(toggle => {
+                toggle.addEventListener('click', () => {
+                    const content = toggle.nextElementSibling;
+                    const icon = toggle.querySelector('i');
+                    
+                    // 切换内容显示/隐藏
+                    content.classList.toggle('hidden');
+                    
+                    // 旋转图标
+                    if (content.classList.contains('hidden')) {
+                        icon.classList.remove('rotate-45');
+                        icon.classList.add('fa-plus');
+                        icon.classList.remove('fa-minus');
+                    } else {
+                        icon.classList.add('rotate-45');
+                        icon.classList.remove('fa-plus');
+                        icon.classList.add('fa-minus');
+                    }
+                });
+            });
+
+            // 联系表单提交
+            const contactForm = document.getElementById('contact-form');
+            const successMessage = document.getElementById('success-message');
+            
+            contactForm.addEventListener('submit', function(e) {
+                e.preventDefault();
+                
+                // 简单验证
+                const name = document.getElementById('name').value;
+                const email = document.getElementById('email').value;
+                const subject = document.getElementById('subject').value;
+                const message = document.getElementById('message').value;
+                const agreement = document.getElementById('agreement').checked;
+                
+                if (!name || !email || !subject || !message || !agreement) {
+                    alert('请填写完整信息并同意隐私政策');
+                    return;
+                }
+                
+                // 模拟表单提交
+                contactForm.classList.add('opacity-50');
+                contactForm.style.pointerEvents = 'none';
+                
+                setTimeout(() => {
+                    contactForm.classList.add('hidden');
+                    successMessage.classList.remove('hidden');
+                }, 1500);
+            });
+        });
+    </script>
+</body>
+</html>

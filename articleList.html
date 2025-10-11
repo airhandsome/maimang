@@ -1,0 +1,555 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>青春作品 - 麦芒文学社</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        cream: '#FFFDF5',      // 奶油白底色
+                        gold: '#FFD747',       // 明亮黄色
+                        goldLight: '#FFF3C0',  // 浅金色
+                        goldDark: '#F5C332',   // 深一点的金色
+                        wheat: '#FFEDCC',      // 小麦色
+                        text: '#594B36',       // 文字颜色
+                    },
+                    fontFamily: {
+                        sans: ['"Nunito"', 'sans-serif'],
+                        display: ['"Quicksand"', 'sans-serif']
+                    }
+                }
+            }
+        }
+    </script>
+    <style type="text/tailwindcss">
+        @layer utilities {
+            .text-float {
+                animation: textFloat 6s ease-in-out infinite;
+            }
+            .float-random {
+                animation: float 8s ease-in-out infinite;
+            }
+            .spin-slow {
+                animation: spin 20s linear infinite;
+            }
+            .wheat-pattern {
+                background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23FFD747' fill-opacity='0.1'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+            }
+            .hover-lift {
+                transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            }
+            .hover-lift:hover {
+                transform: translateY(-8px) rotate(1deg);
+                box-shadow: 0 15px 30px rgba(0, 0, 0, 0.05);
+            }
+            .text-shadow {
+                text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.05);
+            }
+            .form-focus {
+                @apply focus:border-gold focus:ring-2 focus:ring-gold/20 focus:outline-none;
+            }
+        }
+
+        @keyframes float {
+            0% { transform: translateY(0px) rotate(0deg); }
+            50% { transform: translateY(-12px) rotate(2deg); }
+            100% { transform: translateY(0px) rotate(0deg); }
+        }
+
+        @keyframes textFloat {
+            0% { transform: translateY(0px); }
+            50% { transform: translateY(-8px); }
+            100% { transform: translateY(0px); }
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700&family=Quicksand:wght@500;600;700&display=swap" rel="stylesheet">
+</head>
+<body class="bg-cream wheat-pattern text-text antialiased">
+    <!-- 漂浮装饰元素 -->
+    <div class="fixed inset-0 z-0 overflow-hidden pointer-events-none opacity-20">
+        <div class="absolute top-[15%] left-[5%] text-6xl font-display text-gold float-random" style="animation-delay: 0s">诗</div>
+        <div class="absolute top-[35%] right-[10%] text-5xl font-display text-text float-random" style="animation-delay: 1s">文</div>
+        <div class="absolute bottom-[30%] left-[20%] text-7xl font-display text-gold float-random" style="animation-delay: 2s">字</div>
+        <div class="absolute bottom-[40%] right-[15%] text-4xl font-display text-gold float-random" style="animation-delay: 3s">章</div>
+        <div class="absolute top-[60%] left-[10%] text-5xl font-display text-text float-random" style="animation-delay: 1.5s">篇</div>
+        <div class="absolute top-[25%] right-[20%] text-6xl font-display text-gold float-random" style="animation-delay: 2.5s">句</div>
+    </div>
+
+    <!-- 导航栏 -->
+    <nav class="relative z-50 py-4 px-4 md:px-8 bg-cream/90 backdrop-blur-sm sticky top-0 shadow-sm">
+        <div class="flex flex-wrap justify-between items-center">
+            <div class="flex items-center">
+                <div class="w-10 h-10 rounded-full bg-gold flex items-center justify-center mr-3 spin-slow">
+                    <i class="fa fa-pencil text-white"></i>
+                </div>
+                <div class="text-2xl md:text-3xl font-display">
+                    <span class="text-gold">麦</span>
+                    <span class="text-text">芒</span>
+                    <span class="text-goldDark">文学社</span>
+                </div>
+            </div>
+            
+            <div class="flex flex-wrap gap-2 md:gap-6 justify-end mt-4 md:mt-0">
+                <a href="index.html#about" class="px-3 py-2 text-text hover:text-gold transition-colors">关于我们</a>
+                <a href="#" class="px-3 py-2 text-gold border-b-2 border-gold font-medium">青春作品</a>
+                <a href="index.html#activities" class="px-3 py-2 text-text hover:text-gold transition-colors">田间活动</a>
+                <a href="index.html#login" class="px-4 py-2 bg-gold text-white rounded-full hover:bg-goldDark transition-colors shadow-sm">登录 / 注册</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- 头部区域 -->
+    <header class="relative z-10 py-16 md:py-24 px-4 overflow-hidden">
+        <div class="absolute inset-0 z-0">
+            <div class="absolute inset-0 bg-gradient-to-b from-gold/5 to-cream/80"></div>
+            <img src="https://picsum.photos/id/175/1920/1080" alt="文学作品背景" class="w-full h-full object-cover object-center opacity-40">
+        </div>
+        
+        <div class="relative z-10 max-w-4xl mx-auto text-center">
+            <h1 class="text-5xl md:text-7xl font-display leading-tight mb-6 text-gold text-shadow">
+                青春的文字<br>收获的季节
+            </h1>
+            <p class="text-xl md:text-2xl font-sans max-w-2xl mx-auto mb-8 text-text">
+                每一篇作品都是青春的印记，每一个文字都承载着成长的力量
+            </p>
+            
+            <!-- 作品分类筛选 -->
+            <div class="flex flex-wrap justify-center gap-3 mb-4">
+                <button class="px-4 py-2 bg-gold text-white rounded-full text-sm font-medium hover:bg-goldDark transition-colors">
+                    全部作品
+                </button>
+                <button class="px-4 py-2 bg-white text-text rounded-full text-sm font-medium hover:bg-goldLight transition-colors">
+                    诗歌
+                </button>
+                <button class="px-4 py-2 bg-white text-text rounded-full text-sm font-medium hover:bg-goldLight transition-colors">
+                    散文
+                </button>
+                <button class="px-4 py-2 bg-white text-text rounded-full text-sm font-medium hover:bg-goldLight transition-colors">
+                    小说
+                </button>
+                <button class="px-4 py-2 bg-white text-text rounded-full text-sm font-medium hover:bg-goldLight transition-colors">
+                    杂文
+                </button>
+                <button class="px-4 py-2 bg-white text-text rounded-full text-sm font-medium hover:bg-goldLight transition-colors">
+                    剧本
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <main class="relative z-10 container mx-auto px-4 py-12">
+        <!-- 作品列表 -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-16">
+            <!-- 作品1 -->
+            <div class="bg-white rounded-xl overflow-hidden shadow-md hover-lift">
+                <div class="h-52 relative overflow-hidden">
+                    <img src="https://picsum.photos/id/118/600/400" alt="作品配图" class="w-full h-full object-cover transition-transform duration-700 hover:scale-110">
+                    <div class="absolute inset-0 bg-gradient-to-t from-text/60 to-transparent"></div>
+                    <div class="absolute bottom-4 left-4 text-white">
+                        <span class="px-3 py-1 bg-gold/90 text-white text-sm rounded-full">诗歌</span>
+                    </div>
+                </div>
+                <div class="p-6">
+                    <h3 class="text-xl font-display text-text mb-2">《麦田上的云》</h3>
+                    <p class="text-sm text-gold mb-3">作者：风之子 | 2023.06</p>
+                    <p class="text-text/80 mb-4 line-clamp-3">
+                        云在麦田上投下影子<br>
+                        像未写完的诗行<br>
+                        麦芒刺破阳光<br>
+                        落下一地碎金<br>
+                        我们躺在田埂上<br>
+                        让风读我们的青春
+                    </p>
+                    <a href="#" class="text-gold hover:text-goldDark inline-flex items-center transition-colors font-medium">
+                        阅读全文 <i class="fa fa-long-arrow-right ml-1"></i>
+                    </a>
+                </div>
+            </div>
+
+            <!-- 作品2 -->
+            <div class="bg-white rounded-xl overflow-hidden shadow-md hover-lift">
+                <div class="h-52 relative overflow-hidden">
+                    <img src="https://picsum.photos/id/164/600/400" alt="作品配图" class="w-full h-full object-cover transition-transform duration-700 hover:scale-110">
+                    <div class="absolute inset-0 bg-gradient-to-t from-text/60 to-transparent"></div>
+                    <div class="absolute bottom-4 left-4 text-white">
+                        <span class="px-3 py-1 bg-gold/90 text-white text-sm rounded-full">散文</span>
+                    </div>
+                </div>
+                <div class="p-6">
+                    <h3 class="text-xl font-display text-text mb-2">《晒谷场的黄昏》</h3>
+                    <p class="text-sm text-gold mb-3">作者：麦小穗 | 2023.08</p>
+                    <p class="text-text/80 mb-4 line-clamp-3">
+                        夕阳把晒谷场变成金色的海洋，谷粒在木锨翻动间跳跃，像无数个饱满的词语。爷爷说，好的文字要像晒透的谷子，经得起时间的晾晒，每一粒都有分量。
+                    </p>
+                    <a href="#" class="text-gold hover:text-goldDark inline-flex items-center transition-colors font-medium">
+                        阅读全文 <i class="fa fa-long-arrow-right ml-1"></i>
+                    </a>
+                </div>
+            </div>
+
+            <!-- 作品3 -->
+            <div class="bg-white rounded-xl overflow-hidden shadow-md hover-lift">
+                <div class="h-52 relative overflow-hidden">
+                    <img src="https://picsum.photos/id/122/600/400" alt="作品配图" class="w-full h-full object-cover transition-transform duration-700 hover:scale-110">
+                    <div class="absolute inset-0 bg-gradient-to-t from-text/60 to-transparent"></div>
+                    <div class="absolute bottom-4 left-4 text-white">
+                        <span class="px-3 py-1 bg-gold/90 text-white text-sm rounded-full">小说</span>
+                    </div>
+                </div>
+                <div class="p-6">
+                    <h3 class="text-xl font-display text-text mb-2">《稻草人日记》</h3>
+                    <p class="text-sm text-gold mb-3">作者：禾火 | 2023.07</p>
+                    <p class="text-text/80 mb-4 line-clamp-3">
+                        作为田野里的守望者，我见证了四季轮回。那些被风吹散的秘密，那些在月光下交换的心事，都藏在麦芒的缝隙里。直到有一天，一个写诗的女孩发现了我...
+                    </p>
+                    <a href="#" class="text-gold hover:text-goldDark inline-flex items-center transition-colors font-medium">
+                        阅读全文 <i class="fa fa-long-arrow-right ml-1"></i>
+                    </a>
+                </div>
+            </div>
+
+            <!-- 作品4 -->
+            <div class="bg-white rounded-xl overflow-hidden shadow-md hover-lift">
+                <div class="h-52 relative overflow-hidden">
+                    <img src="https://picsum.photos/id/133/600/400" alt="作品配图" class="w-full h-full object-cover transition-transform duration-700 hover:scale-110">
+                    <div class="absolute inset-0 bg-gradient-to-t from-text/60 to-transparent"></div>
+                    <div class="absolute bottom-4 left-4 text-white">
+                        <span class="px-3 py-1 bg-gold/90 text-white text-sm rounded-full">诗歌</span>
+                    </div>
+                </div>
+                <div class="p-6">
+                    <h3 class="text-xl font-display text-text mb-2">《雨季的诗》</h3>
+                    <p class="text-sm text-gold mb-3">作者：雨桐 | 2023.05</p>
+                    <p class="text-text/80 mb-4 line-clamp-3">
+                        雨滴敲打着窗棂<br>
+                        像一行行未押韵的诗<br>
+                        潮湿的空气里<br>
+                        文字开始发芽<br>
+                        在纸页的土壤里<br>
+                        长出一片新绿
+                    </p>
+                    <a href="#" class="text-gold hover:text-goldDark inline-flex items-center transition-colors font-medium">
+                        阅读全文 <i class="fa fa-long-arrow-right ml-1"></i>
+                    </a>
+                </div>
+            </div>
+
+            <!-- 作品5 -->
+            <div class="bg-white rounded-xl overflow-hidden shadow-md hover-lift">
+                <div class="h-52 relative overflow-hidden">
+                    <img src="https://picsum.photos/id/145/600/400" alt="作品配图" class="w-full h-full object-cover transition-transform duration-700 hover:scale-110">
+                    <div class="absolute inset-0 bg-gradient-to-t from-text/60 to-transparent"></div>
+                    <div class="absolute bottom-4 left-4 text-white">
+                        <span class="px-3 py-1 bg-gold/90 text-white text-sm rounded-full">杂文</span>
+                    </div>
+                </div>
+                <div class="p-6">
+                    <h3 class="text-xl font-display text-text mb-2">《文字的重量》</h3>
+                    <p class="text-sm text-gold mb-3">作者：墨石 | 2023.09</p>
+                    <p class="text-text/80 mb-4 line-clamp-3">
+                        我们总说文字是有重量的，但从未想过它究竟有多重。是像一粒麦子那样轻，还是像成熟的麦穗那样沉甸甸？或许，文字的重量不在于数量，而在于它所承载的情感与思考。
+                    </p>
+                    <a href="#" class="text-gold hover:text-goldDark inline-flex items-center transition-colors font-medium">
+                        阅读全文 <i class="fa fa-long-arrow-right ml-1"></i>
+                    </a>
+                </div>
+            </div>
+
+            <!-- 作品6 -->
+            <div class="bg-white rounded-xl overflow-hidden shadow-md hover-lift">
+                <div class="h-52 relative overflow-hidden">
+                    <img src="https://picsum.photos/id/183/600/400" alt="作品配图" class="w-full h-full object-cover transition-transform duration-700 hover:scale-110">
+                    <div class="absolute inset-0 bg-gradient-to-t from-text/60 to-transparent"></div>
+                    <div class="absolute bottom-4 left-4 text-white">
+                        <span class="px-3 py-1 bg-gold/90 text-white text-sm rounded-full">剧本</span>
+                    </div>
+                </div>
+                <div class="p-6">
+                    <h3 class="text-xl font-display text-text mb-2">《图书馆的约定》</h3>
+                    <p class="text-sm text-gold mb-3">作者：书言 | 2023.04</p>
+                    <p class="text-text/80 mb-4 line-clamp-3">
+                        【场景：老旧图书馆的角落】<br>
+                        【人物：热爱诗歌的女孩，沉默的图书管理员】<br>
+                        女孩：（轻声）您这里有关于麦芒的诗集吗？<br>
+                        管理员：（递过一本泛黄的书）每一粒麦子都有自己的故事...
+                    </p>
+                    <a href="#" class="text-gold hover:text-goldDark inline-flex items-center transition-colors font-medium">
+                        阅读全文 <i class="fa fa-long-arrow-right ml-1"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- 精选作品 -->
+        <section class="mb-16">
+            <div class="text-center mb-12">
+                <h2 class="text-3xl md:text-4xl font-display text-text inline-block relative">
+                    本月精选
+                    <span class="absolute -bottom-3 left-1/2 transform -translate-x-1/2 w-1/2 h-1 bg-gold"></span>
+                </h2>
+            </div>
+
+            <div class="bg-white rounded-2xl overflow-hidden shadow-md">
+                <div class="grid grid-cols-1 lg:grid-cols-2">
+                    <div class="relative h-64 lg:h-auto">
+                        <img src="https://picsum.photos/id/117/800/600" alt="本月精选作品" class="w-full h-full object-cover">
+                        <div class="absolute top-4 left-4">
+                            <span class="px-4 py-2 bg-gold text-white text-sm rounded-full font-medium">编辑推荐</span>
+                        </div>
+                    </div>
+                    <div class="p-8">
+                        <h3 class="text-2xl md:text-3xl font-display text-text mb-3">《季节的笔迹》</h3>
+                        <p class="text-gold mb-4">作者：青禾 | 2023.10 | 散文</p>
+                        <p class="text-text/80 mb-6 leading-relaxed">
+                            春风是第一支笔，轻轻划过解冻的土地，写下萌芽的诗行。夏雨是第二支笔，用密集的韵脚，记录生长的喧嚣。秋阳是第三支笔，以温暖的色调，描绘收获的篇章。冬雪是最后一支笔，用留白的艺术，等待下一个春天的续写...
+                        </p>
+                        <div class="flex flex-wrap items-center gap-4 mb-6">
+                            <div class="flex items-center text-text/70">
+                                <i class="fa fa-eye mr-2 text-gold"></i> 阅读 328
+                            </div>
+                            <div class="flex items-center text-text/70">
+                                <i class="fa fa-heart mr-2 text-gold"></i> 喜欢 56
+                            </div>
+                            <div class="flex items-center text-text/70">
+                                <i class="fa fa-comment mr-2 text-gold"></i> 评论 12
+                            </div>
+                        </div>
+                        <a href="#" class="inline-block bg-gold hover:bg-goldDark text-white font-bold px-6 py-2 rounded-full transition-all transform hover:scale-105">
+                            阅读完整作品
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 作者专栏 -->
+        <section class="mb-16">
+            <div class="text-center mb-12">
+                <h2 class="text-3xl md:text-4xl font-display text-text inline-block relative">
+                    作者专栏
+                    <span class="absolute -bottom-3 left-1/2 transform -translate-x-1/2 w-1/2 h-1 bg-gold"></span>
+                </h2>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                <!-- 作者1 -->
+                <div class="bg-white p-6 rounded-xl shadow-sm hover-lift text-center">
+                    <div class="w-24 h-24 rounded-full overflow-hidden mx-auto mb-4 border-4 border-goldLight">
+                        <img src="https://picsum.photos/id/64/200/200" alt="作者头像" class="w-full h-full object-cover">
+                    </div>
+                    <h3 class="text-xl font-display text-text mb-1">风之子</h3>
+                    <p class="text-gold text-sm mb-3">诗歌创作者 | 28篇作品</p>
+                    <p class="text-text/70 mb-4 text-sm">
+                        "我在风中收集词语，让它们像蒲公英一样，随风飘散到该去的地方。"
+                    </p>
+                    <a href="#" class="text-gold hover:text-goldDark inline-flex items-center transition-colors text-sm font-medium">
+                        查看全部作品 <i class="fa fa-angle-right ml-1"></i>
+                    </a>
+                </div>
+
+                <!-- 作者2 -->
+                <div class="bg-white p-6 rounded-xl shadow-sm hover-lift text-center">
+                    <div class="w-24 h-24 rounded-full overflow-hidden mx-auto mb-4 border-4 border-goldLight">
+                        <img src="https://picsum.photos/id/65/200/200" alt="作者头像" class="w-full h-full object-cover">
+                    </div>
+                    <h3 class="text-xl font-display text-text mb-1">麦小穗</h3>
+                    <p class="text-gold text-sm mb-3">散文作家 | 19篇作品</p>
+                    <p class="text-text/70 mb-4 text-sm">
+                        "从生活的土壤中汲取养分，让文字像麦穗一样，饱满而真实。"
+                    </p>
+                    <a href="#" class="text-gold hover:text-goldDark inline-flex items-center transition-colors text-sm font-medium">
+                        查看全部作品 <i class="fa fa-angle-right ml-1"></i>
+                    </a>
+                </div>
+
+                <!-- 作者3 -->
+                <div class="bg-white p-6 rounded-xl shadow-sm hover-lift text-center">
+                    <div class="w-24 h-24 rounded-full overflow-hidden mx-auto mb-4 border-4 border-goldLight">
+                        <img src="https://picsum.photos/id/91/200/200" alt="作者头像" class="w-full h-full object-cover">
+                    </div>
+                    <h3 class="text-xl font-display text-text mb-1">禾火</h3>
+                    <p class="text-gold text-sm mb-3">小说创作者 | 12篇作品</p>
+                    <p class="text-text/70 mb-4 text-sm">
+                        "用故事点燃想象，让每个角色都拥有自己的温度和光芒。"
+                    </p>
+                    <a href="#" class="text-gold hover:text-goldDark inline-flex items-center transition-colors text-sm font-medium">
+                        查看全部作品 <i class="fa fa-angle-right ml-1"></i>
+                    </a>
+                </div>
+            </div>
+        </section>
+
+        <!-- 分页 -->
+        <div class="flex justify-center items-center gap-2">
+            <a href="#" class="w-10 h-10 flex items-center justify-center rounded-full border border-gold/30 text-text hover:bg-gold hover:text-white transition-colors">
+                <i class="fa fa-angle-left"></i>
+            </a>
+            <a href="#" class="w-10 h-10 flex items-center justify-center rounded-full bg-gold text-white">1</a>
+            <a href="#" class="w-10 h-10 flex items-center justify-center rounded-full border border-gold/30 text-text hover:bg-gold hover:text-white transition-colors">2</a>
+            <a href="#" class="w-10 h-10 flex items-center justify-center rounded-full border border-gold/30 text-text hover:bg-gold hover:text-white transition-colors">3</a>
+            <span class="text-text/50">...</span>
+            <a href="#" class="w-10 h-10 flex items-center justify-center rounded-full border border-gold/30 text-text hover:bg-gold hover:text-white transition-colors">8</a>
+            <a href="#" class="w-10 h-10 flex items-center justify-center rounded-full border border-gold/30 text-text hover:bg-gold hover:text-white transition-colors">
+                <i class="fa fa-angle-right"></i>
+            </a>
+        </div>
+
+        <!-- 投稿区域 -->
+        <section class="mt-20 bg-goldLight/30 rounded-2xl p-8 md:p-12">
+            <div class="max-w-3xl mx-auto text-center">
+                <h2 class="text-3xl md:text-4xl font-display text-text mb-6">
+                    分享你的文字
+                </h2>
+                <p class="text-text/80 mb-8 text-lg">
+                    如果你也有想要表达的故事和情感，欢迎向我们投稿，让更多人听见你的声音
+                </p>
+                <a href="#" class="inline-block bg-gold hover:bg-goldDark text-white font-bold px-8 py-3 rounded-full transition-all transform hover:scale-105 shadow-sm">
+                    我要投稿 <i class="fa fa-paper-plane ml-2"></i>
+                </a>
+            </div>
+        </section>
+    </main>
+
+    <!-- 页脚 -->
+    <footer class="relative z-10 bg-text text-white py-12 px-4 mt-16">
+        <div class="container mx-auto">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8 mb-10">
+                <div>
+                    <div class="flex items-center mb-6">
+                        <div class="w-10 h-10 rounded-full bg-gold flex items-center justify-center mr-3">
+                            <i class="fa fa-pencil text-white"></i>
+                        </div>
+                        <div class="text-2xl font-display">
+                            <span class="text-gold">麦</span>
+                            <span class="text-cream">芒</span>
+                            <span class="text-goldLight">文学社</span>
+                        </div>
+                    </div>
+                    <p class="text-white/80">
+                        青春如穗，文字如芒。我们在文字的田野里，播种、生长、收获。
+                    </p>
+                </div>
+                
+                <div>
+                    <h4 class="text-xl font-display text-gold mb-4">联系我们</h4>
+                    <ul class="space-y-3 text-white/80">
+                        <li class="flex items-center"><i class="fa fa-envelope-o mr-2 text-goldLight"></i> wheat@maimang.org</li>
+                        <li class="flex items-center"><i class="fa fa-map-marker mr-2 text-goldLight"></i> 青春路88号麦田书屋</li>
+                        <li class="flex items-center"><i class="fa fa-phone mr-2 text-goldLight"></i> 138-xxxx-8877</li>
+                    </ul>
+                </div>
+                
+                <div>
+                    <h4 class="text-xl font-display text-gold mb-4">关注我们</h4>
+                    <p class="text-white/80 mb-4">在社交媒体上，感受文字的生长力量</p>
+                    <div class="flex space-x-4">
+                        <a href="#" class="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center hover:bg-gold transition-colors">
+                            <i class="fa fa-weixin"></i>
+                        </a>
+                        <a href="#" class="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center hover:bg-gold transition-colors">
+                            <i class="fa fa-weibo"></i>
+                        </a>
+                        <a href="#" class="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center hover:bg-gold transition-colors">
+                            <i class="fa fa-instagram"></i>
+                        </a>
+                    </div>
+                    
+                    <div class="mt-8">
+                        <h5 class="text-white/80 mb-2">订阅我们的电子麦报</h5>
+                        <form class="flex">
+                            <input type="email" placeholder="你的邮箱" class="px-4 py-2 rounded-l-lg focus:outline-none text-text flex-1">
+                            <button type="submit" class="bg-gold text-white px-4 py-2 rounded-r-lg hover:bg-goldDark transition-colors">
+                                订阅
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="border-t border-white/20 pt-6 text-center text-white/60 text-sm">
+                <p>© 2023 麦芒文学社 | 青春如穗，文字如芒 | 在文字的田野里收获成长</p>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // 滚动动画效果
+        document.addEventListener('DOMContentLoaded', () => {
+            // 滚动显示动画
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add('opacity-100', 'translate-y-0');
+                        entry.target.classList.remove('opacity-0', 'translate-y-10');
+                    }
+                });
+            }, { threshold: 0.1 });
+
+            // 为所有主要区块添加动画
+            document.querySelectorAll('section, .grid > div').forEach(item => {
+                item.classList.add('transition-all', 'duration-700', 'opacity-0', 'translate-y-10');
+                observer.observe(item);
+            });
+
+            // 平滑滚动
+            document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+                anchor.addEventListener('click', function (e) {
+                    e.preventDefault();
+                    const targetId = this.getAttribute('href');
+                    if (targetId !== '#') {
+                        const targetElement = document.querySelector(targetId);
+                        if (targetElement) {
+                            window.scrollTo({
+                                top: targetElement.offsetTop - 80,
+                                behavior: 'smooth'
+                            });
+                        }
+                    }
+                });
+            });
+
+            // 图片加载动画
+            const images = document.querySelectorAll('img');
+            images.forEach(img => {
+                img.classList.add('opacity-0', 'transition-opacity', 'duration-700');
+                img.onload = function() {
+                    this.classList.remove('opacity-0');
+                    this.classList.add('opacity-100');
+                }
+                if (img.complete) {
+                    img.classList.remove('opacity-0');
+                    img.classList.add('opacity-100');
+                }
+            });
+
+            // 作品分类筛选交互
+            const filterButtons = document.querySelectorAll('.flex-wrap button');
+            filterButtons.forEach(button => {
+                button.addEventListener('click', () => {
+                    // 移除所有按钮的活跃状态
+                    filterButtons.forEach(btn => {
+                        btn.classList.remove('bg-gold', 'text-white');
+                        btn.classList.add('bg-white', 'text-text');
+                    });
+                    
+                    // 设置当前按钮为活跃状态
+                    button.classList.remove('bg-white', 'text-text');
+                    button.classList.add('bg-gold', 'text-white');
+                    
+                    // 这里可以添加实际筛选作品的逻辑
+                });
+            });
+        });
+    </script>
+</body>
+</html>
