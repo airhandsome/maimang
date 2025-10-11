@@ -412,3 +412,114 @@ func DeleteAdmin(db *gorm.DB) fiber.Handler {
 		})
 	}
 }
+
+// 封禁用户
+func BanUser(db *gorm.DB) fiber.Handler {
+	return func(c *fiber.Ctx) error {
+		userID, err := strconv.ParseUint(c.Params("id"), 10, 32)
+		if err != nil {
+			return c.Status(400).JSON(types.Response{
+				Success: false,
+				Error:   "Invalid user ID",
+			})
+		}
+
+		var req struct {
+			Reason string `json:"reason"`
+		}
+		if err := c.BodyParser(&req); err != nil {
+			return c.Status(400).JSON(types.Response{
+				Success: false,
+				Error:   "Invalid request body",
+			})
+		}
+
+		// 检查用户是否存在
+		var user repo.User
+		if err := db.First(&user, userID).Error; err != nil {
+			if err == gorm.ErrRecordNotFound {
+				return c.Status(404).JSON(types.Response{
+					Success: false,
+					Error:   "User not found",
+				})
+			}
+			return c.Status(500).JSON(types.Response{
+				Success: false,
+				Error:   "Failed to fetch user",
+			})
+		}
+
+		// 不能封禁管理员
+		if user.Role == "admin" {
+			return c.Status(400).JSON(types.Response{
+				Success: false,
+				Error:   "Cannot ban admin users",
+			})
+		}
+
+		// 更新用户状态为封禁
+		updates := map[string]interface{}{
+			"status": "banned",
+		}
+		if req.Reason != "" {
+			updates["ban_reason"] = req.Reason
+		}
+
+		if err := db.Model(&user).Updates(updates).Error; err != nil {
+			return c.Status(500).JSON(types.Response{
+				Success: false,
+				Error:   "Failed to ban user",
+			})
+		}
+
+		return c.JSON(types.Response{
+			Success: true,
+			Message: "User banned successfully",
+		})
+	}
+}
+
+// 解封用户
+func UnbanUser(db *gorm.DB) fiber.Handler {
+	return func(c *fiber.Ctx) error {
+		userID, err := strconv.ParseUint(c.Params("id"), 10, 32)
+		if err != nil {
+			return c.Status(400).JSON(types.Response{
+				Success: false,
+				Error:   "Invalid user ID",
+			})
+		}
+
+		// 检查用户是否存在
+		var user repo.User
+		if err := db.First(&user, userID).Error; err != nil {
+			if err == gorm.ErrRecordNotFound {
+				return c.Status(404).JSON(types.Response{
+					Success: false,
+					Error:   "User not found",
+				})
+			}
+			return c.Status(500).JSON(types.Response{
+				Success: false,
+				Error:   "Failed to fetch user",
+			})
+		}
+
+		// 更新用户状态为活跃
+		updates := map[string]interface{}{
+			"status": "active",
+		}
+
+		if err := db.Model(&user).Updates(updates).Error; err != nil {
+			return c.Status(500).JSON(types.Response{
+				Success: false,
+				Error:   "Failed to unban user",
+			})
+		}
+
+		return c.JSON(types.Response{
+			Success: true,
+			Message: "User unbanned successfully",
+		})
+	}
+}

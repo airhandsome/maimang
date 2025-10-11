@@ -2,6 +2,8 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
+import { useState, useEffect, useCallback, useRef } from 'react';
+import { http, type User } from '@/lib/http';
 
 interface AdminSidebarProps {
   isOpen: boolean;
@@ -10,6 +12,35 @@ interface AdminSidebarProps {
 
 export default function AdminSidebar({ isOpen, onClose }: AdminSidebarProps) {
   const pathname = usePathname();
+  const [user, setUser] = useState<User | null>(null);
+  const [loading, setLoading] = useState(true);
+  const hasRequested = useRef(false);
+
+  // 获取当前用户信息
+  const fetchCurrentUser = useCallback(async () => {
+    // 防止重复请求
+    if (hasRequested.current) {
+      return;
+    }
+    
+    hasRequested.current = true;
+    
+    try {
+      setLoading(true);
+      const response = await http.getCurrentUser();
+      if (response.success && response.data) {
+        setUser(response.data);
+      }
+    } catch (error) {
+      console.error('AdminSidebar: 获取用户信息失败:', error);
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    fetchCurrentUser();
+  }, [fetchCurrentUser]);
 
   const sidebarItems = [
     { href: '/admin/dashboard', icon: 'fa-tachometer', label: '仪表盘' },
@@ -67,15 +98,44 @@ export default function AdminSidebar({ isOpen, onClose }: AdminSidebarProps) {
         {/* 底部用户信息 - 固定在底部 */}
         <div className="flex-shrink-0 p-4 border-t bg-white">
           <div className="flex items-center gap-3">
-            <img 
-              src="https://picsum.photos/id/64/100/100" 
-              alt="管理员头像" 
-              className="w-10 h-10 rounded-full object-cover" 
-            />
-            <div className="flex-1 min-w-0">
-              <p className="font-medium text-sm truncate">王管理员</p>
-              <p className="text-gray-500 text-xs">超级管理员</p>
-            </div>
+            {loading ? (
+              // 加载状态
+              <>
+                <div className="w-10 h-10 rounded-full bg-gray-200 animate-pulse"></div>
+                <div className="flex-1 min-w-0">
+                  <div className="h-4 bg-gray-200 rounded animate-pulse mb-1"></div>
+                  <div className="h-3 bg-gray-200 rounded animate-pulse w-20"></div>
+                </div>
+              </>
+            ) : user ? (
+              // 显示真实用户信息
+              <>
+                <img 
+                  src={user.avatar ? `http://localhost:8080${user.avatar}` : '/default-avatar.png'} 
+                  alt="用户头像" 
+                  className="w-10 h-10 rounded-full object-cover" 
+                  onError={(e) => {
+                    // 头像加载失败时使用默认头像
+                    e.currentTarget.src = '/default-avatar.png';
+                  }}
+                />
+                <div className="flex-1 min-w-0">
+                  <p className="font-medium text-sm truncate">{user.name}</p>
+                  <p className="text-gray-500 text-xs">{user.role}</p>
+                </div>
+              </>
+            ) : (
+              // 用户信息获取失败时的默认显示
+              <>
+                <div className="w-10 h-10 rounded-full bg-gray-300 flex items-center justify-center">
+                  <i className="fa fa-user text-gray-500"></i>
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="font-medium text-sm truncate">未知用户</p>
+                  <p className="text-gray-500 text-xs">管理员</p>
+                </div>
+              </>
+            )}
             <button 
               className="flex-shrink-0 text-gray-400 hover:text-red-500 transition-colors p-1"
               title="退出登录"

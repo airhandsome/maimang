@@ -560,10 +560,85 @@ class Http {
   async getActivityStats(): Promise<ApiResponse<ActivityStats>> {
     return this.get<ApiResponse<ActivityStats>>('/admin/statistics/activities');
   }
+
+  // 获取当前用户信息
+  async getCurrentUser(): Promise<ApiResponse<User>> {
+    return this.get<ApiResponse<User>>('/profile');
+  }
+
+  // 用户管理相关API
+  async getUsers(params?: {
+    page?: number;
+    per_page?: number;
+    search?: string;
+    role?: string;
+    status?: string;
+    sort_by?: string;
+    sort_dir?: string;
+  }): Promise<PaginatedResponse<User>> {
+    const queryParams = new URLSearchParams();
+    if (params) {
+      Object.entries(params).forEach(([key, value]) => {
+        if (value !== undefined) {
+          queryParams.append(key, value.toString());
+        }
+      });
+    }
+    const query = queryParams.toString();
+    return this.get<PaginatedResponse<User>>(`/admin/users${query ? `?${query}` : ''}`);
+  }
+
+  async getUser(id: number): Promise<ApiResponse<User>> {
+    return this.get<ApiResponse<User>>(`/admin/users/${id}`);
+  }
+
+  async updateUser(id: number, data: Partial<{
+    name: string;
+    email: string;
+    role: string;
+    bio: string;
+    gender: string;
+    phone: string;
+    weibo: string;
+    wechat: string;
+  }>): Promise<ApiResponse<User>> {
+    return this.put<ApiResponse<User>>(`/admin/users/${id}`, data);
+  }
+
+  async updateUserStatus(id: number, status: string): Promise<ApiResponse> {
+    return this.put<ApiResponse>(`/admin/users/${id}/status`, { status });
+  }
+
+  async banUser(id: number, reason?: string): Promise<ApiResponse> {
+    return this.put<ApiResponse>(`/admin/users/${id}/ban`, { reason });
+  }
+
+  async unbanUser(id: number): Promise<ApiResponse> {
+    return this.put<ApiResponse>(`/admin/users/${id}/unban`);
+  }
 }
 
 export const http = new Http();
 export default http;
 
+// 用户信息类型
+export interface User {
+  id: number;
+  created_at: string;
+  updated_at: string;
+  name: string;
+  email: string;
+  role: string;
+  avatar: string;
+  bio: string;
+  gender: string;
+  phone: string;
+  tags: string[];
+  weibo: string;
+  wechat: string;
+  status: string;
+  last_login_at?: string;
+}
+
 // 导出类型
-export type { Work, WorkStats, Comment, CommentStats, Activity, ActivityParticipant, ActivityStats, ApiResponse, PaginatedResponse };
+export type { Work, WorkStats, Comment, CommentStats, Activity, ActivityParticipant, ActivityStats, User, ApiResponse, PaginatedResponse };

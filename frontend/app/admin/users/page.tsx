@@ -1,90 +1,93 @@
 'use client';
 
-import { useState } from 'react';
-
-interface User {
-  id: number;
-  name: string;
-  email: string;
-  role: 'admin' | 'member' | 'guest';
-  joinDate: string;
-  lastActive: string;
-  worksCount: number;
-  status: 'active' | 'inactive' | 'banned';
-  avatar: string;
-}
+import { useState, useEffect } from 'react';
+import Link from 'next/link';
+import { http, type User } from '@/lib/http';
 
 export default function UsersManagement() {
-  const [users] = useState<User[]>([
-    {
-      id: 1,
-      name: "张小明",
-      email: "zhangxiaoming@example.com",
-      role: "member",
-      joinDate: "2023-08-15",
-      lastActive: "2023-10-20",
-      worksCount: 5,
-      status: "active",
-      avatar: "https://picsum.photos/id/64/100/100"
-    },
-    {
-      id: 2,
-      name: "李小红",
-      email: "lixiaohong@example.com",
-      role: "member",
-      joinDate: "2023-09-02",
-      lastActive: "2023-10-19",
-      worksCount: 3,
-      status: "active",
-      avatar: "https://picsum.photos/id/65/100/100"
-    },
-    {
-      id: 3,
-      name: "王小华",
-      email: "wangxiaohua@example.com",
-      role: "admin",
-      joinDate: "2023-07-10",
-      lastActive: "2023-10-20",
-      worksCount: 12,
-      status: "active",
-      avatar: "https://picsum.photos/id/66/100/100"
-    },
-    {
-      id: 4,
-      name: "赵小强",
-      email: "zhaoxiaoqiang@example.com",
-      role: "member",
-      joinDate: "2023-09-20",
-      lastActive: "2023-10-15",
-      worksCount: 1,
-      status: "inactive",
-      avatar: "https://picsum.photos/id/67/100/100"
-    },
-    {
-      id: 5,
-      name: "陈小美",
-      email: "chenxiaomei@example.com",
-      role: "guest",
-      joinDate: "2023-10-01",
-      lastActive: "2023-10-18",
-      worksCount: 0,
-      status: "active",
-      avatar: "https://picsum.photos/id/68/100/100"
-    }
-  ]);
+  const [users, setUsers] = useState<User[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const [total, setTotal] = useState(0);
 
   const [filterRole, setFilterRole] = useState<string>('all');
   const [filterStatus, setFilterStatus] = useState<string>('all');
   const [searchTerm, setSearchTerm] = useState<string>('');
 
-  const filteredUsers = users.filter(user => {
-    const roleMatch = filterRole === 'all' || user.role === filterRole;
-    const statusMatch = filterStatus === 'all' || user.status === filterStatus;
-    const searchMatch = searchTerm === '' || 
-      user.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      user.email.toLowerCase().includes(searchTerm.toLowerCase());
-    return roleMatch && statusMatch && searchMatch;
-  });
+  // 获取用户列表
+  const fetchUsers = async () => {
+    try {
+      setLoading(true);
+      setError(null);
+      
+      const params: any = {
+        page: currentPage,
+        per_page: 20,
+        sort_by: 'created_at',
+        sort_dir: 'desc'
+      };
+      
+      if (filterRole !== 'all') {
+        params.role = filterRole;
+      }
+      if (filterStatus !== 'all') {
+        params.status = filterStatus;
+      }
+      if (searchTerm) {
+        params.search = searchTerm;
+      }
+      
+      const response = await http.getUsers(params);
+      setUsers(response.data || []);
+      setTotalPages(response.meta?.total_pages || 1);
+      setTotal(response.meta?.total || 0);
+    } catch (err: any) {
+      setError(err.message || '获取用户列表失败');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // 封禁用户
+  const handleBanUser = async (id: number) => {
+    if (!confirm('确定要封禁此用户吗？')) return;
+    
+    try {
+      await http.banUser(id, '管理员封禁');
+      await fetchUsers();
+    } catch (err: any) {
+      setError(err.message || '封禁用户失败');
+    }
+  };
+
+  // 解封用户
+  const handleUnbanUser = async (id: number) => {
+    if (!confirm('确定要解封此用户吗？')) return;
+    
+    try {
+      await http.unbanUser(id);
+      await fetchUsers();
+    } catch (err: any) {
+      setError(err.message || '解封用户失败');
+    }
+  };
+
+  // 更新用户状态
+  const handleUpdateStatus = async (id: number, status: string) => {
+    try {
+      await http.updateUserStatus(id, status);
+      await fetchUsers();
+    } catch (err: any) {
+      setError(err.message || '更新用户状态失败');
+    }
+  };
+
+  // 初始化数据
+  useEffect(() => {
+    fetchUsers();
+  }, [currentPage, filterRole, filterStatus, searchTerm]);
 
   const getRoleBadge = (role: string) => {
     switch (role) {
@@ -179,61 +182,100 @@ export default function UsersManagement() {
               </tr>
             </thead>
             <tbody className="bg-white divide-y divide-gray-200">
-              {filteredUsers.map((user) => (
-                <tr key={user.id} className="hover:bg-gray-50">
-                  <td className="px-6 py-4">
-                    <div className="flex items-center">
-                      <img 
-                        src={user.avatar} 
-                        alt={user.name}
-                        className="w-10 h-10 rounded-full object-cover mr-3"
-                      />
-                      <div>
-                        <div className="text-sm font-medium text-gray-900">{user.name}</div>
-                        <div className="text-sm text-gray-500">{user.email}</div>
-                      </div>
-                    </div>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    {getRoleBadge(user.role)}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    {getStatusBadge(user.status)}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                    {user.joinDate}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                    {user.lastActive}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                    {user.worksCount}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                    <div className="flex items-center gap-2">
-                      <button className="text-yellow-600 hover:text-yellow-900">
-                        查看详情
-                      </button>
-                      {user.role !== 'admin' && (
-                        <>
-                          <button className="text-blue-600 hover:text-blue-900">
-                            编辑
-                          </button>
-                          {user.status === 'active' ? (
-                            <button className="text-red-600 hover:text-red-900">
-                              封禁
-                            </button>
-                          ) : (
-                            <button className="text-green-600 hover:text-green-900">
-                              解封
-                            </button>
-                          )}
-                        </>
-                      )}
-                    </div>
+              {loading ? (
+                <tr>
+                  <td colSpan={7} className="px-6 py-8 text-center">
+                    <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-yellow-500"></div>
+                    <p className="mt-2 text-gray-500">加载中...</p>
                   </td>
                 </tr>
-              ))}
+              ) : error ? (
+                <tr>
+                  <td colSpan={7} className="px-6 py-8 text-center">
+                    <div className="text-red-500 text-xl mb-4">❌</div>
+                    <p className="text-gray-600">{error}</p>
+                  </td>
+                </tr>
+              ) : users.length === 0 ? (
+                <tr>
+                  <td colSpan={7} className="px-6 py-8 text-center">
+                    <div className="text-gray-500 text-xl mb-4">👥</div>
+                    <p className="text-gray-600">暂无用户数据</p>
+                  </td>
+                </tr>
+              ) : (
+                users.map((user) => (
+                  <tr key={user.id} className="hover:bg-gray-50">
+                    <td className="px-6 py-4">
+                      <div className="flex items-center">
+                        <img 
+                          src={user.avatar ? `http://localhost:8080${user.avatar}` : '/default-avatar.png'} 
+                          alt={user.name}
+                          className="w-10 h-10 rounded-full object-cover mr-3"
+                          onError={(e) => {
+                            e.currentTarget.src = '/default-avatar.png';
+                          }}
+                        />
+                        <div>
+                          <div className="text-sm font-medium text-gray-900">{user.name}</div>
+                          <div className="text-sm text-gray-500">{user.email}</div>
+                        </div>
+                      </div>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      {getRoleBadge(user.role)}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      {getStatusBadge(user.status)}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                      {new Date(user.created_at).toLocaleDateString()}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                      {user.last_login_at ? new Date(user.last_login_at).toLocaleDateString() : '从未登录'}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                      {/* 这里可以添加作品数量统计 */}
+                      -
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                      <div className="flex items-center gap-2">
+                        <Link 
+                          href={`/admin/users/${user.id}`}
+                          className="text-yellow-600 hover:text-yellow-900"
+                        >
+                          查看详情
+                        </Link>
+                        {user.role !== 'admin' && (
+                          <>
+                            <Link 
+                              href={`/admin/users/${user.id}/edit`}
+                              className="text-blue-600 hover:text-blue-900"
+                            >
+                              编辑
+                            </Link>
+                            {user.status === 'active' ? (
+                              <button 
+                                onClick={() => handleBanUser(user.id)}
+                                className="text-red-600 hover:text-red-900"
+                              >
+                                封禁
+                              </button>
+                            ) : (
+                              <button 
+                                onClick={() => handleUnbanUser(user.id)}
+                                className="text-green-600 hover:text-green-900"
+                              >
+                                解封
+                              </button>
+                            )}
+                          </>
+                        )}
+                      </div>
+                    </td>
+                  </tr>
+                ))
+              )}
             </tbody>
           </table>
         </div>

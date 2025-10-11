@@ -81,6 +81,8 @@ func RegisterRoutes(app *fiber.App, db *gorm.DB) {
 	admin.Put("/users/:id", handlers.UpdateUser(db))
 	admin.Delete("/users/:id", handlers.DeleteUser(db))
 	admin.Put("/users/:id/status", handlers.UpdateUserStatus(db))
+	admin.Put("/users/:id/ban", handlers.BanUser(db))
+	admin.Put("/users/:id/unban", handlers.UnbanUser(db))
 
 	// 作品审核
 	admin.Get("/works", handlers.ListPendingWorks(db))
