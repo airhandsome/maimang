@@ -6,6 +6,157 @@ interface RequestOptions {
   headers?: Record<string, string>;
 }
 
+// API响应类型定义
+interface ApiResponse<T = any> {
+  success: boolean;
+  message?: string;
+  data?: T;
+  error?: string;
+}
+
+interface PaginatedResponse<T = any> {
+  success: boolean;
+  data: T[];
+  meta: {
+    page: number;
+    per_page: number;
+    total: number;
+    total_pages: number;
+  };
+}
+
+// 作品相关类型
+interface Work {
+  ID: number;
+  CreatedAt: string;
+  UpdatedAt: string;
+  Title: string;
+  Type: 'poetry' | 'prose' | 'novel' | 'photo';
+  Content: string;
+  Status: 'pending' | 'approved' | 'rejected';
+  AuthorID: number;
+  Author?: {
+    ID: number;
+    CreatedAt: string;
+    UpdatedAt: string;
+    Name: string;
+    Email: string;
+    Role: string;
+    AvatarURL: string;
+    Bio: string;
+    Gender: string;
+    Phone: string;
+    Tags: string;
+    Weibo: string;
+    Wechat: string;
+    Status: string;
+    LastLoginAt?: string;
+  };
+  Views: number;
+  Likes: number;
+  ReviewedAt?: string;
+  ReviewedBy?: number;
+  Reviewer?: {
+    ID: number;
+    Name: string;
+  };
+  ReviewNote: string;
+  RejectReason: string;
+}
+
+interface WorkStats {
+  total_works: number;
+  approved_works: number;
+  pending_works: number;
+  rejected_works: number;
+  total_views: number;
+  total_likes: number;
+}
+
+// 评论相关类型
+interface Comment {
+  ID: number;
+  CreatedAt: string;
+  UpdatedAt: string;
+  Content: string;
+  Status: 'pending' | 'approved' | 'rejected' | 'hidden';
+  AuthorID: number;
+  Author?: {
+    ID: number;
+    Name: string;
+    Email: string;
+    Role: string;
+    Status: string;
+  };
+  WorkID: number;
+  Work?: {
+    ID: number;
+    Title: string;
+    Type: string;
+    Status: string;
+  };
+  Likes: number;
+  Replies: number;
+  ReviewedAt?: string;
+  ReviewedBy?: number;
+  Reviewer?: {
+    ID: number;
+    Name: string;
+  };
+}
+
+interface CommentStats {
+  total_comments: number;
+  approved_comments: number;
+  pending_comments: number;
+  rejected_comments: number;
+  hidden_comments: number;
+  total_likes: number;
+}
+
+// 活动相关类型
+interface Activity {
+  ID: number;
+  CreatedAt: string;
+  UpdatedAt: string;
+  Title: string;
+  Description: string;
+  ImageURL: string;
+  Date: string;
+  Time: string;
+  Location: string;
+  Instructor: string;
+  Status: 'upcoming' | 'ongoing' | 'completed' | 'cancelled';
+  MaxParticipants: number;
+  CurrentParticipants: number;
+  Participants?: ActivityParticipant[];
+}
+
+interface ActivityParticipant {
+  ID: number;
+  CreatedAt: string;
+  UpdatedAt: string;
+  ActivityID: number;
+  UserID: number;
+  User?: {
+    ID: number;
+    Name: string;
+    Email: string;
+    AvatarURL: string;
+  };
+  Status: 'registered' | 'attended' | 'absent';
+  Notes: string;
+}
+
+interface ActivityStats {
+  total_activities: number;
+  upcoming_activities: number;
+  ongoing_activities: number;
+  completed_activities: number;
+  cancelled_activities: number;
+  total_participants: number;
+}
+
 export const MOCK_ARTICLES = [
   {
     id: '1',
@@ -82,47 +233,51 @@ const MOCK_STATS = {
 class Http {
   private baseURL: string;
 
-  constructor(baseURL: string = '/api') {
+  constructor(baseURL: string = 'http://localhost:8080/api/v1') {
     this.baseURL = baseURL;
   }
 
   private async request<T>(endpoint: string, options: RequestOptions = {}): Promise<T> {
     const { method = 'GET', data, headers = {} } = options;
 
-    await new Promise(resolve => setTimeout(resolve, 300));
+    // 获取token
+    const token = typeof window !== 'undefined' ? localStorage.getItem('access_token') : null;
+    
+    const requestHeaders: Record<string, string> = {
+      'Content-Type': 'application/json',
+      ...headers,
+    };
 
-    if (endpoint.includes('/articles') && method === 'GET') {
-      if (endpoint.includes('/featured')) {
-        return MOCK_ARTICLES.filter(a => a.featured) as T;
+    if (token) {
+      requestHeaders['Authorization'] = `Bearer ${token}`;
+    }
+
+    try {
+      const response = await fetch(`${this.baseURL}${endpoint}`, {
+        method,
+        headers: requestHeaders,
+        body: data ? JSON.stringify(data) : undefined,
+      });
+
+      if (!response.ok) {
+        if (response.status === 401) {
+          // Token过期或无效，清除本地存储并跳转到登录页
+          if (typeof window !== 'undefined') {
+            localStorage.removeItem('access_token');
+            localStorage.removeItem('refresh_token');
+            window.location.href = '/login';
+          }
+          throw new Error('认证失败，请重新登录');
+        }
+        throw new Error(`HTTP error! status: ${response.status}`);
       }
-      if (endpoint.match(/\/articles\/\d+$/)) {
-        const id = endpoint.split('/').pop();
-        return MOCK_ARTICLES.find(a => a.id === id) as T;
-      }
-      return MOCK_ARTICLES as T;
-    }
 
-    if (endpoint.includes('/categories') && method === 'GET') {
-      return MOCK_CATEGORIES as T;
+      const result = await response.json();
+      return result as T;
+    } catch (error) {
+      console.error('API request failed:', error);
+      throw error;
     }
-
-    if (endpoint.includes('/stats') && method === 'GET') {
-      return MOCK_STATS as T;
-    }
-
-    if (method === 'POST') {
-      return { success: true, message: '操作成功', data } as T;
-    }
-
-    if (method === 'PUT') {
-      return { success: true, message: '更新成功', data } as T;
-    }
-
-    if (method === 'DELETE') {
-      return { success: true, message: '删除成功' } as T;
-    }
-
-    return {} as T;
   }
 
   async get<T>(endpoint: string): Promise<T> {
@@ -140,7 +295,267 @@ class Http {
   async delete<T>(endpoint: string): Promise<T> {
     return this.request<T>(endpoint, { method: 'DELETE' });
   }
+
+  // 作品相关API方法
+  async getWorks(params?: {
+    page?: number;
+    per_page?: number;
+    search?: string;
+    status?: string;
+    type?: string;
+    sort_by?: string;
+    sort_dir?: 'asc' | 'desc';
+  }): Promise<PaginatedResponse<Work>> {
+    const queryParams = new URLSearchParams();
+    if (params) {
+      Object.entries(params).forEach(([key, value]) => {
+        if (value !== undefined && value !== null) {
+          queryParams.append(key, value.toString());
+        }
+      });
+    }
+    const queryString = queryParams.toString();
+    return this.get<PaginatedResponse<Work>>(`/works${queryString ? `?${queryString}` : ''}`);
+  }
+
+  async getWork(id: number): Promise<ApiResponse<Work>> {
+    return this.get<ApiResponse<Work>>(`/works/${id}`);
+  }
+
+  async createWork(data: {
+    title: string;
+    type: 'poetry' | 'prose' | 'novel' | 'photo';
+    content: string;
+  }): Promise<ApiResponse<Work>> {
+    return this.post<ApiResponse<Work>>('/works', data);
+  }
+
+  async updateWork(id: number, data: {
+    title?: string;
+    type?: 'poetry' | 'prose' | 'novel' | 'photo';
+    content?: string;
+  }): Promise<ApiResponse<Work>> {
+    return this.put<ApiResponse<Work>>(`/works/${id}`, data);
+  }
+
+  async deleteWork(id: number): Promise<ApiResponse> {
+    return this.delete<ApiResponse>(`/works/${id}`);
+  }
+
+  async likeWork(id: number): Promise<ApiResponse> {
+    return this.post<ApiResponse>(`/works/${id}/like`, {});
+  }
+
+  async unlikeWork(id: number): Promise<ApiResponse> {
+    return this.delete<ApiResponse>(`/works/${id}/like`);
+  }
+
+  // 管理员作品相关API
+  async getPendingWorks(params?: {
+    page?: number;
+    per_page?: number;
+    search?: string;
+    type?: string;
+  }): Promise<PaginatedResponse<Work>> {
+    const queryParams = new URLSearchParams();
+    if (params) {
+      Object.entries(params).forEach(([key, value]) => {
+        if (value !== undefined && value !== null) {
+          queryParams.append(key, value.toString());
+        }
+      });
+    }
+    const queryString = queryParams.toString();
+    return this.get<PaginatedResponse<Work>>(`/admin/works${queryString ? `?${queryString}` : ''}`);
+  }
+
+  async approveWork(id: number, note?: string): Promise<ApiResponse> {
+    return this.put<ApiResponse>(`/admin/works/${id}/approve`, {
+      action: 'approve',
+      note: note || ''
+    });
+  }
+
+  async rejectWork(id: number, reason?: string): Promise<ApiResponse> {
+    return this.put<ApiResponse>(`/admin/works/${id}/reject`, {
+      action: 'reject',
+      note: reason || ''
+    });
+  }
+
+  async getWorkStats(): Promise<ApiResponse<WorkStats>> {
+    return this.get<ApiResponse<WorkStats>>('/admin/statistics/works');
+  }
+
+  // 评论相关API方法
+  async getComments(params?: {
+    page?: number;
+    per_page?: number;
+    search?: string;
+    status?: string;
+  }): Promise<PaginatedResponse<Comment>> {
+    const queryParams = new URLSearchParams();
+    if (params) {
+      Object.entries(params).forEach(([key, value]) => {
+        if (value !== undefined && value !== null) {
+          queryParams.append(key, value.toString());
+        }
+      });
+    }
+    const queryString = queryParams.toString();
+    return this.get<PaginatedResponse<Comment>>(`/admin/comments${queryString ? `?${queryString}` : ''}`);
+  }
+
+  async getComment(id: number): Promise<ApiResponse<Comment>> {
+    return this.get<ApiResponse<Comment>>(`/comments/${id}`);
+  }
+
+  async createComment(workId: number, data: {
+    content: string;
+  }): Promise<ApiResponse<Comment>> {
+    return this.post<ApiResponse<Comment>>(`/works/${workId}/comments`, data);
+  }
+
+  async updateComment(id: number, data: {
+    content: string;
+  }): Promise<ApiResponse<Comment>> {
+    return this.put<ApiResponse<Comment>>(`/comments/${id}`, data);
+  }
+
+  async deleteComment(id: number): Promise<ApiResponse> {
+    return this.delete<ApiResponse>(`/comments/${id}`);
+  }
+
+  async likeComment(id: number): Promise<ApiResponse> {
+    return this.post<ApiResponse>(`/comments/${id}/like`, {});
+  }
+
+  // 管理员评论相关API
+  async approveComment(id: number, note?: string): Promise<ApiResponse> {
+    return this.put<ApiResponse>(`/admin/comments/${id}/approve`, {
+      action: 'approve',
+      note: note || ''
+    });
+  }
+
+  async rejectComment(id: number, reason?: string): Promise<ApiResponse> {
+    return this.put<ApiResponse>(`/admin/comments/${id}/reject`, {
+      action: 'reject',
+      note: reason || ''
+    });
+  }
+
+  async hideComment(id: number, reason?: string): Promise<ApiResponse> {
+    return this.put<ApiResponse>(`/admin/comments/${id}/hide`, {
+      action: 'hide',
+      note: reason || ''
+    });
+  }
+
+  async getCommentStats(): Promise<ApiResponse<CommentStats>> {
+    return this.get<ApiResponse<CommentStats>>('/admin/statistics/comments');
+  }
+
+  // 活动管理方法
+  async getActivities(params?: {
+    page?: number;
+    per_page?: number;
+    search?: string;
+    status?: string;
+    sort_by?: string;
+    sort_dir?: string;
+  }): Promise<PaginatedResponse<Activity>> {
+    const queryParams = new URLSearchParams();
+    if (params) {
+      Object.entries(params).forEach(([key, value]) => {
+        if (value !== undefined) {
+          queryParams.append(key, value.toString());
+        }
+      });
+    }
+    const query = queryParams.toString();
+    return this.get<PaginatedResponse<Activity>>(`/activities${query ? `?${query}` : ''}`);
+  }
+
+  // 管理员专用：获取活动列表（排除已删除的活动）
+  async getAdminActivities(params?: {
+    page?: number;
+    per_page?: number;
+    search?: string;
+    status?: string;
+    sort_by?: string;
+    sort_dir?: string;
+  }): Promise<PaginatedResponse<Activity>> {
+    const queryParams = new URLSearchParams();
+    if (params) {
+      Object.entries(params).forEach(([key, value]) => {
+        if (value !== undefined) {
+          queryParams.append(key, value.toString());
+        }
+      });
+    }
+    const query = queryParams.toString();
+    return this.get<PaginatedResponse<Activity>>(`/admin/activities${query ? `?${query}` : ''}`);
+  }
+
+  async getActivity(id: number): Promise<ApiResponse<Activity>> {
+    return this.get<ApiResponse<Activity>>(`/activities/${id}`);
+  }
+
+  async createActivity(data: {
+    title: string;
+    description: string;
+    date: string;
+    time: string;
+    location: string;
+    instructor: string;
+    max_participants: number;
+    image_url?: string;
+  }): Promise<ApiResponse<Activity>> {
+    return this.post<ApiResponse<Activity>>('/admin/activities', data);
+  }
+
+  async updateActivity(id: number, data: Partial<{
+    title: string;
+    description: string;
+    date: string;
+    time: string;
+    location: string;
+    instructor: string;
+    max_participants: number;
+    image_url: string;
+    status: string;
+  }>): Promise<ApiResponse<Activity>> {
+    return this.put<ApiResponse<Activity>>(`/admin/activities/${id}`, data);
+  }
+
+  async deleteActivity(id: number): Promise<ApiResponse> {
+    return this.delete<ApiResponse>(`/admin/activities/${id}`);
+  }
+
+  async getActivityParticipants(id: number): Promise<ApiResponse<ActivityParticipant[]>> {
+    return this.get<ApiResponse<ActivityParticipant[]>>(`/admin/activities/${id}/participants`);
+  }
+
+  async updateActivityStatus(id: number, status: string): Promise<ApiResponse> {
+    return this.put<ApiResponse>(`/admin/activities/${id}/status`, { status });
+  }
+
+  async registerActivity(id: number): Promise<ApiResponse> {
+    return this.post<ApiResponse>(`/activities/${id}/register`);
+  }
+
+  async unregisterActivity(id: number): Promise<ApiResponse> {
+    return this.delete<ApiResponse>(`/activities/${id}/register`);
+  }
+
+  async getActivityStats(): Promise<ApiResponse<ActivityStats>> {
+    return this.get<ApiResponse<ActivityStats>>('/admin/statistics/activities');
+  }
 }
 
 export const http = new Http();
 export default http;
+
+// 导出类型
+export type { Work, WorkStats, Comment, CommentStats, Activity, ActivityParticipant, ActivityStats, ApiResponse, PaginatedResponse };

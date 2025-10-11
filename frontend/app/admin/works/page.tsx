@@ -1,76 +1,86 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
-
-interface Work {
-  id: number;
-  title: string;
-  author: string;
-  type: string;
-  status: 'pending' | 'approved' | 'rejected';
-  submitDate: string;
-  views: number;
-  likes: number;
-  content: string;
-}
+import { http, type Work, type WorkStats } from '@/lib/http';
 
 export default function WorksManagement() {
-  const [works] = useState<Work[]>([
-    {
-      id: 1,
-      title: "《秋日麦浪》",
-      author: "张小明",
-      type: "诗歌",
-      status: "approved",
-      submitDate: "2023-10-05",
-      views: 128,
-      likes: 36,
-      content: "风吹过田野的轮廓\n麦穗低垂，如时光的重量\n每一粒果实里，都藏着\n整个夏天的阳光"
-    },
-    {
-      id: 2,
-      title: "《城市边缘》",
-      author: "李小红",
-      type: "诗歌",
-      status: "rejected",
-      submitDate: "2023-10-01",
-      views: 45,
-      likes: 8,
-      content: "高楼吞噬了最后的绿地\n钢筋水泥的森林里\n人们行色匆匆\n忘记了泥土的芬芳"
-    },
-    {
-      id: 3,
-      title: "《田野记忆》",
-      author: "王小华",
-      type: "散文",
-      status: "pending",
-      submitDate: "2023-10-15",
-      views: 0,
-      likes: 0,
-      content: "小时候，我常常在田野里奔跑，追逐着蝴蝶，听着鸟儿的歌唱..."
-    },
-    {
-      id: 4,
-      title: "《麦田守望者》",
-      author: "赵小强",
-      type: "小说",
-      status: "pending",
-      submitDate: "2023-10-12",
-      views: 0,
-      likes: 0,
-      content: "第一章：初到麦田\n\n李明第一次来到这个小镇，被眼前的麦田深深震撼..."
-    }
-  ]);
-
+  const [works, setWorks] = useState<Work[]>([]);
+  const [stats, setStats] = useState<WorkStats | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const [filterStatus, setFilterStatus] = useState<string>('all');
   const [filterType, setFilterType] = useState<string>('all');
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const [total, setTotal] = useState(0);
 
-  const filteredWorks = works.filter(work => {
-    const statusMatch = filterStatus === 'all' || work.status === filterStatus;
-    const typeMatch = filterType === 'all' || work.type === filterType;
-    return statusMatch && typeMatch;
-  });
+  // 获取作品数据
+  const fetchWorks = async () => {
+    try {
+      setLoading(true);
+      setError(null);
+      
+      const params: any = {
+        page: currentPage,
+        per_page: 20,
+        sort_by: 'created_at',
+        sort_dir: 'desc'
+      };
+
+      if (filterStatus !== 'all') {
+        params.status = filterStatus;
+      }
+      if (filterType !== 'all') {
+        params.type = filterType;
+      }
+
+      const response = await http.getWorks(params);
+      setWorks(response.data);
+      setTotalPages(response.meta.total_pages);
+      setTotal(response.meta.total);
+    } catch (err) {
+      setError('获取作品数据失败');
+      console.error('Failed to fetch works:', err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // 获取统计数据
+  const fetchStats = async () => {
+    try {
+      const response = await http.getWorkStats();
+      setStats(response.data || null);
+    } catch (err) {
+      console.error('Failed to fetch stats:', err);
+    }
+  };
+
+  // 审核作品
+  const handleReviewWork = async (id: number, action: 'approve' | 'reject') => {
+    try {
+      if (action === 'approve') {
+        await http.approveWork(id);
+      } else {
+        await http.rejectWork(id);
+      }
+      
+      // 重新获取数据
+      await fetchWorks();
+      await fetchStats();
+    } catch (err) {
+      setError(`审核失败: ${err instanceof Error ? err.message : '未知错误'}`);
+    }
+  };
+
+  // 初始化数据
+  useEffect(() => {
+    fetchWorks();
+    fetchStats();
+  }, [currentPage, filterStatus, filterType]);
+
+  const filteredWorks = works;
 
   const getStatusBadge = (status: string) => {
     switch (status) {
@@ -86,13 +96,24 @@ export default function WorksManagement() {
   };
 
   const getTypeBadge = (type: string) => {
-    const colors = {
-      '诗歌': 'bg-blue-100 text-blue-500',
-      '散文': 'bg-green-100 text-green-500',
-      '小说': 'bg-purple-100 text-purple-500',
-      '摄影配文': 'bg-yellow-100 text-yellow-500'
+    const typeMap = {
+      'poetry': '诗歌',
+      'prose': '散文',
+      'novel': '小说',
+      'photo': '摄影配文'
     };
-    return <span className={`px-2 py-1 text-xs rounded-full ${colors[type as keyof typeof colors] || 'bg-gray-100 text-gray-500'}`}>{type}</span>;
+    
+    const colors = {
+      'poetry': 'bg-blue-100 text-blue-500',
+      'prose': 'bg-green-100 text-green-500',
+      'novel': 'bg-purple-100 text-purple-500',
+      'photo': 'bg-yellow-100 text-yellow-500'
+    };
+    
+    const displayType = typeMap[type as keyof typeof typeMap] || type;
+    const colorClass = colors[type as keyof typeof colors] || 'bg-gray-100 text-gray-500';
+    
+    return <span className={`px-2 py-1 text-xs rounded-full ${colorClass}`}>{displayType}</span>;
   };
 
   return (
@@ -126,80 +147,108 @@ export default function WorksManagement() {
               className="px-3 py-1 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-yellow-500/50"
             >
               <option value="all">全部</option>
-              <option value="诗歌">诗歌</option>
-              <option value="散文">散文</option>
-              <option value="小说">小说</option>
-              <option value="摄影配文">摄影配文</option>
+              <option value="poetry">诗歌</option>
+              <option value="prose">散文</option>
+              <option value="novel">小说</option>
+              <option value="photo">摄影配文</option>
             </select>
           </div>
         </div>
       </div>
 
+      {/* 错误提示 */}
+      {error && (
+        <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded mb-4">
+          {error}
+        </div>
+      )}
+
       {/* 作品列表 */}
       <div className="bg-white rounded-xl shadow-sm overflow-hidden">
-        <div className="overflow-x-auto">
-          <table className="w-full">
-            <thead className="bg-gray-50">
-              <tr>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">作品信息</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">作者</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">类型</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">状态</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">提交时间</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">数据</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">操作</th>
-              </tr>
-            </thead>
-            <tbody className="bg-white divide-y divide-gray-200">
-              {filteredWorks.map((work) => (
-                <tr key={work.id} className="hover:bg-gray-50">
-                  <td className="px-6 py-4">
-                    <div>
-                      <div className="text-sm font-medium text-gray-900">{work.title}</div>
-                      <div className="text-sm text-gray-500 mt-1 line-clamp-2">{work.content}</div>
-                    </div>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <div className="text-sm text-gray-900">{work.author}</div>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    {getTypeBadge(work.type)}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    {getStatusBadge(work.status)}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                    {work.submitDate}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                    <div>浏览: {work.views}</div>
-                    <div>点赞: {work.likes}</div>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                    <div className="flex items-center gap-2">
-                      <Link 
-                        href={`/admin/works/${work.id}`}
-                        className="text-yellow-600 hover:text-yellow-900"
-                      >
-                        查看详情
-                      </Link>
-                      {work.status === 'pending' && (
-                        <>
-                          <button className="text-green-600 hover:text-green-900">
-                            通过
-                          </button>
-                          <button className="text-red-600 hover:text-red-900">
-                            拒绝
-                          </button>
-                        </>
-                      )}
-                    </div>
-                  </td>
+        {loading ? (
+          <div className="p-8 text-center">
+            <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-yellow-500"></div>
+            <p className="mt-2 text-gray-500">加载中...</p>
+          </div>
+        ) : (
+          <div className="overflow-x-auto">
+            <table className="w-full">
+              <thead className="bg-gray-50">
+                <tr>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">作品信息</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">作者</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">类型</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">状态</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">提交时间</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">数据</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">操作</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+              </thead>
+              <tbody className="bg-white divide-y divide-gray-200">
+                {filteredWorks.length === 0 ? (
+                  <tr>
+                    <td colSpan={7} className="px-6 py-8 text-center text-gray-500">
+                      暂无作品数据
+                    </td>
+                  </tr>
+                ) : (
+                  filteredWorks.map((work) => (
+                    <tr key={work.ID} className="hover:bg-gray-50">
+                      <td className="px-6 py-4">
+                        <div>
+                          <div className="text-sm font-medium text-gray-900">{work.Title}</div>
+                          <div className="text-sm text-gray-500 mt-1 line-clamp-2">{work.Content}</div>
+                        </div>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <div className="text-sm text-gray-900">{work.Author?.Name || '未知作者'}</div>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        {getTypeBadge(work.Type)}
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        {getStatusBadge(work.Status)}
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                        {new Date(work.CreatedAt).toLocaleDateString()}
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                        <div>浏览: {work.Views}</div>
+                        <div>点赞: {work.Likes}</div>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                        <div className="flex items-center gap-2">
+                          <Link 
+                            href={`/admin/works/${work.ID}`}
+                            className="text-yellow-600 hover:text-yellow-900"
+                          >
+                            查看详情
+                          </Link>
+                          {work.Status === 'pending' && (
+                            <>
+                              <button 
+                                onClick={() => handleReviewWork(work.ID, 'approve')}
+                                className="text-green-600 hover:text-green-900"
+                              >
+                                通过
+                              </button>
+                              <button 
+                                onClick={() => handleReviewWork(work.ID, 'reject')}
+                                className="text-red-600 hover:text-red-900"
+                              >
+                                拒绝
+                              </button>
+                            </>
+                          )}
+                        </div>
+                      </td>
+                    </tr>
+                  ))
+                )}
+              </tbody>
+            </table>
+          </div>
+        )}
       </div>
 
       {/* 统计信息 */}
@@ -208,7 +257,7 @@ export default function WorksManagement() {
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm text-gray-500">总作品数</p>
-              <p className="text-2xl font-bold">{works.length}</p>
+              <p className="text-2xl font-bold">{stats?.total_works || 0}</p>
             </div>
             <div className="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center text-blue-500">
               <i className="fa fa-book"></i>
@@ -219,7 +268,7 @@ export default function WorksManagement() {
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm text-gray-500">待审核</p>
-              <p className="text-2xl font-bold text-orange-500">{works.filter(w => w.status === 'pending').length}</p>
+              <p className="text-2xl font-bold text-orange-500">{stats?.pending_works || 0}</p>
             </div>
             <div className="w-10 h-10 rounded-full bg-orange-100 flex items-center justify-center text-orange-500">
               <i className="fa fa-clock-o"></i>
@@ -230,7 +279,7 @@ export default function WorksManagement() {
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm text-gray-500">已通过</p>
-              <p className="text-2xl font-bold text-green-500">{works.filter(w => w.status === 'approved').length}</p>
+              <p className="text-2xl font-bold text-green-500">{stats?.approved_works || 0}</p>
             </div>
             <div className="w-10 h-10 rounded-full bg-green-100 flex items-center justify-center text-green-500">
               <i className="fa fa-check"></i>
@@ -241,7 +290,7 @@ export default function WorksManagement() {
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm text-gray-500">已拒绝</p>
-              <p className="text-2xl font-bold text-red-500">{works.filter(w => w.status === 'rejected').length}</p>
+              <p className="text-2xl font-bold text-red-500">{stats?.rejected_works || 0}</p>
             </div>
             <div className="w-10 h-10 rounded-full bg-red-100 flex items-center justify-center text-red-500">
               <i className="fa fa-times"></i>
@@ -249,6 +298,31 @@ export default function WorksManagement() {
           </div>
         </div>
       </div>
+
+      {/* 分页 */}
+      {totalPages > 1 && (
+        <div className="mt-6 flex justify-center">
+          <div className="flex items-center gap-2">
+            <button
+              onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
+              disabled={currentPage === 1}
+              className="px-3 py-1 border border-gray-300 rounded text-sm disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50"
+            >
+              上一页
+            </button>
+            <span className="px-3 py-1 text-sm text-gray-600">
+              第 {currentPage} 页，共 {totalPages} 页
+            </span>
+            <button
+              onClick={() => setCurrentPage(Math.min(totalPages, currentPage + 1))}
+              disabled={currentPage === totalPages}
+              className="px-3 py-1 border border-gray-300 rounded text-sm disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50"
+            >
+              下一页
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

@@ -1,13 +1,14 @@
 "use client";
 
-import { useState } from "react";
-import { useRouter } from "next/navigation";
+import { useState, useEffect } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import { apiLogin, apiRegister } from "@/lib/auth";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
 
 export default function LoginPage() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   
   // 登录表单状态
   const [loginAccount, setLoginAccount] = useState("");
@@ -27,6 +28,14 @@ export default function LoginPage() {
   
   // 表单切换状态
   const [showRegisterForm, setShowRegisterForm] = useState(false);
+
+  // 检查 URL 参数，如果包含 register 则自动切换到注册表单
+  useEffect(() => {
+    const mode = searchParams.get('mode');
+    if (mode === 'register') {
+      setShowRegisterForm(true);
+    }
+  }, [searchParams]);
 
   // 登录表单提交
   const handleLoginSubmit = async (e: React.FormEvent) => {
@@ -291,7 +300,7 @@ export default function LoginPage() {
                     className="mt-1 mr-3"
                   />
                   <label htmlFor="register-agreement" className="text-sm text-text/70">
-                    我已阅读并同意<a href="#" className="text-gold hover:underline">用户协议</a>和<a href="#" className="text-gold hover:underline">隐私政策</a>
+                    我已阅读并同意<a href="/agreement" target="_blank" className="text-gold hover:underline">用户协议</a>和<a href="/privacy" target="_blank" className="text-gold hover:underline">隐私政策</a>
                   </label>
                 </div>
                 

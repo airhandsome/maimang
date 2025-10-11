@@ -91,7 +91,7 @@ export function Header() {
               <Link href="/login">
                 <Button variant="outline" size="sm" className="rounded-full">登录</Button>
               </Link>
-              <Link href="/register">
+              <Link href="/login?mode=register">
                 <Button size="sm" className="bg-gold text-white hover:bg-amber-400 rounded-full shadow-sm">注册</Button>
               </Link>
             </div>
@@ -156,13 +156,32 @@ export function Header() {
                 {item.name}
               </Link>
             ))}
-            <Link
-              href="/admin"
-              className="block rounded-lg px-3 py-2 text-base font-medium text-gray-900 hover:bg-amber-50"
-              onClick={() => setMobileMenuOpen(false)}
-            >
-              管理后台
-            </Link>
+            {!authed ? (
+              <>
+                <Link
+                  href="/login"
+                  className="block rounded-lg px-3 py-2 text-base font-medium text-gray-900 hover:bg-amber-50"
+                  onClick={() => setMobileMenuOpen(false)}
+                >
+                  登录
+                </Link>
+                <Link
+                  href="/login?mode=register"
+                  className="block rounded-lg px-3 py-2 text-base font-medium text-gold hover:bg-amber-50"
+                  onClick={() => setMobileMenuOpen(false)}
+                >
+                  注册
+                </Link>
+              </>
+            ) : (
+              <Link
+                href="/admin"
+                className="block rounded-lg px-3 py-2 text-base font-medium text-gray-900 hover:bg-amber-50"
+                onClick={() => setMobileMenuOpen(false)}
+              >
+                管理后台
+              </Link>
+            )}
           </div>
         </div>
       )}

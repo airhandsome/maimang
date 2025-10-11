@@ -33,8 +33,11 @@ var serveCmd = &cobra.Command{
 		loadConfig()
 
 		logger := logrus.New()
-		logger.SetFormatter(&logrus.JSONFormatter{})
-		logger.SetLevel(logrus.InfoLevel)
+		logger.SetFormatter(&logrus.TextFormatter{
+			FullTimestamp:   true,
+			TimestampFormat: "2006-01-02 15:04:05",
+		})
+		logger.SetLevel(logrus.DebugLevel)
 
 		dsn := viper.GetString("DATABASE_URL")
 		db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
@@ -49,7 +52,37 @@ var serveCmd = &cobra.Command{
 		sqlDB.SetMaxIdleConns(5)
 		sqlDB.SetConnMaxLifetime(30 * time.Minute)
 
-		app := fiber.New(fiber.Config{DisableStartupMessage: true})
+		app := fiber.New(fiber.Config{
+			DisableStartupMessage: true,
+			ErrorHandler: func(c *fiber.Ctx, err error) error {
+				logger.Errorf("Request error: %v", err)
+				return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": err.Error()})
+			},
+		})
+
+		// 添加CORS中间件
+		app.Use(func(c *fiber.Ctx) error {
+			c.Set("Access-Control-Allow-Origin", "*")
+			c.Set("Access-Control-Allow-Methods", "GET,POST,PUT,DELETE,OPTIONS")
+			c.Set("Access-Control-Allow-Headers", "Content-Type,Authorization")
+			if c.Method() == "OPTIONS" {
+				return c.SendStatus(204)
+			}
+			return c.Next()
+		})
+
+		// 添加请求日志中间件
+		app.Use(func(c *fiber.Ctx) error {
+			start := time.Now()
+			logger.Debugf("Request: %s %s", c.Method(), c.Path())
+			logger.Debugf("Headers: %v", c.GetReqHeaders())
+			if c.Method() == "POST" || c.Method() == "PUT" {
+				logger.Debugf("Body: %s", string(c.Body()))
+			}
+			err := c.Next()
+			logger.Debugf("Response: %d in %v", c.Response().StatusCode(), time.Since(start))
+			return err
+		})
 
 		// healthz & readyz
 		app.Get("/healthz", func(c *fiber.Ctx) error { return c.SendStatus(http.StatusOK) })
@@ -65,8 +98,26 @@ var serveCmd = &cobra.Command{
 		apiV1.Get("/ping", func(c *fiber.Ctx) error { return c.JSON(fiber.Map{"message": "pong"}) })
 
 		// auto migrate
-		if err := db.AutoMigrate(&repo.User{}, &repo.Article{}, &repo.Event{}, &repo.Album{}); err != nil {
+		if err := db.AutoMigrate(
+			&repo.User{},
+			&repo.Article{},
+			&repo.Event{},
+			&repo.Album{},
+			&repo.Work{},
+			&repo.Comment{},
+			&repo.Activity{},
+			&repo.ActivityParticipant{},
+			&repo.Carousel{},
+			&repo.Announcement{},
+			&repo.SystemSetting{},
+			&repo.Material{},
+		); err != nil {
 			return fmt.Errorf("migrate: %w", err)
+		}
+
+		// 添加唯一约束：一个用户只能参与一次活动
+		if err := db.Exec("CREATE UNIQUE INDEX IF NOT EXISTS idx_activity_user_unique ON activity_participants (activity_id, user_id)").Error; err != nil {
+			log.Printf("Warning: failed to create unique index: %v", err)
 		}
 
 		// register routes

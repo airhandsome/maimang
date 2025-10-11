@@ -1,95 +1,101 @@
 'use client';
 
-import { useState } from 'react';
-
-interface Comment {
-  id: number;
-  content: string;
-  author: string;
-  authorEmail: string;
-  workTitle: string;
-  workId: number;
-  submitDate: string;
-  status: 'pending' | 'approved' | 'rejected' | 'hidden';
-  likes: number;
-  replies: number;
-}
+import { useState, useEffect } from 'react';
+import { http, type Comment, type CommentStats } from '@/lib/http';
 
 export default function CommentsManagement() {
-  const [comments] = useState<Comment[]>([
-    {
-      id: 1,
-      content: "这首诗写得真好，特别是'每一粒果实里，都藏着整个夏天的阳光'这句，很有意境！",
-      author: "张小明",
-      authorEmail: "zhangxiaoming@example.com",
-      workTitle: "《秋日麦浪》",
-      workId: 1,
-      submitDate: "2023-10-20",
-      status: "approved",
-      likes: 5,
-      replies: 2
-    },
-    {
-      id: 2,
-      content: "作者对城市生活的观察很深刻，但感觉缺少一些温暖的情感。",
-      author: "李小红",
-      authorEmail: "lixiaohong@example.com",
-      workTitle: "《城市边缘》",
-      workId: 2,
-      submitDate: "2023-10-19",
-      status: "approved",
-      likes: 3,
-      replies: 1
-    },
-    {
-      id: 3,
-      content: "这篇散文让我想起了自己的童年，写得非常感人。期待作者更多作品！",
-      author: "王小华",
-      authorEmail: "wangxiaohua@example.com",
-      workTitle: "《田野记忆》",
-      workId: 3,
-      submitDate: "2023-10-18",
-      status: "pending",
-      likes: 0,
-      replies: 0
-    },
-    {
-      id: 4,
-      content: "内容质量一般，建议作者多读一些经典作品提升写作水平。",
-      author: "赵小强",
-      authorEmail: "zhaoxiaoqiang@example.com",
-      workTitle: "《麦田守望者》",
-      workId: 4,
-      submitDate: "2023-10-17",
-      status: "rejected",
-      likes: 1,
-      replies: 0
-    },
-    {
-      id: 5,
-      content: "垃圾内容，毫无价值！",
-      author: "匿名用户",
-      authorEmail: "anonymous@example.com",
-      workTitle: "《秋日麦浪》",
-      workId: 1,
-      submitDate: "2023-10-16",
-      status: "hidden",
-      likes: 0,
-      replies: 0
-    }
-  ]);
-
+  const [comments, setComments] = useState<Comment[]>([]);
+  const [stats, setStats] = useState<CommentStats | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const [filterStatus, setFilterStatus] = useState<string>('all');
   const [searchTerm, setSearchTerm] = useState<string>('');
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const [total, setTotal] = useState(0);
 
-  const filteredComments = comments.filter(comment => {
-    const statusMatch = filterStatus === 'all' || comment.status === filterStatus;
-    const searchMatch = searchTerm === '' || 
-      comment.content.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      comment.author.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      comment.workTitle.toLowerCase().includes(searchTerm.toLowerCase());
-    return statusMatch && searchMatch;
-  });
+  // 获取评论数据
+  const fetchComments = async () => {
+    try {
+      setLoading(true);
+      setError(null);
+      
+      const params: any = {
+        page: currentPage,
+        per_page: 20,
+      };
+
+      if (filterStatus !== 'all') {
+        params.status = filterStatus;
+      }
+      if (searchTerm) {
+        params.search = searchTerm;
+      }
+
+      const response = await http.getComments(params);
+      setComments(response.data);
+      setTotalPages(response.meta.total_pages);
+      setTotal(response.meta.total);
+    } catch (err) {
+      setError('获取评论数据失败');
+      console.error('Failed to fetch comments:', err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // 获取统计数据
+  const fetchStats = async () => {
+    try {
+      const response = await http.getCommentStats();
+      setStats(response.data || null);
+    } catch (err) {
+      console.error('Failed to fetch comment stats:', err);
+    }
+  };
+
+  // 审核评论
+  const handleReviewComment = async (id: number, action: 'approve' | 'reject' | 'hide') => {
+    try {
+      if (action === 'approve') {
+        await http.approveComment(id);
+      } else if (action === 'reject') {
+        await http.rejectComment(id);
+      } else if (action === 'hide') {
+        await http.hideComment(id);
+      }
+      
+      // 重新获取数据
+      await fetchComments();
+      await fetchStats();
+    } catch (err: any) {
+      setError(`审核失败: ${err instanceof Error ? err.message : '未知错误'}`);
+    }
+  };
+
+  // 删除评论
+  const handleDeleteComment = async (id: number) => {
+    if (!confirm('确定要删除这条评论吗？此操作不可撤销。')) {
+      return;
+    }
+    
+    try {
+      await http.deleteComment(id);
+      // 重新获取数据
+      await fetchComments();
+      await fetchStats();
+    } catch (err: any) {
+      setError(`删除失败: ${err instanceof Error ? err.message : '未知错误'}`);
+    }
+  };
+
+  // 初始化数据
+  useEffect(() => {
+    fetchComments();
+    fetchStats();
+  }, [currentPage, filterStatus, searchTerm]);
+
+  const filteredComments = comments;
 
   const getStatusBadge = (status: string) => {
     switch (status) {
@@ -145,79 +151,113 @@ export default function CommentsManagement() {
         </div>
       </div>
 
+      {/* 错误提示 */}
+      {error && (
+        <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded mb-4">
+          {error}
+        </div>
+      )}
+
       {/* 评论列表 */}
       <div className="bg-white rounded-xl shadow-sm overflow-hidden">
-        <div className="overflow-x-auto">
-          <table className="w-full">
-            <thead className="bg-gray-50">
-              <tr>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">评论内容</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">作者</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">所属作品</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">状态</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">提交时间</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">互动数据</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">操作</th>
-              </tr>
-            </thead>
-            <tbody className="bg-white divide-y divide-gray-200">
-              {filteredComments.map((comment) => (
-                <tr key={comment.id} className="hover:bg-gray-50">
-                  <td className="px-6 py-4">
-                    <div className="max-w-xs">
-                      <p className="text-sm text-gray-900 line-clamp-3">{comment.content}</p>
-                    </div>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <div>
-                      <div className="text-sm font-medium text-gray-900">{comment.author}</div>
-                      <div className="text-sm text-gray-500">{comment.authorEmail}</div>
-                    </div>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <div className="text-sm text-gray-900">{comment.workTitle}</div>
-                    <div className="text-sm text-gray-500">ID: {comment.workId}</div>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    {getStatusBadge(comment.status)}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                    {comment.submitDate}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                    <div>点赞: {comment.likes}</div>
-                    <div>回复: {comment.replies}</div>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                    <div className="flex items-center gap-2">
-                      <button className="text-yellow-600 hover:text-yellow-900">
-                        查看详情
-                      </button>
-                      {comment.status === 'pending' && (
-                        <>
-                          <button className="text-green-600 hover:text-green-900">
-                            通过
-                          </button>
-                          <button className="text-red-600 hover:text-red-900">
-                            拒绝
-                          </button>
-                        </>
-                      )}
-                      {comment.status === 'approved' && (
-                        <button className="text-gray-600 hover:text-gray-900">
-                          隐藏
-                        </button>
-                      )}
-                      <button className="text-red-600 hover:text-red-900">
-                        删除
-                      </button>
-                    </div>
-                  </td>
+        {loading ? (
+          <div className="p-8 text-center">
+            <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-yellow-500"></div>
+            <p className="mt-2 text-gray-500">加载中...</p>
+          </div>
+        ) : (
+          <div className="overflow-x-auto">
+            <table className="w-full">
+              <thead className="bg-gray-50">
+                <tr>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">评论内容</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">作者</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">所属作品</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">状态</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">提交时间</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">互动数据</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">操作</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+              </thead>
+              <tbody className="bg-white divide-y divide-gray-200">
+                {filteredComments.length === 0 ? (
+                  <tr>
+                    <td colSpan={7} className="px-6 py-8 text-center text-gray-500">
+                      暂无评论数据
+                    </td>
+                  </tr>
+                ) : (
+                  filteredComments.map((comment) => (
+                    <tr key={comment.ID} className="hover:bg-gray-50">
+                      <td className="px-6 py-4">
+                        <div className="max-w-xs">
+                          <p className="text-sm text-gray-900 line-clamp-3">{comment.Content}</p>
+                        </div>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <div>
+                          <div className="text-sm font-medium text-gray-900">{comment.Author?.Name || '未知作者'}</div>
+                          <div className="text-sm text-gray-500">{comment.Author?.Email || '未知邮箱'}</div>
+                        </div>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <div className="text-sm text-gray-900">{comment.Work?.Title || '未知作品'}</div>
+                        <div className="text-sm text-gray-500">ID: {comment.WorkID}</div>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        {getStatusBadge(comment.Status)}
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                        {new Date(comment.CreatedAt).toLocaleDateString()}
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                        <div>点赞: {comment.Likes}</div>
+                        <div>回复: {comment.Replies}</div>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                        <div className="flex items-center gap-2">
+                          <button className="text-yellow-600 hover:text-yellow-900">
+                            查看详情
+                          </button>
+                          {comment.Status === 'pending' && (
+                            <>
+                              <button 
+                                onClick={() => handleReviewComment(comment.ID, 'approve')}
+                                className="text-green-600 hover:text-green-900"
+                              >
+                                通过
+                              </button>
+                              <button 
+                                onClick={() => handleReviewComment(comment.ID, 'reject')}
+                                className="text-red-600 hover:text-red-900"
+                              >
+                                拒绝
+                              </button>
+                            </>
+                          )}
+                          {comment.Status === 'approved' && (
+                            <button 
+                              onClick={() => handleReviewComment(comment.ID, 'hide')}
+                              className="text-gray-600 hover:text-gray-900"
+                            >
+                              隐藏
+                            </button>
+                          )}
+                          <button 
+                            onClick={() => handleDeleteComment(comment.ID)}
+                            className="text-red-600 hover:text-red-900"
+                          >
+                            删除
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  ))
+                )}
+              </tbody>
+            </table>
+          </div>
+        )}
       </div>
 
       {/* 统计信息 */}
@@ -226,7 +266,7 @@ export default function CommentsManagement() {
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm text-gray-500">总评论数</p>
-              <p className="text-2xl font-bold">{comments.length}</p>
+              <p className="text-2xl font-bold">{stats?.total_comments || 0}</p>
             </div>
             <div className="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center text-blue-500">
               <i className="fa fa-comments"></i>
@@ -237,7 +277,7 @@ export default function CommentsManagement() {
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm text-gray-500">待审核</p>
-              <p className="text-2xl font-bold text-orange-500">{comments.filter(c => c.status === 'pending').length}</p>
+              <p className="text-2xl font-bold text-orange-500">{stats?.pending_comments || 0}</p>
             </div>
             <div className="w-10 h-10 rounded-full bg-orange-100 flex items-center justify-center text-orange-500">
               <i className="fa fa-clock-o"></i>
@@ -248,7 +288,7 @@ export default function CommentsManagement() {
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm text-gray-500">已通过</p>
-              <p className="text-2xl font-bold text-green-500">{comments.filter(c => c.status === 'approved').length}</p>
+              <p className="text-2xl font-bold text-green-500">{stats?.approved_comments || 0}</p>
             </div>
             <div className="w-10 h-10 rounded-full bg-green-100 flex items-center justify-center text-green-500">
               <i className="fa fa-check"></i>
@@ -259,7 +299,7 @@ export default function CommentsManagement() {
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm text-gray-500">已拒绝/隐藏</p>
-              <p className="text-2xl font-bold text-red-500">{comments.filter(c => c.status === 'rejected' || c.status === 'hidden').length}</p>
+              <p className="text-2xl font-bold text-red-500">{(stats?.rejected_comments || 0) + (stats?.hidden_comments || 0)}</p>
             </div>
             <div className="w-10 h-10 rounded-full bg-red-100 flex items-center justify-center text-red-500">
               <i className="fa fa-times"></i>
@@ -267,6 +307,31 @@ export default function CommentsManagement() {
           </div>
         </div>
       </div>
+
+      {/* 分页 */}
+      {totalPages > 1 && (
+        <div className="mt-6 flex justify-center">
+          <div className="flex items-center gap-2">
+            <button
+              onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
+              disabled={currentPage === 1}
+              className="px-3 py-1 border border-gray-300 rounded text-sm disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50"
+            >
+              上一页
+            </button>
+            <span className="px-3 py-1 text-sm text-gray-600">
+              第 {currentPage} 页，共 {totalPages} 页
+            </span>
+            <button
+              onClick={() => setCurrentPage(Math.min(totalPages, currentPage + 1))}
+              disabled={currentPage === totalPages}
+              className="px-3 py-1 border border-gray-300 rounded text-sm disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50"
+            >
+              下一页
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

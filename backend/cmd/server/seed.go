@@ -29,7 +29,20 @@ var seedCmd = &cobra.Command{
 		}
 
 		// migrate
-		if err := db.AutoMigrate(&repo.User{}, &repo.Article{}, &repo.Event{}, &repo.Album{}); err != nil {
+		if err := db.AutoMigrate(
+			&repo.User{},
+			&repo.Article{},
+			&repo.Event{},
+			&repo.Album{},
+			&repo.Work{},
+			&repo.Comment{},
+			&repo.Activity{},
+			&repo.ActivityParticipant{},
+			&repo.Carousel{},
+			&repo.Announcement{},
+			&repo.SystemSetting{},
+			&repo.Material{},
+		); err != nil {
 			return fmt.Errorf("migrate: %w", err)
 		}
 
@@ -38,8 +51,38 @@ var seedCmd = &cobra.Command{
 		db.Model(&repo.User{}).Count(&userCount)
 		if userCount == 0 {
 			pw, _ := bcrypt.GenerateFromPassword([]byte("admin123"), bcrypt.DefaultCost)
-			admin := repo.User{Name: "Admin", Email: "admin@example.com", Password: string(pw), Role: repo.RoleAdmin}
+			admin := repo.User{
+				Name:     "王管理员",
+				Email:    "admin@maimang.com",
+				Password: string(pw),
+				Role:     repo.RoleSuperAdmin,
+				Status:   "active",
+			}
 			_ = db.Create(&admin).Error
+
+			// 创建普通用户
+			users := []repo.User{
+				{Name: "张小明", Email: "zhangxiaoming@example.com", Password: string(pw), Role: repo.RoleMember, Status: "active"},
+				{Name: "李小红", Email: "lixiaohong@example.com", Password: string(pw), Role: repo.RoleMember, Status: "active"},
+				{Name: "王小华", Email: "wangxiaohua@example.com", Password: string(pw), Role: repo.RoleEditor, Status: "active"},
+				{Name: "赵小强", Email: "zhaoxiaoqiang@example.com", Password: string(pw), Role: repo.RoleMember, Status: "inactive"},
+			}
+			_ = db.Create(&users).Error
+		}
+
+		// 确保有足够的用户用于后续数据创建
+		var totalUserCount int64
+		db.Model(&repo.User{}).Count(&totalUserCount)
+		if totalUserCount < 4 {
+			// 如果用户数量不足，补充创建用户
+			pw, _ := bcrypt.GenerateFromPassword([]byte("admin123"), bcrypt.DefaultCost)
+			additionalUsers := []repo.User{
+				{Name: "张小明", Email: "zhangxiaoming@example.com", Password: string(pw), Role: repo.RoleMember, Status: "active"},
+				{Name: "李小红", Email: "lixiaohong@example.com", Password: string(pw), Role: repo.RoleMember, Status: "active"},
+				{Name: "王小华", Email: "wangxiaohua@example.com", Password: string(pw), Role: repo.RoleEditor, Status: "active"},
+				{Name: "赵小强", Email: "zhaoxiaoqiang@example.com", Password: string(pw), Role: repo.RoleMember, Status: "inactive"},
+			}
+			_ = db.Create(&additionalUsers).Error
 		}
 
 		// seed demo articles if empty
@@ -73,6 +116,209 @@ var seedCmd = &cobra.Command{
 				{Title: "社团掠影", Description: "活动日常", CoverURL: "https://images.unsplash.com/photo-1494790108377-be9c29b29330"},
 			}
 			_ = db.Create(&albs).Error
+		}
+
+		// seed demo works if empty
+		var workCount int64
+		db.Model(&repo.Work{}).Count(&workCount)
+		if workCount == 0 {
+			// 获取用户ID
+			var users []repo.User
+			db.Find(&users)
+			if len(users) > 0 {
+				works := []repo.Work{
+					{
+						Title:    "《秋日麦浪》",
+						Type:     repo.WorkTypePoetry,
+						Content:  "风吹过田野的轮廓\n麦穗低垂，如时光的重量\n每一粒果实里，都藏着\n整个夏天的阳光",
+						Status:   repo.WorkApproved,
+						AuthorID: users[1].ID,
+						Views:    128,
+						Likes:    36,
+					},
+					{
+						Title:        "《城市边缘》",
+						Type:         repo.WorkTypePoetry,
+						Content:      "高楼吞噬了最后的绿地\n钢筋水泥的森林里\n人们行色匆匆\n忘记了泥土的芬芳",
+						Status:       repo.WorkRejected,
+						AuthorID:     users[2].ID,
+						Views:        45,
+						Likes:        8,
+						RejectReason: "作品主题与文学社\"田野文学\"定位偏差较大，建议增加自然元素或调整创作角度。",
+					},
+					{
+						Title:    "《田野记忆》",
+						Type:     repo.WorkTypeProse,
+						Content:  "小时候，我常常在田野里奔跑，追逐着蝴蝶，听着鸟儿的歌唱...",
+						Status:   repo.WorkPending,
+						AuthorID: users[3].ID,
+					},
+				}
+				_ = db.Create(&works).Error
+			}
+		}
+
+		// seed demo activities if empty
+		var activityCount int64
+		db.Model(&repo.Activity{}).Count(&activityCount)
+		if activityCount == 0 {
+			activities := []repo.Activity{
+				{
+					Title:               "秋日田野采风",
+					Description:         "组织社员前往青禾农场进行秋日田野采风活动，体验丰收的喜悦，拍摄田野风光，感受大自然的魅力。",
+					ImageURL:            "https://picsum.photos/id/175/800/400",
+					Date:                time.Now().Add(48 * time.Hour),
+					Time:                "09:00-16:00",
+					Location:            "青禾农场",
+					Instructor:          "李老师（摄影指导）",
+					Status:              repo.ActivityUpcoming,
+					MaxParticipants:     30,
+					CurrentParticipants: 24,
+				},
+				{
+					Title:               "诗歌创作工作坊",
+					Description:         "特邀本地诗人王老师指导社员进行诗歌创作，分享创作心得，提升文学素养。",
+					ImageURL:            "https://picsum.photos/id/176/800/400",
+					Date:                time.Now().Add(168 * time.Hour),
+					Time:                "14:00-17:30",
+					Location:            "麦田书屋",
+					Instructor:          "王老师（本地诗人）",
+					Status:              repo.ActivityUpcoming,
+					MaxParticipants:     25,
+					CurrentParticipants: 18,
+				},
+			}
+			_ = db.Create(&activities).Error
+		}
+
+		// seed demo carousels if empty
+		var carouselCount int64
+		db.Model(&repo.Carousel{}).Count(&carouselCount)
+		if carouselCount == 0 {
+			carousels := []repo.Carousel{
+				{
+					Title:       "秋日创作大赛",
+					ImageURL:    "https://picsum.photos/id/175/800/400",
+					LinkURL:     "/activities/1",
+					Description: "欢迎参加秋日创作大赛",
+					Status:      repo.CarouselActive,
+					Order:       1,
+				},
+				{
+					Title:       "文学沙龙活动",
+					ImageURL:    "https://picsum.photos/id/176/800/400",
+					LinkURL:     "/activities/2",
+					Description: "文学沙龙活动预告",
+					Status:      repo.CarouselActive,
+					Order:       2,
+				},
+				{
+					Title:       "新书推荐",
+					ImageURL:    "https://picsum.photos/id/177/800/400",
+					LinkURL:     "/articles/1",
+					Description: "最新图书推荐",
+					Status:      repo.CarouselInactive,
+					Order:       3,
+				},
+			}
+			_ = db.Create(&carousels).Error
+		}
+
+		// seed demo announcements if empty
+		var announcementCount int64
+		db.Model(&repo.Announcement{}).Count(&announcementCount)
+		if announcementCount == 0 {
+			var users []repo.User
+			db.Find(&users)
+			if len(users) > 0 {
+				now := time.Now()
+				announcements := []repo.Announcement{
+					{
+						Title:       "秋日创作大赛开始报名",
+						Content:     "麦芒文学社秋日创作大赛正式开始报名，欢迎各位社员积极参与！",
+						Status:      repo.AnnouncementPublished,
+						PublishedAt: &now,
+						AuthorID:    users[0].ID,
+					},
+					{
+						Title:       "系统维护通知",
+						Content:     "系统将于本周六进行维护升级，期间可能影响正常使用。",
+						Status:      repo.AnnouncementPublished,
+						PublishedAt: &now,
+						AuthorID:    users[0].ID,
+					},
+					{
+						Title:    "新功能上线预告",
+						Content:  "我们即将推出新的功能，敬请期待！",
+						Status:   repo.AnnouncementDraft,
+						AuthorID: users[0].ID,
+					},
+				}
+				_ = db.Create(&announcements).Error
+			}
+		}
+
+		// seed system settings if empty
+		var settingCount int64
+		db.Model(&repo.SystemSetting{}).Count(&settingCount)
+		if settingCount == 0 {
+			settings := []repo.SystemSetting{
+				{Key: "site_name", Value: "麦芒文学社", Type: "string"},
+				{Key: "site_description", Value: "一个专注于文学创作和交流的社区平台", Type: "string"},
+				{Key: "site_domain", Value: "www.maimang.com", Type: "string"},
+				{Key: "admin_email", Value: "admin@maimang.com", Type: "string"},
+				{Key: "contact_phone", Value: "400-123-4567", Type: "string"},
+				{Key: "contact_wechat", Value: "maimang_wx", Type: "string"},
+				{Key: "contact_weibo", Value: "@麦芒文学社", Type: "string"},
+				{Key: "contact_qq", Value: "123456789", Type: "string"},
+				{Key: "max_file_size", Value: "10", Type: "int"},
+				{Key: "auto_approve_works", Value: "false", Type: "bool"},
+				{Key: "require_email_verification", Value: "true", Type: "bool"},
+				{Key: "enable_comments", Value: "true", Type: "bool"},
+				{Key: "enable_user_registration", Value: "true", Type: "bool"},
+				{Key: "maintenance_mode", Value: "false", Type: "bool"},
+			}
+			_ = db.Create(&settings).Error
+		}
+
+		// seed demo materials if empty
+		var materialCount int64
+		db.Model(&repo.Material{}).Count(&materialCount)
+		if materialCount == 0 {
+			var users []repo.User
+			db.Find(&users)
+			if len(users) > 0 {
+				materials := []repo.Material{
+					{
+						Name:        "秋日麦田风景.jpg",
+						Type:        repo.MaterialTypeImage,
+						Size:        2350000, // 2.3 MB
+						URL:         "https://picsum.photos/id/175/800/600",
+						Description: "秋日麦田的美丽风景，适合作为诗歌配图",
+						Tags:        `["风景", "麦田", "秋天", "自然"]`,
+						UploaderID:  users[0].ID,
+					},
+					{
+						Name:        "文学创作指南.pdf",
+						Type:        repo.MaterialTypeDocument,
+						Size:        1800000, // 1.8 MB
+						URL:         "#",
+						Description: "文学创作的基础指南和技巧分享",
+						Tags:        `["指南", "创作", "文学", "技巧"]`,
+						UploaderID:  users[0].ID,
+					},
+					{
+						Name:        "诗歌朗诵视频.mp4",
+						Type:        repo.MaterialTypeVideo,
+						Size:        45200000, // 45.2 MB
+						URL:         "#",
+						Description: "经典诗歌的朗诵视频，用于学习参考",
+						Tags:        `["朗诵", "诗歌", "视频", "学习"]`,
+						UploaderID:  users[0].ID,
+					},
+				}
+				_ = db.Create(&materials).Error
+			}
 		}
 
 		logger.Info("seed completed")

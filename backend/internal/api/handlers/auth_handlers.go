@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"log"
 	"strings"
 	"time"
 
@@ -22,22 +23,42 @@ type registerReq struct {
 
 func Register(db *gorm.DB) fiber.Handler {
 	return func(c *fiber.Ctx) error {
+		log.Printf("=== Register API Called ===")
+		log.Printf("Request Method: %s", c.Method())
+		log.Printf("Request Path: %s", c.Path())
+		log.Printf("Request Headers: %v", c.GetReqHeaders())
+		log.Printf("Request Body: %s", string(c.Body()))
+
 		var req registerReq
 		if err := c.BodyParser(&req); err != nil {
+			log.Printf("BodyParser error: %v", err)
 			return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "bad payload"})
 		}
+
+		log.Printf("Parsed request: %+v", req)
+
 		req.Email = strings.TrimSpace(strings.ToLower(req.Email))
 		if req.Email == "" || req.Password == "" || req.Name == "" {
+			log.Printf("Missing fields - Email: %s, Password: %s, Name: %s", req.Email, req.Password, req.Name)
 			return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "missing fields"})
 		}
+
+		log.Printf("Generating password hash...")
 		hashed, err := bcrypt.GenerateFromPassword([]byte(req.Password), bcrypt.DefaultCost)
 		if err != nil {
+			log.Printf("Password hash error: %v", err)
 			return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": "hash error"})
 		}
+
 		user := repo.User{Name: req.Name, Email: req.Email, Password: string(hashed), Role: repo.RoleMember}
+		log.Printf("Creating user: %+v", user)
+
 		if err := db.Create(&user).Error; err != nil {
+			log.Printf("Database create error: %v", err)
 			return c.Status(fiber.StatusConflict).JSON(fiber.Map{"error": "email exists"})
 		}
+
+		log.Printf("User created successfully: ID=%d, Email=%s, Name=%s", user.ID, user.Email, user.Name)
 		return c.Status(fiber.StatusCreated).JSON(fiber.Map{"id": user.ID, "email": user.Email, "name": user.Name})
 	}
 }

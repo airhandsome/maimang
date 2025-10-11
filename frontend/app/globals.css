@@ -185,3 +185,73 @@
 .quick-action {
   @apply flex items-center gap-3 p-4 bg-white rounded-xl shadow-sm cursor-pointer transition-all hover:shadow-md;
 }
+
+/* 管理员布局样式 */
+.admin-layout {
+  @apply min-h-screen bg-gray-50;
+}
+
+.admin-sidebar {
+  @apply fixed top-0 left-0 z-50 w-64 bg-white shadow-md h-screen flex flex-col;
+  position: fixed !important;
+  top: 0 !important;
+  left: 0 !important;
+  height: 100vh !important;
+  width: 16rem !important;
+}
+
+.admin-sidebar-mobile {
+  @apply transform transition-transform duration-300 ease-in-out;
+}
+
+.admin-sidebar-mobile.open {
+  @apply translate-x-0;
+}
+
+.admin-sidebar-mobile.closed {
+  @apply -translate-x-full;
+}
+
+/* 桌面端侧边栏始终显示 */
+@media (min-width: 768px) {
+  .admin-sidebar-mobile.closed {
+    @apply translate-x-0;
+  }
+}
+
+.admin-main {
+  @apply flex-1 flex flex-col min-h-screen;
+  margin-left: 0;
+}
+
+@media (min-width: 768px) {
+  .admin-main {
+    margin-left: 16rem;
+  }
+}
+
+.admin-header {
+  @apply bg-white shadow-sm py-3 px-6 flex items-center justify-between flex-shrink-0;
+}
+
+.admin-content {
+  @apply flex-1 overflow-y-auto p-6 bg-gray-50;
+}
+
+/* 移动端遮罩层 */
+.admin-overlay {
+  @apply fixed inset-0 bg-black bg-opacity-50 z-40 md:hidden;
+}
+
+/* 标签样式 */
+.tag-item {
+  @apply inline-flex items-center px-3 py-1 rounded-full text-sm font-medium cursor-pointer transition-all duration-200 border-2 border-wheat text-text hover:border-gold hover:bg-gold/10;
+}
+
+.tag-item.active {
+  @apply bg-gold text-white border-gold;
+}
+
+.tag-item.active:hover {
+  @apply bg-goldDark border-goldDark;
+}
