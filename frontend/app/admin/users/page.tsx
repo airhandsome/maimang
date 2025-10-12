@@ -97,6 +97,8 @@ export default function UsersManagement() {
         return <span className="px-2 py-1 bg-blue-100 text-blue-500 text-xs rounded-full">会员</span>;
       case 'guest':
         return <span className="px-2 py-1 bg-gray-100 text-gray-500 text-xs rounded-full">游客</span>;
+      case 'editor':
+        return <span className="px-2 py-1 bg-green-100 text-green-500 text-xs rounded-full">编辑</span>;
       default:
         return <span className="px-2 py-1 bg-gray-100 text-gray-500 text-xs rounded-full">未知</span>;
     }
@@ -205,65 +207,64 @@ export default function UsersManagement() {
                 </tr>
               ) : (
                 users.map((user) => (
-                  <tr key={user.id} className="hover:bg-gray-50">
+                  <tr key={user.ID} className="hover:bg-gray-50">
                     <td className="px-6 py-4">
                       <div className="flex items-center">
                         <img 
-                          src={user.avatar ? `http://localhost:8080${user.avatar}` : '/default-avatar.png'} 
-                          alt={user.name}
+                          src={user.AvatarURL ? `http://localhost:8080${user.AvatarURL}` : '/default-avatar.svg'} 
+                          alt={user.Name}
                           className="w-10 h-10 rounded-full object-cover mr-3"
                           onError={(e) => {
-                            e.currentTarget.src = '/default-avatar.png';
+                            e.currentTarget.src = '/default-avatar.svg';
                           }}
                         />
                         <div>
-                          <div className="text-sm font-medium text-gray-900">{user.name}</div>
-                          <div className="text-sm text-gray-500">{user.email}</div>
+                          <div className="text-sm font-medium text-gray-900">{user.Name}</div>
+                          <div className="text-sm text-gray-500">{user.Email}</div>
                         </div>
                       </div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
-                      {getRoleBadge(user.role)}
+                      {getRoleBadge(user.Role)}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
-                      {getStatusBadge(user.status)}
+                      {getStatusBadge(user.Status)}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                      {new Date(user.created_at).toLocaleDateString()}
+                      {new Date(user.CreatedAt).toLocaleDateString()}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                      {user.last_login_at ? new Date(user.last_login_at).toLocaleDateString() : '从未登录'}
+                      {user.LastLoginAt ? new Date(user.LastLoginAt).toLocaleDateString() : '从未登录'}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                      {/* 这里可以添加作品数量统计 */}
-                      -
+                      {user.Works ? user.Works.length : 0}                      
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
                       <div className="flex items-center gap-2">
                         <Link 
-                          href={`/admin/users/${user.id}`}
+                          href={`/admin/users/${user.ID}`}
                           className="text-yellow-600 hover:text-yellow-900"
                         >
                           查看详情
                         </Link>
-                        {user.role !== 'admin' && (
+                        {user.Role !== 'admin' && (
                           <>
                             <Link 
-                              href={`/admin/users/${user.id}/edit`}
+                              href={`/admin/users/${user.ID}/edit`}
                               className="text-blue-600 hover:text-blue-900"
                             >
                               编辑
                             </Link>
-                            {user.status === 'active' ? (
+                            {user.Status === 'active' ? (
                               <button 
-                                onClick={() => handleBanUser(user.id)}
+                                onClick={() => handleBanUser(user.ID)}
                                 className="text-red-600 hover:text-red-900"
                               >
                                 封禁
                               </button>
                             ) : (
                               <button 
-                                onClick={() => handleUnbanUser(user.id)}
+                                onClick={() => handleUnbanUser(user.ID)}
                                 className="text-green-600 hover:text-green-900"
                               >
                                 解封

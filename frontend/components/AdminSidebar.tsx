@@ -111,12 +111,12 @@ export default function AdminSidebar({ isOpen, onClose }: AdminSidebarProps) {
               // 显示真实用户信息
               <>
                 <img 
-                  src={user.avatar ? `http://localhost:8080${user.avatar}` : '/default-avatar.png'} 
+                  src={user.avatar ? `http://localhost:8080${user.avatar}` : '/default-avatar.svg'} 
                   alt="用户头像" 
                   className="w-10 h-10 rounded-full object-cover" 
                   onError={(e) => {
                     // 头像加载失败时使用默认头像
-                    e.currentTarget.src = '/default-avatar.png';
+                    e.currentTarget.src = '/default-avatar.svg';
                   }}
                 />
                 <div className="flex-1 min-w-0">

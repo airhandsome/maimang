@@ -75,6 +75,12 @@ func RegisterRoutes(app *fiber.App, db *gorm.DB) {
 	admin.Get("/statistics/works", handlers.GetWorkStats(db))
 	admin.Get("/statistics/activities", handlers.GetActivityStats(db))
 
+	// 详细统计数据
+	admin.Get("/statistics/user-growth", handlers.GetUserGrowthStats(db))
+	admin.Get("/statistics/content-trend", handlers.GetContentTrendStats(db))
+	admin.Get("/statistics/activity-participation", handlers.GetActivityParticipationStats(db))
+	admin.Get("/statistics/monthly", handlers.GetMonthlyStats(db))
+
 	// 用户管理
 	admin.Get("/users", handlers.ListUsers(db))
 	admin.Get("/users/:id", handlers.GetUser(db))

@@ -1,7 +1,8 @@
 'use client';
 
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Chart, registerables } from 'chart.js';
+import { http, type StatisticsResponse, type UserGrowthData, type ContentTrendData, type ActivityParticipationData, type MonthlyStatsData } from '@/lib/http';
 
 // 注册 Chart.js 组件
 Chart.register(...registerables);
@@ -16,6 +17,61 @@ export default function StatisticsPage() {
   const contentTrendChartInstance = useRef<Chart | null>(null);
   const activityParticipationChartInstance = useRef<Chart | null>(null);
   const categoryDistributionChartInstance = useRef<Chart | null>(null);
+
+  // 状态管理
+  const [stats, setStats] = useState<StatisticsResponse | null>(null);
+  const [userGrowthData, setUserGrowthData] = useState<UserGrowthData[]>([]);
+  const [contentTrendData, setContentTrendData] = useState<ContentTrendData[]>([]);
+  const [activityParticipationData, setActivityParticipationData] = useState<ActivityParticipationData | null>(null);
+  const [monthlyStatsData, setMonthlyStatsData] = useState<MonthlyStatsData[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  // 获取统计数据
+  const fetchStatisticsData = async () => {
+    try {
+      setLoading(true);
+      setError(null);
+
+      const [
+        statsResponse,
+        userGrowthResponse,
+        contentTrendResponse,
+        activityParticipationResponse,
+        monthlyStatsResponse
+      ] = await Promise.all([
+        http.getDashboardStats(),
+        http.getUserGrowthStats(),
+        http.getContentTrendStats(),
+        http.getActivityParticipationStats(),
+        http.getMonthlyStats()
+      ]);
+
+      if (statsResponse.success && statsResponse.data) {
+        setStats(statsResponse.data);
+      }
+      if (userGrowthResponse.success && userGrowthResponse.data) {
+        setUserGrowthData(userGrowthResponse.data);
+      }
+      if (contentTrendResponse.success && contentTrendResponse.data) {
+        setContentTrendData(contentTrendResponse.data);
+      }
+      if (activityParticipationResponse.success && activityParticipationResponse.data) {
+        setActivityParticipationData(activityParticipationResponse.data);
+      }
+      if (monthlyStatsResponse.success && monthlyStatsResponse.data) {
+        setMonthlyStatsData(monthlyStatsResponse.data);
+      }
+    } catch (err: any) {
+      setError(err.message || '获取统计数据失败');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchStatisticsData();
+  }, []);
 
   useEffect(() => {
     // 清理旧的图表实例
@@ -33,17 +89,17 @@ export default function StatisticsPage() {
     }
 
     // 用户增长趋势图
-    if (userGrowthChartRef.current) {
+    if (userGrowthChartRef.current && userGrowthData.length > 0) {
       const userGrowthCtx = userGrowthChartRef.current.getContext('2d');
       if (userGrowthCtx) {
         userGrowthChartInstance.current = new Chart(userGrowthCtx, {
           type: 'line',
           data: {
-            labels: ['1月', '2月', '3月', '4月', '5月', '6月', '7月', '8月', '9月', '10月'],
+            labels: userGrowthData.map(item => item.month),
             datasets: [
               {
                 label: '新增用户',
-                data: [45, 52, 48, 61, 55, 67, 72, 68, 75, 82],
+                data: userGrowthData.map(item => item.new_users),
                 borderColor: '#F5C332',
                 backgroundColor: 'rgba(245, 195, 50, 0.1)',
                 tension: 0.3,
@@ -51,7 +107,7 @@ export default function StatisticsPage() {
               },
               {
                 label: '活跃用户',
-                data: [120, 135, 128, 145, 142, 158, 165, 162, 175, 186],
+                data: userGrowthData.map(item => item.active_users),
                 borderColor: '#2196F3',
                 backgroundColor: 'rgba(33, 150, 243, 0.1)',
                 tension: 0.3,
@@ -78,16 +134,16 @@ export default function StatisticsPage() {
     }
 
     // 内容发布趋势图
-    if (contentTrendChartRef.current) {
+    if (contentTrendChartRef.current && contentTrendData.length > 0) {
       const contentTrendCtx = contentTrendChartRef.current.getContext('2d');
       if (contentTrendCtx) {
         contentTrendChartInstance.current = new Chart(contentTrendCtx, {
           type: 'bar',
           data: {
-            labels: ['诗歌', '散文', '小说', '摄影配文', '其他'],
+            labels: contentTrendData.map(item => item.category),
             datasets: [{
               label: '发布数量',
-              data: [156, 98, 67, 45, 23],
+              data: contentTrendData.map(item => item.count),
               backgroundColor: [
                 '#F5C332',
                 '#2196F3',
@@ -117,7 +173,7 @@ export default function StatisticsPage() {
     }
 
     // 活动参与度图
-    if (activityParticipationChartRef.current) {
+    if (activityParticipationChartRef.current && activityParticipationData) {
       const activityParticipationCtx = activityParticipationChartRef.current.getContext('2d');
       if (activityParticipationCtx) {
         activityParticipationChartInstance.current = new Chart(activityParticipationCtx, {
@@ -125,7 +181,7 @@ export default function StatisticsPage() {
           data: {
             labels: ['已参与', '未参与'],
             datasets: [{
-              data: [68, 32],
+              data: [activityParticipationData.participated, activityParticipationData.not_participated],
               backgroundColor: [
                 '#4CAF50',
                 '#E0E0E0'
@@ -148,15 +204,15 @@ export default function StatisticsPage() {
     }
 
     // 分类分布图
-    if (categoryDistributionChartRef.current) {
+    if (categoryDistributionChartRef.current && contentTrendData.length > 0) {
       const categoryDistributionCtx = categoryDistributionChartRef.current.getContext('2d');
       if (categoryDistributionCtx) {
         categoryDistributionChartInstance.current = new Chart(categoryDistributionCtx, {
           type: 'pie',
           data: {
-            labels: ['诗歌', '散文', '小说', '摄影配文', '其他'],
+            labels: contentTrendData.map(item => item.category),
             datasets: [{
-              data: [42, 28, 18, 8, 4],
+              data: contentTrendData.map(item => item.count),
               backgroundColor: [
                 '#F5C332',
                 '#2196F3',
@@ -195,7 +251,25 @@ export default function StatisticsPage() {
         categoryDistributionChartInstance.current.destroy();
       }
     };
-  }, []);
+  }, [userGrowthData, contentTrendData, activityParticipationData]);
+
+  if (error) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="text-red-500 text-xl mb-4">⚠️</div>
+          <h2 className="text-xl font-bold text-gray-900 mb-2">数据加载失败</h2>
+          <p className="text-gray-600 mb-4">{error}</p>
+          <button 
+            onClick={fetchStatisticsData}
+            className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors"
+          >
+            重新加载
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -210,9 +284,13 @@ export default function StatisticsPage() {
           <div className="flex items-start justify-between">
             <div>
               <p className="text-gray-500 text-sm mb-1">总用户数</p>
-              <h3 className="text-3xl font-bold">1,286</h3>
-              <p className="text-green-500 text-sm mt-2 flex items-center">
-                <i className="fa fa-arrow-up mr-1"></i> 12.5% <span className="text-gray-500 ml-1">较上月</span>
+              <h3 className="text-3xl font-bold">
+                {loading ? '...' : stats?.total_users?.toLocaleString() || '0'}
+              </h3>
+              <p className={`text-sm mt-2 flex items-center ${stats?.user_growth_rate && stats.user_growth_rate >= 0 ? 'text-green-500' : 'text-red-500'}`}>
+                <i className={`fa fa-arrow-${stats?.user_growth_rate && stats.user_growth_rate >= 0 ? 'up' : 'down'} mr-1`}></i> 
+                {stats?.user_growth_rate ? `${Math.abs(stats.user_growth_rate).toFixed(1)}%` : '0%'} 
+                <span className="text-gray-500 ml-1">较上月</span>
               </p>
             </div>
             <div className="w-12 h-12 rounded-full bg-blue-100 flex items-center justify-center text-blue-500">
@@ -225,9 +303,13 @@ export default function StatisticsPage() {
           <div className="flex items-start justify-between">
             <div>
               <p className="text-gray-500 text-sm mb-1">总作品数</p>
-              <h3 className="text-3xl font-bold">3,752</h3>
-              <p className="text-green-500 text-sm mt-2 flex items-center">
-                <i className="fa fa-arrow-up mr-1"></i> 8.3% <span className="text-gray-500 ml-1">较上月</span>
+              <h3 className="text-3xl font-bold">
+                {loading ? '...' : stats?.total_works?.toLocaleString() || '0'}
+              </h3>
+              <p className={`text-sm mt-2 flex items-center ${stats?.work_growth_rate && stats.work_growth_rate >= 0 ? 'text-green-500' : 'text-red-500'}`}>
+                <i className={`fa fa-arrow-${stats?.work_growth_rate && stats.work_growth_rate >= 0 ? 'up' : 'down'} mr-1`}></i> 
+                {stats?.work_growth_rate ? `${Math.abs(stats.work_growth_rate).toFixed(1)}%` : '0%'} 
+                <span className="text-gray-500 ml-1">较上月</span>
               </p>
             </div>
             <div className="w-12 h-12 rounded-full bg-yellow-100 flex items-center justify-center text-yellow-500">
@@ -240,9 +322,13 @@ export default function StatisticsPage() {
           <div className="flex items-start justify-between">
             <div>
               <p className="text-gray-500 text-sm mb-1">总浏览量</p>
-              <h3 className="text-3xl font-bold">28,456</h3>
-              <p className="text-green-500 text-sm mt-2 flex items-center">
-                <i className="fa fa-arrow-up mr-1"></i> 15.2% <span className="text-gray-500 ml-1">较上月</span>
+              <h3 className="text-3xl font-bold">
+                {loading ? '...' : stats?.total_views?.toLocaleString() || '0'}
+              </h3>
+              <p className={`text-sm mt-2 flex items-center ${stats?.view_growth_rate && stats.view_growth_rate >= 0 ? 'text-green-500' : 'text-red-500'}`}>
+                <i className={`fa fa-arrow-${stats?.view_growth_rate && stats.view_growth_rate >= 0 ? 'up' : 'down'} mr-1`}></i> 
+                {stats?.view_growth_rate ? `${Math.abs(stats.view_growth_rate).toFixed(1)}%` : '0%'} 
+                <span className="text-gray-500 ml-1">较上月</span>
               </p>
             </div>
             <div className="w-12 h-12 rounded-full bg-green-100 flex items-center justify-center text-green-500">
@@ -255,9 +341,13 @@ export default function StatisticsPage() {
           <div className="flex items-start justify-between">
             <div>
               <p className="text-gray-500 text-sm mb-1">总评论数</p>
-              <h3 className="text-3xl font-bold">1,234</h3>
-              <p className="text-green-500 text-sm mt-2 flex items-center">
-                <i className="fa fa-arrow-up mr-1"></i> 6.8% <span className="text-gray-500 ml-1">较上月</span>
+              <h3 className="text-3xl font-bold">
+                {loading ? '...' : stats?.total_comments?.toLocaleString() || '0'}
+              </h3>
+              <p className={`text-sm mt-2 flex items-center ${stats?.comment_growth_rate && stats.comment_growth_rate >= 0 ? 'text-green-500' : 'text-red-500'}`}>
+                <i className={`fa fa-arrow-${stats?.comment_growth_rate && stats.comment_growth_rate >= 0 ? 'up' : 'down'} mr-1`}></i> 
+                {stats?.comment_growth_rate ? `${Math.abs(stats.comment_growth_rate).toFixed(1)}%` : '0%'} 
+                <span className="text-gray-500 ml-1">较上月</span>
               </p>
             </div>
             <div className="w-12 h-12 rounded-full bg-purple-100 flex items-center justify-center text-purple-500">
@@ -294,7 +384,9 @@ export default function StatisticsPage() {
             <canvas ref={activityParticipationChartRef}></canvas>
           </div>
           <div className="text-center mt-4">
-            <p className="text-sm text-gray-500">平均参与率: 68%</p>
+            <p className="text-sm text-gray-500">
+              平均参与率: {activityParticipationData ? `${activityParticipationData.participation_rate.toFixed(1)}%` : '0%'}
+            </p>
           </div>
         </div>
 
@@ -325,22 +417,26 @@ export default function StatisticsPage() {
               </tr>
             </thead>
             <tbody className="bg-white divide-y divide-gray-200">
-              {[
-                { month: '10月', users: 82, works: 156, views: 3456, comments: 234, activities: 68 },
-                { month: '9月', users: 75, works: 142, views: 3123, comments: 198, activities: 72 },
-                { month: '8月', users: 68, works: 128, views: 2890, comments: 167, activities: 65 },
-                { month: '7月', users: 72, works: 135, views: 3012, comments: 189, activities: 58 },
-                { month: '6月', users: 67, works: 118, views: 2678, comments: 145, activities: 61 }
-              ].map((data, index) => (
-                <tr key={index} className="hover:bg-gray-50">
-                  <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{data.month}</td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{data.users}</td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{data.works}</td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{data.views.toLocaleString()}</td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{data.comments}</td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{data.activities}%</td>
+              {loading ? (
+                <tr>
+                  <td colSpan={6} className="px-6 py-8 text-center text-gray-500">加载中...</td>
                 </tr>
-              ))}
+              ) : monthlyStatsData.length === 0 ? (
+                <tr>
+                  <td colSpan={6} className="px-6 py-8 text-center text-gray-500">暂无数据</td>
+                </tr>
+              ) : (
+                monthlyStatsData.map((data, index) => (
+                  <tr key={index} className="hover:bg-gray-50">
+                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{data.month}</td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{data.new_users}</td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{data.new_works}</td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{data.total_views.toLocaleString()}</td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{data.new_comments}</td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{data.activities}</td>
+                  </tr>
+                ))
+              )}
             </tbody>
           </table>
         </div>

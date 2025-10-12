@@ -11,33 +11,6 @@ import (
 	"maimang/backend/internal/types"
 )
 
-// 获取仪表盘数据
-func GetDashboardStats(db *gorm.DB) fiber.Handler {
-	return func(c *fiber.Ctx) error {
-		var stats types.DashboardStats
-
-		// 统计用户数
-		db.Model(&repo.User{}).Count(&stats.TotalUsers)
-
-		// 统计作品数
-		db.Model(&repo.Work{}).Count(&stats.TotalWorks)
-		db.Model(&repo.Work{}).Where("status = ?", repo.WorkPending).Count(&stats.PendingWorks)
-
-		// 统计活动数
-		db.Model(&repo.Activity{}).Count(&stats.TotalActivities)
-		db.Model(&repo.Activity{}).Where("status IN ?", []repo.ActivityStatus{repo.ActivityUpcoming, repo.ActivityOngoing}).Count(&stats.ActiveActivities)
-
-		// 统计评论数
-		db.Model(&repo.Comment{}).Count(&stats.TotalComments)
-		db.Model(&repo.Comment{}).Where("status = ?", repo.CommentPending).Count(&stats.PendingComments)
-
-		return c.JSON(types.Response{
-			Success: true,
-			Data:    stats,
-		})
-	}
-}
-
 // 获取用户统计
 func GetUserStats(db *gorm.DB) fiber.Handler {
 	return func(c *fiber.Ctx) error {

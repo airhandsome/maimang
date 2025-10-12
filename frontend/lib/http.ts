@@ -588,6 +588,27 @@ class Http {
     return this.get<PaginatedResponse<User>>(`/admin/users${query ? `?${query}` : ''}`);
   }
 
+  // 统计数据相关 API
+  async getDashboardStats(): Promise<ApiResponse<StatisticsResponse>> {
+    return this.get<ApiResponse<StatisticsResponse>>('/admin/statistics');
+  }
+
+  async getUserGrowthStats(): Promise<ApiResponse<UserGrowthData[]>> {
+    return this.get<ApiResponse<UserGrowthData[]>>('/admin/statistics/user-growth');
+  }
+
+  async getContentTrendStats(): Promise<ApiResponse<ContentTrendData[]>> {
+    return this.get<ApiResponse<ContentTrendData[]>>('/admin/statistics/content-trend');
+  }
+
+  async getActivityParticipationStats(): Promise<ApiResponse<ActivityParticipationData>> {
+    return this.get<ApiResponse<ActivityParticipationData>>('/admin/statistics/activity-participation');
+  }
+
+  async getMonthlyStats(): Promise<ApiResponse<MonthlyStatsData[]>> {
+    return this.get<ApiResponse<MonthlyStatsData[]>>('/admin/statistics/monthly');
+  }
+
   async getUser(id: number): Promise<ApiResponse<User>> {
     return this.get<ApiResponse<User>>(`/admin/users/${id}`);
   }
@@ -623,21 +644,66 @@ export default http;
 
 // 用户信息类型
 export interface User {
-  id: number;
-  created_at: string;
-  updated_at: string;
-  name: string;
-  email: string;
-  role: string;
-  avatar: string;
-  bio: string;
-  gender: string;
-  phone: string;
-  tags: string[];
-  weibo: string;
-  wechat: string;
-  status: string;
-  last_login_at?: string;
+  ID: number;
+  CreatedAt: string;
+  UpdatedAt: string;
+  Name: string;
+  Email: string;
+  Role: string;
+  AvatarURL: string;
+  Bio: string;
+  Gender: string;
+  Phone: string;
+  Tags: string;
+  Weibo: string;
+  Wechat: string;
+  Status: string;
+  LastLoginAt?: string;
+}
+
+// 统计数据相关类型
+export interface StatisticsResponse {
+  total_users: number;
+  new_users_this_month: number;
+  user_growth_rate: number;
+  total_works: number;
+  new_works_this_month: number;
+  work_growth_rate: number;
+  total_views: number;
+  views_this_month: number;
+  view_growth_rate: number;
+  total_comments: number;
+  comments_this_month: number;
+  comment_growth_rate: number;
+  total_activities: number;
+  active_activities: number;
+  total_participants: number;
+}
+
+export interface UserGrowthData {
+  month: string;
+  new_users: number;
+  active_users: number;
+}
+
+export interface ContentTrendData {
+  category: string;
+  count: number;
+}
+
+export interface ActivityParticipationData {
+  participated: number;
+  not_participated: number;
+  participation_rate: number;
+}
+
+export interface MonthlyStatsData {
+  month: string;
+  new_users: number;
+  new_works: number;
+  total_views: number;
+  new_comments: number;
+  activities: number;
 }
 
 // 导出类型

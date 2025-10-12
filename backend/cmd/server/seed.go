@@ -126,33 +126,26 @@ var seedCmd = &cobra.Command{
 			var users []repo.User
 			db.Find(&users)
 			if len(users) > 0 {
+				// 创建更多样化的作品数据
 				works := []repo.Work{
-					{
-						Title:    "《秋日麦浪》",
-						Type:     repo.WorkTypePoetry,
-						Content:  "风吹过田野的轮廓\n麦穗低垂，如时光的重量\n每一粒果实里，都藏着\n整个夏天的阳光",
-						Status:   repo.WorkApproved,
-						AuthorID: users[1].ID,
-						Views:    128,
-						Likes:    36,
-					},
-					{
-						Title:        "《城市边缘》",
-						Type:         repo.WorkTypePoetry,
-						Content:      "高楼吞噬了最后的绿地\n钢筋水泥的森林里\n人们行色匆匆\n忘记了泥土的芬芳",
-						Status:       repo.WorkRejected,
-						AuthorID:     users[2].ID,
-						Views:        45,
-						Likes:        8,
-						RejectReason: "作品主题与文学社\"田野文学\"定位偏差较大，建议增加自然元素或调整创作角度。",
-					},
-					{
-						Title:    "《田野记忆》",
-						Type:     repo.WorkTypeProse,
-						Content:  "小时候，我常常在田野里奔跑，追逐着蝴蝶，听着鸟儿的歌唱...",
-						Status:   repo.WorkPending,
-						AuthorID: users[3].ID,
-					},
+					// 诗歌类
+					{Title: "《秋日麦浪》", Type: repo.WorkTypePoetry, Content: "风吹过田野的轮廓\n麦穗低垂，如时光的重量\n每一粒果实里，都藏着\n整个夏天的阳光", Status: repo.WorkApproved, AuthorID: users[1].ID, Views: 128, Likes: 36, CreatedAt: time.Now().AddDate(0, -2, -5)},
+					{Title: "《城市边缘》", Type: repo.WorkTypePoetry, Content: "高楼吞噬了最后的绿地\n钢筋水泥的森林里\n人们行色匆匆\n忘记了泥土的芬芳", Status: repo.WorkRejected, AuthorID: users[2].ID, Views: 45, Likes: 8, RejectReason: "作品主题与文学社\"田野文学\"定位偏差较大，建议增加自然元素或调整创作角度。", CreatedAt: time.Now().AddDate(0, -1, -10)},
+					{Title: "《春之序曲》", Type: repo.WorkTypePoetry, Content: "嫩芽破土而出\n春风轻抚大地\n万物复苏的季节\n希望在心中萌芽", Status: repo.WorkApproved, AuthorID: users[0].ID, Views: 89, Likes: 23, CreatedAt: time.Now().AddDate(0, -3, -2)},
+					{Title: "《夏夜星空》", Type: repo.WorkTypePoetry, Content: "繁星点点\n如钻石般闪烁\n夏夜的宁静\n让人心旷神怡", Status: repo.WorkApproved, AuthorID: users[1].ID, Views: 156, Likes: 42, CreatedAt: time.Now().AddDate(0, -1, -15)},
+
+					// 散文类
+					{Title: "《田野记忆》", Type: repo.WorkTypeProse, Content: "小时候，我常常在田野里奔跑，追逐着蝴蝶，听着鸟儿的歌唱。那些美好的回忆，如同珍珠般珍贵，永远闪耀在我心中。", Status: repo.WorkPending, AuthorID: users[3].ID, CreatedAt: time.Now().AddDate(0, 0, -3)},
+					{Title: "《故乡的秋天》", Type: repo.WorkTypeProse, Content: "故乡的秋天总是那么美丽，金黄的稻谷在微风中摇摆，农民们脸上洋溢着丰收的喜悦。", Status: repo.WorkApproved, AuthorID: users[0].ID, Views: 203, Likes: 67, CreatedAt: time.Now().AddDate(0, -2, -8)},
+					{Title: "《读书的乐趣》", Type: repo.WorkTypeProse, Content: "读书是一种享受，在书海中遨游，与古今中外的智者对话，感受知识的魅力。", Status: repo.WorkApproved, AuthorID: users[2].ID, Views: 134, Likes: 38, CreatedAt: time.Now().AddDate(0, -1, -20)},
+
+					// 小说类
+					{Title: "《麦田守望者》", Type: repo.WorkTypeNovel, Content: "在一个宁静的小村庄里，住着一个年轻的农夫，他每天都会来到麦田边，静静地守望着这片金色的海洋...", Status: repo.WorkApproved, AuthorID: users[1].ID, Views: 312, Likes: 89, CreatedAt: time.Now().AddDate(0, -2, -12)},
+					{Title: "《青春岁月》", Type: repo.WorkTypeNovel, Content: "青春是一本太仓促的书，我们含着泪，一读再读。那些年少的梦想，那些纯真的友谊，都成为了最珍贵的回忆。", Status: repo.WorkApproved, AuthorID: users[0].ID, Views: 278, Likes: 76, CreatedAt: time.Now().AddDate(0, -1, -5)},
+
+					// 摄影配文类
+					{Title: "《夕阳下的麦田》", Type: repo.WorkTypePhoto, Content: "夕阳西下，金色的阳光洒在麦田上，形成了一幅美丽的画卷。这一刻，时间仿佛静止了。", Status: repo.WorkApproved, AuthorID: users[2].ID, Views: 189, Likes: 54, CreatedAt: time.Now().AddDate(0, 0, -7)},
+					{Title: "《晨露》", Type: repo.WorkTypePhoto, Content: "清晨的露珠在草叶上闪闪发光，如同大自然馈赠的珍珠，纯净而美丽。", Status: repo.WorkApproved, AuthorID: users[3].ID, Views: 167, Likes: 41, CreatedAt: time.Now().AddDate(0, 0, -10)},
 				}
 				_ = db.Create(&works).Error
 			}
@@ -279,6 +272,63 @@ var seedCmd = &cobra.Command{
 				{Key: "maintenance_mode", Value: "false", Type: "bool"},
 			}
 			_ = db.Create(&settings).Error
+		}
+
+		// seed demo comments if empty
+		var commentCount int64
+		db.Model(&repo.Comment{}).Count(&commentCount)
+		if commentCount == 0 {
+			var users []repo.User
+			var works []repo.Work
+			db.Find(&users)
+			db.Find(&works)
+			if len(users) > 0 && len(works) > 0 {
+				// 确保有足够的用户和作品
+				userCount := len(users)
+				workCount := len(works)
+
+				comments := []repo.Comment{
+					{Content: "写得真好！很有诗意", Status: repo.CommentApproved, AuthorID: users[0].ID, WorkID: works[0].ID, Likes: 5, CreatedAt: time.Now().AddDate(0, -1, -5)},
+				}
+
+				if userCount > 1 && workCount > 0 {
+					comments = append(comments, repo.Comment{Content: "作者的文字功底很深厚", Status: repo.CommentApproved, AuthorID: users[1].ID, WorkID: works[0].ID, Likes: 3, CreatedAt: time.Now().AddDate(0, -1, -3)})
+				}
+
+				if userCount > 2 && workCount > 0 {
+					comments = append(comments, repo.Comment{Content: "让我想起了家乡的麦田", Status: repo.CommentApproved, AuthorID: users[2].ID, WorkID: works[0].ID, Likes: 7, CreatedAt: time.Now().AddDate(0, -1, -1)})
+				}
+
+				if userCount > 0 && workCount > 1 {
+					comments = append(comments, repo.Comment{Content: "这篇散文很有感染力", Status: repo.CommentApproved, AuthorID: users[0].ID, WorkID: works[1].ID, Likes: 4, CreatedAt: time.Now().AddDate(0, -2, -10)})
+				}
+
+				if userCount > 1 && workCount > 1 {
+					comments = append(comments, repo.Comment{Content: "作者的观察很细致", Status: repo.CommentApproved, AuthorID: users[1].ID, WorkID: works[1].ID, Likes: 2, CreatedAt: time.Now().AddDate(0, -2, -8)})
+				}
+
+				if userCount > 2 && workCount > 2 {
+					comments = append(comments, repo.Comment{Content: "小说情节很吸引人", Status: repo.CommentApproved, AuthorID: users[2].ID, WorkID: works[2].ID, Likes: 6, CreatedAt: time.Now().AddDate(0, -1, -15)})
+				}
+
+				if userCount > 3 && workCount > 2 {
+					comments = append(comments, repo.Comment{Content: "期待后续章节", Status: repo.CommentApproved, AuthorID: users[3].ID, WorkID: works[2].ID, Likes: 3, CreatedAt: time.Now().AddDate(0, -1, -12)})
+				}
+
+				if userCount > 0 && workCount > 3 {
+					comments = append(comments, repo.Comment{Content: "照片拍得很美", Status: repo.CommentApproved, AuthorID: users[0].ID, WorkID: works[3].ID, Likes: 8, CreatedAt: time.Now().AddDate(0, 0, -5)})
+				}
+
+				if userCount > 1 && workCount > 3 {
+					comments = append(comments, repo.Comment{Content: "配文也很棒", Status: repo.CommentApproved, AuthorID: users[1].ID, WorkID: works[3].ID, Likes: 4, CreatedAt: time.Now().AddDate(0, 0, -3)})
+				}
+
+				if userCount > 2 && workCount > 4 {
+					comments = append(comments, repo.Comment{Content: "很有意境", Status: repo.CommentApproved, AuthorID: users[2].ID, WorkID: works[4].ID, Likes: 5, CreatedAt: time.Now().AddDate(0, 0, -2)})
+				}
+
+				_ = db.Create(&comments).Error
+			}
 		}
 
 		// seed demo materials if empty

@@ -199,11 +199,11 @@ export default function UserDetailPage() {
           <div className="flex items-start justify-between mb-4">
             <div className="flex items-center">
               <img 
-                src={user.avatar ? `http://localhost:8080${user.avatar}` : '/default-avatar.png'} 
+                src={user.avatar ? `http://localhost:8080${user.avatar}` : '/default-avatar.svg'} 
                 alt={user.name}
                 className="w-20 h-20 rounded-full object-cover mr-4"
                 onError={(e) => {
-                  e.currentTarget.src = '/default-avatar.png';
+                  e.currentTarget.src = '/default-avatar.svg';
                 }}
               />
               <div>
