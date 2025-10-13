@@ -2,6 +2,8 @@ package repo
 
 import (
 	"time"
+
+	"gorm.io/gorm"
 )
 
 type Role string
@@ -155,6 +157,7 @@ type Comment struct {
 	ID        uint `gorm:"primaryKey"`
 	CreatedAt time.Time
 	UpdatedAt time.Time
+	DeletedAt gorm.DeletedAt `gorm:"index"`
 
 	Content  string        `gorm:"type:text;not null"`
 	Status   CommentStatus `gorm:"type:varchar(20);not null;default:'pending';index"`

@@ -1,6 +1,7 @@
 'use client';
 
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
+import { http, type StatisticsResponse } from '@/lib/http';
 import { Chart, registerables } from 'chart.js';
 
 // 注册 Chart.js 组件
@@ -11,6 +12,29 @@ export default function AdminDashboard() {
   const categoryChartRef = useRef<HTMLCanvasElement>(null);
   const activityChartInstance = useRef<Chart | null>(null);
   const categoryChartInstance = useRef<Chart | null>(null);
+
+  const [stats, setStats] = useState<StatisticsResponse | null>(null);
+  const [loading, setLoading] = useState<boolean>(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    const fetchStats = async () => {
+      try {
+        setLoading(true);
+        const res = await http.getDashboardStats();
+        if (res.success && res.data) {
+          setStats(res.data);
+        } else {
+          setError(res.message || '获取统计数据失败');
+        }
+      } catch (e: any) {
+        setError(e?.message || '获取统计数据失败');
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchStats();
+  }, []);
 
   useEffect(() => {
     // 清理旧的图表实例
@@ -125,9 +149,10 @@ export default function AdminDashboard() {
           <div className="flex items-start justify-between">
             <div>
               <p className="text-gray-500 text-sm mb-1">总用户数</p>
-              <h3 className="text-3xl font-bold">1,286</h3>
-              <p className="text-green-500 text-sm mt-2 flex items-center">
-                <i className="fa fa-arrow-up mr-1"></i> 12.5% <span className="text-gray-500 ml-1">较上月</span>
+              <h3 className="text-3xl font-bold">{loading ? '...' : (stats?.total_users?.toLocaleString?.() || '0')}</h3>
+              <p className={`text-sm mt-2 flex items-center ${stats && stats.user_growth_rate >= 0 ? 'text-green-500' : 'text-red-500'}`}>
+                <i className={`fa fa-arrow-${stats && stats.user_growth_rate >= 0 ? 'up' : 'down'} mr-1`}></i>
+                {stats ? `${Math.abs(stats.user_growth_rate).toFixed(1)}%` : '0%'} <span className="text-gray-500 ml-1">较上月</span>
               </p>
             </div>
             <div className="w-12 h-12 rounded-full bg-blue-100 flex items-center justify-center text-blue-500">
@@ -141,9 +166,10 @@ export default function AdminDashboard() {
           <div className="flex items-start justify-between">
             <div>
               <p className="text-gray-500 text-sm mb-1">总作品数</p>
-              <h3 className="text-3xl font-bold">3,752</h3>
-              <p className="text-green-500 text-sm mt-2 flex items-center">
-                <i className="fa fa-arrow-up mr-1"></i> 8.3% <span className="text-gray-500 ml-1">较上月</span>
+              <h3 className="text-3xl font-bold">{loading ? '...' : (stats?.total_works?.toLocaleString?.() || '0')}</h3>
+              <p className={`text-sm mt-2 flex items-center ${stats && stats.work_growth_rate >= 0 ? 'text-green-500' : 'text-red-500'}`}>
+                <i className={`fa fa-arrow-${stats && stats.work_growth_rate >= 0 ? 'up' : 'down'} mr-1`}></i>
+                {stats ? `${Math.abs(stats.work_growth_rate).toFixed(1)}%` : '0%'} <span className="text-gray-500 ml-1">较上月</span>
               </p>
             </div>
             <div className="w-12 h-12 rounded-full bg-yellow-100 flex items-center justify-center text-yellow-500">
@@ -157,9 +183,9 @@ export default function AdminDashboard() {
           <div className="flex items-start justify-between">
             <div>
               <p className="text-gray-500 text-sm mb-1">待审核作品</p>
-              <h3 className="text-3xl font-bold">24</h3>
+              <h3 className="text-3xl font-bold">{loading ? '...' : (stats ? (stats.new_works_this_month || 0) : 0)}</h3>
               <p className="text-red-500 text-sm mt-2 flex items-center">
-                <i className="fa fa-arrow-up mr-1"></i> 4.2% <span className="text-gray-500 ml-1">较昨日</span>
+                <i className="fa fa-arrow-up mr-1"></i> <span className="text-gray-500 ml-1">本月新增</span>
               </p>
             </div>
             <div className="w-12 h-12 rounded-full bg-orange-100 flex items-center justify-center text-orange-500">
@@ -173,10 +199,8 @@ export default function AdminDashboard() {
           <div className="flex items-start justify-between">
             <div>
               <p className="text-gray-500 text-sm mb-1">进行中活动</p>
-              <h3 className="text-3xl font-bold">5</h3>
-              <p className="text-gray-500 text-sm mt-2 flex items-center">
-                <i className="fa fa-calendar-check-o mr-1"></i> 下周将新增3场
-              </p>
+              <h3 className="text-3xl font-bold">{loading ? '...' : (stats?.active_activities || 0)}</h3>
+              <p className="text-gray-500 text-sm mt-2 flex items-center"></p>
             </div>
             <div className="w-12 h-12 rounded-full bg-green-100 flex items-center justify-center text-green-500">
               <i className="fa fa-calendar text-xl"></i>

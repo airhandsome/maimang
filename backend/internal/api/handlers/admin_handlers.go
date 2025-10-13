@@ -78,6 +78,48 @@ func GetActivityStats(db *gorm.DB) fiber.Handler {
 	}
 }
 
+// 获取评论统计
+func GetCommentStats(db *gorm.DB) fiber.Handler {
+	return func(c *fiber.Ctx) error {
+		var stats types.CommentStats
+
+		// 各状态评论数量
+		db.Model(&repo.Comment{}).Count(&stats.TotalComments)
+		db.Model(&repo.Comment{}).Where("status = ?", repo.CommentApproved).Count(&stats.ApprovedComments)
+		db.Model(&repo.Comment{}).Where("status = ?", repo.CommentPending).Count(&stats.PendingComments)
+		db.Model(&repo.Comment{}).Where("status = ?", repo.CommentRejected).Count(&stats.RejectedComments)
+		db.Model(&repo.Comment{}).Where("status = ?", repo.CommentHidden).Count(&stats.HiddenComments)
+
+		// 点赞总数
+		db.Model(&repo.Comment{}).Select("COALESCE(SUM(likes), 0)").Scan(&stats.TotalLikes)
+
+		return c.JSON(types.Response{
+			Success: true,
+			Data:    stats,
+		})
+	}
+}
+
+// 获取单条评论（管理员）
+func GetAdminComment(db *gorm.DB) fiber.Handler {
+	return func(c *fiber.Ctx) error {
+		commentID, err := strconv.ParseUint(c.Params("id"), 10, 32)
+		if err != nil {
+			return c.Status(400).JSON(types.Response{Success: false, Error: "Invalid comment ID"})
+		}
+
+		var comment repo.Comment
+		if err := db.Preload("Author").Preload("Work").First(&comment, commentID).Error; err != nil {
+			if err == gorm.ErrRecordNotFound {
+				return c.Status(404).JSON(types.Response{Success: false, Error: "Comment not found"})
+			}
+			return c.Status(500).JSON(types.Response{Success: false, Error: "Failed to fetch comment"})
+		}
+
+		return c.JSON(types.Response{Success: true, Data: comment})
+	}
+}
+
 // 获取用户列表（管理员）
 func ListUsers(db *gorm.DB) fiber.Handler {
 	return func(c *fiber.Ctx) error {

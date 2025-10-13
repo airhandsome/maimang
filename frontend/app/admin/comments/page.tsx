@@ -13,6 +13,7 @@ export default function CommentsManagement() {
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [total, setTotal] = useState(0);
+  const [selectedIds, setSelectedIds] = useState<number[]>([]);
 
   // 获取评论数据
   const fetchComments = async () => {
@@ -51,6 +52,63 @@ export default function CommentsManagement() {
       setStats(response.data || null);
     } catch (err) {
       console.error('Failed to fetch comment stats:', err);
+    }
+  };
+
+  // 多选控制
+  const toggleSelect = (id: number) => {
+    setSelectedIds((prev) => prev.includes(id) ? prev.filter(i => i !== id) : [...prev, id]);
+  };
+
+  const allCurrentIds = comments.map(c => c.ID);
+  const isAllSelected = allCurrentIds.length > 0 && allCurrentIds.every(id => selectedIds.includes(id));
+  const toggleSelectAll = () => {
+    if (isAllSelected) {
+      setSelectedIds((prev) => prev.filter(id => !allCurrentIds.includes(id)));
+    } else {
+      setSelectedIds((prev) => Array.from(new Set([...prev, ...allCurrentIds])));
+    }
+  };
+
+  const runBatch = async (action: 'approve' | 'reject' | 'hide' | 'unhide' | 'pend' | 'delete') => {
+    if (selectedIds.length === 0) return;
+    const confirmTextMap: Record<string, string> = {
+      approve: '确定批量通过选中的评论吗？',
+      reject: '确定批量拒绝选中的评论吗？',
+      hide: '确定批量隐藏选中的评论吗？',
+      unhide: '确定批量取消隐藏选中的评论吗？',
+      pend: '确定将选中的评论退回待审核吗？',
+      delete: '确定批量删除选中的评论吗？此操作不可撤销。'
+    };
+    if (!confirm(confirmTextMap[action])) return;
+
+    try {
+      setLoading(true);
+      const calls = selectedIds.map((id) => {
+        switch (action) {
+          case 'approve':
+            return http.approveComment(id);
+          case 'reject':
+            return http.rejectComment(id);
+          case 'hide':
+            return http.hideComment(id);
+          case 'unhide':
+            return http.unhideComment(id);
+          case 'pend':
+            return http.pendComment(id);
+          case 'delete':
+            return http.deleteComment(id);
+        }
+      });
+      await Promise.allSettled(calls);
+      await fetchComments();
+      await fetchStats();
+      setSelectedIds([]);
+    } catch (err) {
+      console.error('Batch action failed', err);
+      setError('批量操作失败');
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -158,6 +216,19 @@ export default function CommentsManagement() {
         </div>
       )}
 
+      {/* 批量操作栏 */}
+      <div className="bg-white rounded-xl shadow-sm p-4 mb-4 flex flex-wrap items-center gap-3">
+        <div className="text-sm text-gray-600">已选：{selectedIds.length}</div>
+        <div className="flex flex-wrap gap-2">
+          <button disabled={selectedIds.length === 0} onClick={() => runBatch('approve')} className="px-3 py-1 text-sm rounded border border-green-200 text-green-600 disabled:opacity-50">批量通过</button>
+          <button disabled={selectedIds.length === 0} onClick={() => runBatch('reject')} className="px-3 py-1 text-sm rounded border border-red-200 text-red-600 disabled:opacity-50">批量拒绝</button>
+          <button disabled={selectedIds.length === 0} onClick={() => runBatch('hide')} className="px-3 py-1 text-sm rounded border border-gray-200 text-gray-700 disabled:opacity-50">批量隐藏</button>
+          <button disabled={selectedIds.length === 0} onClick={() => runBatch('unhide')} className="px-3 py-1 text-sm rounded border border-blue-200 text-blue-600 disabled:opacity-50">批量取消隐藏</button>
+          <button disabled={selectedIds.length === 0} onClick={() => runBatch('pend')} className="px-3 py-1 text-sm rounded border border-yellow-200 text-yellow-600 disabled:opacity-50">批量待审核</button>
+          <button disabled={selectedIds.length === 0} onClick={() => runBatch('delete')} className="px-3 py-1 text-sm rounded border border-red-300 text-red-700 disabled:opacity-50">批量删除</button>
+        </div>
+      </div>
+
       {/* 评论列表 */}
       <div className="bg-white rounded-xl shadow-sm overflow-hidden">
         {loading ? (
@@ -170,6 +241,9 @@ export default function CommentsManagement() {
             <table className="w-full">
               <thead className="bg-gray-50">
                 <tr>
+                  <th className="px-6 py-3 text-left">
+                    <input type="checkbox" checked={isAllSelected} onChange={toggleSelectAll} />
+                  </th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">评论内容</th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">作者</th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">所属作品</th>
@@ -182,13 +256,16 @@ export default function CommentsManagement() {
               <tbody className="bg-white divide-y divide-gray-200">
                 {filteredComments.length === 0 ? (
                   <tr>
-                    <td colSpan={7} className="px-6 py-8 text-center text-gray-500">
+                    <td colSpan={8} className="px-6 py-8 text-center text-gray-500">
                       暂无评论数据
                     </td>
                   </tr>
                 ) : (
                   filteredComments.map((comment) => (
                     <tr key={comment.ID} className="hover:bg-gray-50">
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <input type="checkbox" checked={selectedIds.includes(comment.ID)} onChange={() => toggleSelect(comment.ID)} />
+                      </td>
                       <td className="px-6 py-4">
                         <div className="max-w-xs">
                           <p className="text-sm text-gray-900 line-clamp-3">{comment.Content}</p>
@@ -216,9 +293,9 @@ export default function CommentsManagement() {
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
                         <div className="flex items-center gap-2">
-                          <button className="text-yellow-600 hover:text-yellow-900">
+                          <a href={`/admin/comments/${comment.ID}`} className="text-yellow-600 hover:text-yellow-900">
                             查看详情
-                          </button>
+                          </a>
                           {comment.Status === 'pending' && (
                             <>
                               <button 
@@ -241,6 +318,14 @@ export default function CommentsManagement() {
                               className="text-gray-600 hover:text-gray-900"
                             >
                               隐藏
+                            </button>
+                          )}
+                          {comment.Status === 'hidden' && (
+                            <button 
+                              onClick={async () => { await http.unhideComment(comment.ID); await fetchComments(); await fetchStats(); }}
+                              className="text-blue-600 hover:text-blue-900"
+                            >
+                              取消隐藏
                             </button>
                           )}
                           <button 

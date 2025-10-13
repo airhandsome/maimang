@@ -65,6 +65,9 @@ func RegisterRoutes(app *fiber.App, db *gorm.DB) {
 	v1.Get("/carousels", handlers.ListCarousels(db))         // 公开轮播图
 	v1.Get("/announcements", handlers.ListAnnouncements(db)) // 公开公告
 
+	// 公共统计
+	v1.Get("/stats", handlers.GetPublicStatsSummary(db))
+
 	// 管理员 API
 	admin := v1.Group("/admin", middleware.AuthRequired(), middleware.AdminRequired())
 
@@ -74,6 +77,7 @@ func RegisterRoutes(app *fiber.App, db *gorm.DB) {
 	admin.Get("/statistics/users", handlers.GetUserStats(db))
 	admin.Get("/statistics/works", handlers.GetWorkStats(db))
 	admin.Get("/statistics/activities", handlers.GetActivityStats(db))
+	admin.Get("/statistics/comments", handlers.GetCommentStats(db))
 
 	// 详细统计数据
 	admin.Get("/statistics/user-growth", handlers.GetUserGrowthStats(db))
@@ -98,9 +102,12 @@ func RegisterRoutes(app *fiber.App, db *gorm.DB) {
 
 	// 评论审核
 	admin.Get("/comments", handlers.ListPendingComments(db))
+	admin.Get("/comments/:id", handlers.GetAdminComment(db))
 	admin.Put("/comments/:id/approve", handlers.ReviewComment(db))
 	admin.Put("/comments/:id/reject", handlers.ReviewComment(db))
 	admin.Put("/comments/:id/hide", handlers.ReviewComment(db))
+	admin.Put("/comments/:id/unhide", handlers.ReviewComment(db))
+	admin.Put("/comments/:id/pend", handlers.ReviewComment(db))
 
 	// 活动管理
 	admin.Get("/activities", handlers.ListAdminActivities(db))

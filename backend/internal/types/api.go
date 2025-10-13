@@ -77,7 +77,7 @@ type UpdateCommentRequest struct {
 }
 
 type CommentReviewRequest struct {
-	Action string `json:"action" validate:"required,oneof=approve reject hide"`
+	Action string `json:"action" validate:"required,oneof=approve reject hide unhide pend"`
 	Note   string `json:"note,omitempty" validate:"omitempty,max=1000"`
 }
 
@@ -213,4 +213,13 @@ type ActivityStats struct {
 	OngoingActivities   int64 `json:"ongoing_activities"`
 	CompletedActivities int64 `json:"completed_activities"`
 	TotalParticipants   int64 `json:"total_participants"`
+}
+
+type CommentStats struct {
+	TotalComments    int64 `json:"total_comments"`
+	ApprovedComments int64 `json:"approved_comments"`
+	PendingComments  int64 `json:"pending_comments"`
+	RejectedComments int64 `json:"rejected_comments"`
+	HiddenComments   int64 `json:"hidden_comments"`
+	TotalLikes       int64 `json:"total_likes"`
 }

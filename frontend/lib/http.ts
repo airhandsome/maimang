@@ -415,7 +415,8 @@ class Http {
   }
 
   async getComment(id: number): Promise<ApiResponse<Comment>> {
-    return this.get<ApiResponse<Comment>>(`/comments/${id}`);
+    // 管理端详情获取，包含作者与作品预加载
+    return this.get<ApiResponse<Comment>>(`/admin/comments/${id}`);
   }
 
   async createComment(workId: number, data: {
@@ -457,6 +458,18 @@ class Http {
     return this.put<ApiResponse>(`/admin/comments/${id}/hide`, {
       action: 'hide',
       note: reason || ''
+    });
+  }
+
+  async unhideComment(id: number): Promise<ApiResponse> {
+    return this.put<ApiResponse>(`/admin/comments/${id}/unhide`, {
+      action: 'unhide'
+    });
+  }
+
+  async pendComment(id: number): Promise<ApiResponse> {
+    return this.put<ApiResponse>(`/admin/comments/${id}/pend`, {
+      action: 'pend'
     });
   }
 

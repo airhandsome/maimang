@@ -63,6 +63,31 @@ type MonthlyStatsData struct {
 	Activities  int64  `json:"activities"`
 }
 
+// 公共统计汇总（公开接口用）
+type PublicStatsSummary struct {
+	TotalUsers    int64 `json:"total_users"`
+	TotalWorks    int64 `json:"total_works"`
+	TotalViews    int64 `json:"total_views"`
+	TotalComments int64 `json:"total_comments"`
+}
+
+// 获取公共统计汇总（无需管理员权限）
+func GetPublicStatsSummary(db *gorm.DB) fiber.Handler {
+	return func(c *fiber.Ctx) error {
+		var summary PublicStatsSummary
+
+		db.Model(&repo.User{}).Count(&summary.TotalUsers)
+		db.Model(&repo.Work{}).Count(&summary.TotalWorks)
+		db.Model(&repo.Work{}).Select("COALESCE(SUM(views), 0)").Scan(&summary.TotalViews)
+		db.Model(&repo.Comment{}).Count(&summary.TotalComments)
+
+		return c.JSON(fiber.Map{
+			"success": true,
+			"data":    summary,
+		})
+	}
+}
+
 // 获取仪表盘统计数据
 func GetDashboardStats(db *gorm.DB) fiber.Handler {
 	return func(c *fiber.Ctx) error {

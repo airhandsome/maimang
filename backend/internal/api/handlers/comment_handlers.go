@@ -333,10 +333,8 @@ func ListPendingComments(db *gorm.DB) fiber.Handler {
 			tx = tx.Where("content ILIKE ?", "%"+query.Search+"%")
 		}
 		if query.Status != "" {
+			// 指定了状态时才按状态过滤；未指定时显示全部状态
 			tx = tx.Where("status = ?", query.Status)
-		} else {
-			// 默认只显示待审核的评论
-			tx = tx.Where("status = ?", repo.CommentPending)
 		}
 
 		// 获取总数
@@ -412,15 +410,24 @@ func ReviewComment(db *gorm.DB) fiber.Handler {
 		// 更新审核状态
 		updates := map[string]interface{}{
 			"reviewed_by": reviewerID,
-			"reviewed_at": "NOW()",
 		}
 
-		if req.Action == "approve" {
+		switch req.Action {
+		case "approve":
 			updates["status"] = repo.CommentApproved
-		} else if req.Action == "reject" {
+			updates["reviewed_at"] = gorm.Expr("NOW()")
+		case "reject":
 			updates["status"] = repo.CommentRejected
-		} else if req.Action == "hide" {
+			updates["reviewed_at"] = gorm.Expr("NOW()")
+		case "hide":
 			updates["status"] = repo.CommentHidden
+			updates["reviewed_at"] = gorm.Expr("NOW()")
+		case "unhide":
+			updates["status"] = repo.CommentApproved
+			updates["reviewed_at"] = gorm.Expr("NOW()")
+		case "pend":
+			updates["status"] = repo.CommentPending
+			updates["reviewed_at"] = gorm.Expr("NOW()")
 		}
 
 		if err := db.Model(&comment).Updates(updates).Error; err != nil {
