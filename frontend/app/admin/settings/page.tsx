@@ -1,6 +1,8 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
+import { http } from '@/lib/http';
+import { apiUploadAvatar } from '@/lib/auth';
 
 interface SystemSettings {
   siteName: string;
@@ -42,6 +44,78 @@ export default function SystemSettings() {
   });
 
   const [activeTab, setActiveTab] = useState<string>('general');
+  const [loading, setLoading] = useState<boolean>(false);
+  const [saving, setSaving] = useState<boolean>(false);
+  const [error, setError] = useState<string | null>(null);
+  const fileInputRef = useRef<HTMLInputElement | null>(null);
+  // 轮播图相关状态
+  const [carousels, setCarousels] = useState<any[]>([]);
+  const [carouselLoading, setCarouselLoading] = useState<boolean>(false);
+  const [showAddCarousel, setShowAddCarousel] = useState<boolean>(false);
+  const [newCarousel, setNewCarousel] = useState<{ title: string; link_url: string; image_url: string; description: string; order: number }>(
+    { title: '', link_url: '', image_url: '', description: '', order: 1 }
+  );
+  const addCarouselFileRef = useRef<HTMLInputElement | null>(null);
+  const [editCarousel, setEditCarousel] = useState<any | null>(null);
+  const editCarouselFileRef = useRef<HTMLInputElement | null>(null);
+
+  useEffect(() => {
+    const load = async () => {
+      try {
+        setLoading(true);
+        setError(null);
+        const res = await http.getSystemSettings();
+        if (res.success && res.data) {
+          const data = res.data as Record<string, any>;
+          setSettings(prev => ({
+            ...prev,
+            siteName: data.siteName ?? prev.siteName,
+            siteDescription: data.siteDescription ?? prev.siteDescription,
+            siteDomain: data.siteDomain ?? prev.siteDomain,
+            siteLogo: data.siteLogo ?? prev.siteLogo,
+            adminEmail: data.adminEmail ?? prev.adminEmail,
+            contactPhone: data.contactPhone ?? prev.contactPhone,
+            contactWechat: data.contactWechat ?? prev.contactWechat,
+            contactWeibo: data.contactWeibo ?? prev.contactWeibo,
+            contactQq: data.contactQq ?? prev.contactQq,
+            maxFileSize: Number(data.maxFileSize ?? prev.maxFileSize),
+            allowedFileTypes: Array.isArray(data.allowedFileTypes) ? data.allowedFileTypes : (typeof data.allowedFileTypes === 'string' ? data.allowedFileTypes.split(',').map((s: string)=>s.trim()).filter(Boolean) : prev.allowedFileTypes),
+            autoApproveWorks: Boolean(data.autoApproveWorks ?? prev.autoApproveWorks),
+            requireEmailVerification: Boolean(data.requireEmailVerification ?? prev.requireEmailVerification),
+            enableComments: Boolean(data.enableComments ?? prev.enableComments),
+            enableUserRegistration: Boolean(data.enableUserRegistration ?? prev.enableUserRegistration),
+            maintenanceMode: Boolean(data.maintenanceMode ?? prev.maintenanceMode),
+          }));
+        }
+      } catch (e: any) {
+        setError(e?.message || '加载设置失败');
+      } finally {
+        setLoading(false);
+      }
+    };
+    load();
+  }, []);
+
+  // 加载轮播图列表
+  const fetchCarousels = async () => {
+    try {
+      setCarouselLoading(true);
+      const res = await http.get('/admin/carousels');
+      // 兼容 {success,data} 或直接数组
+      const list = (res as any)?.data ?? res ?? [];
+      setCarousels(Array.isArray(list) ? list : []);
+    } catch (e) {
+      console.error('加载轮播图失败', e);
+    } finally {
+      setCarouselLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    if (activeTab === 'carousel') {
+      fetchCarousels();
+    }
+  }, [activeTab]);
 
   const handleSettingChange = (key: keyof SystemSettings, value: any) => {
     setSettings(prev => ({
@@ -50,10 +124,186 @@ export default function SystemSettings() {
     }));
   };
 
-  const handleSave = () => {
-    // 这里应该调用API保存设置
-    console.log('保存设置:', settings);
+  const handleSave = async () => {
+    try {
+      setSaving(true);
+      setError(null);
+      const payload: Record<string, any> = { ...settings, allowedFileTypes: settings.allowedFileTypes };
+      const res = await http.updateSystemSettings(payload);
+      if (!res.success) throw new Error(res.error || '保存失败');
+    } catch (e: any) {
+      setError(e?.message || '保存失败');
+      return;
+    } finally {
+      setSaving(false);
+    }
     alert('设置已保存！');
+  };
+
+  const handleUploadLogoClick = () => {
+    fileInputRef.current?.click();
+  };
+
+  const backendOrigin = (() => {
+    const apiBase = process.env.NEXT_PUBLIC_API_BASE || 'http://localhost:8080/api/v1';
+    return apiBase.replace(/\/api\/v1$/, '');
+  })();
+
+  const handleUploadLogoChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const inputEl = e.currentTarget;
+    const files = inputEl.files;
+    if (!files || files.length === 0) return;
+    const file = files[0];
+    try {
+      const token = typeof window !== 'undefined' ? localStorage.getItem('access_token') || '' : '';
+      const res = await apiUploadAvatar(token, file);
+      const absoluteUrl = res.url.startsWith('http') ? res.url : `${backendOrigin}${res.url}`;
+      setSettings(prev => ({ ...prev, siteLogo: absoluteUrl }));
+    } catch (err) {
+      setError('LOGO 上传失败');
+    } finally {
+      inputEl.value = '';
+    }
+  };
+
+  // 上传轮播图图片到上传目录（素材上传接口）
+  const handleAddCarouselUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const inputEl = e.currentTarget;
+    const files = inputEl.files;
+    if (!files || files.length === 0) return;
+    const file = files[0];
+    try {
+      const form = new FormData();
+      form.append('type', 'image');
+      form.append('file', file);
+      const resp = await http.uploadMaterial(form);
+      const url = (resp as any)?.data?.url || (resp as any)?.url;
+      if (!url) throw new Error('上传返回缺少url');
+      const absoluteUrl = url.startsWith('http') ? url : `${backendOrigin}${url}`;
+      setNewCarousel(prev => ({ ...prev, image_url: absoluteUrl }));
+    } catch (err: any) {
+      setError(err?.message || '轮播图图片上传失败');
+    } finally {
+      inputEl.value = '';
+    }
+  };
+
+  const handleCreateCarousel = async () => {
+    if (!newCarousel.title || !newCarousel.image_url) {
+      setError('请填写标题并上传图片');
+      return;
+    }
+    try {
+      setSaving(true);
+      setError(null);
+      const payload = {
+        title: newCarousel.title,
+        image_url: newCarousel.image_url,
+        link_url: newCarousel.link_url || '',
+        description: newCarousel.description || '',
+        order: Number(newCarousel.order) || 1,
+      };
+      const res = await http.post('/admin/carousels', payload);
+      if (!(res as any)?.success) {
+        throw new Error((res as any)?.error || '创建失败');
+      }
+      setShowAddCarousel(false);
+      setNewCarousel({ title: '', link_url: '', image_url: '', description: '', order: 1 });
+      await fetchCarousels();
+    } catch (e: any) {
+      setError(e?.message || '创建轮播图失败');
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const handleEditOpen = (item: any) => {
+    setEditCarousel({
+      id: item.ID || item.id,
+      title: item.Title || item.title || '',
+      link_url: item.LinkURL || item.link_url || '',
+      image_url: item.ImageURL || item.image_url || '',
+      description: item.Description || item.description || '',
+      order: item.Order || item.order || 1,
+      status: item.Status || item.status || 'active',
+    });
+  };
+
+  const handleEditUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const inputEl = e.currentTarget;
+    const files = inputEl.files;
+    if (!files || files.length === 0) return;
+    const file = files[0];
+    try {
+      const form = new FormData();
+      form.append('type', 'image');
+      form.append('file', file);
+      const resp = await http.uploadMaterial(form);
+      const url = (resp as any)?.data?.url || (resp as any)?.url;
+      if (!url) throw new Error('上传返回缺少url');
+      const absoluteUrl = url.startsWith('http') ? url : `${backendOrigin}${url}`;
+      setEditCarousel((prev: any) => prev ? { ...prev, image_url: absoluteUrl } : prev);
+    } catch (err: any) {
+      setError(err?.message || '轮播图图片上传失败');
+    } finally {
+      inputEl.value = '';
+    }
+  };
+
+  const handleUpdateCarousel = async () => {
+    if (!editCarousel) return;
+    try {
+      setSaving(true);
+      setError(null);
+      const payload: any = {
+        title: editCarousel.title,
+        image_url: editCarousel.image_url,
+        link_url: editCarousel.link_url || '',
+        description: editCarousel.description || '',
+        order: Number(editCarousel.order) || 1,
+      };
+      if (editCarousel.status) payload.status = editCarousel.status;
+      const res = await http.put(`/admin/carousels/${editCarousel.id}`, payload);
+      if (!(res as any)?.success) {
+        throw new Error((res as any)?.error || '更新失败');
+      }
+      setEditCarousel(null);
+      await fetchCarousels();
+    } catch (e: any) {
+      setError(e?.message || '更新轮播图失败');
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const handleDeleteCarousel = async (id: number) => {
+    if (!confirm('确定要删除该轮播图吗？')) return;
+    try {
+      setSaving(true);
+      setError(null);
+      const res = await http.delete(`/admin/carousels/${id}`);
+      if (!(res as any)?.success) {
+        throw new Error((res as any)?.error || '删除失败');
+      }
+      await fetchCarousels();
+    } catch (e: any) {
+      setError(e?.message || '删除轮播图失败');
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const handleMoveCarousel = async (item: any, delta: number) => {
+    const id = item.ID || item.id;
+    const currentOrder = item.Order || item.order || 1;
+    const newOrder = Math.max(1, Number(currentOrder) + delta);
+    try {
+      const res = await http.put(`/admin/carousels/${id}/order`, { order: newOrder });
+      if (!(res as any)?.success) throw new Error((res as any)?.error || '排序更新失败');
+      await fetchCarousels();
+    } catch (e: any) {
+      setError(e?.message || '更新排序失败');
+    }
   };
 
   const tabs = [
@@ -74,6 +324,9 @@ export default function SystemSettings() {
         <p className="text-gray-500">配置系统参数和平台设置</p>
       </div>
 
+      {error && (
+        <div className="mb-4 p-3 rounded border border-red-200 text-red-700 bg-red-50">{error}</div>
+      )}
       <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
         {/* 设置导航 */}
         <div className="lg:col-span-1">
@@ -100,6 +353,9 @@ export default function SystemSettings() {
         {/* 设置内容 */}
         <div className="lg:col-span-3">
           <div className="bg-white rounded-xl shadow-sm p-6">
+            {loading && (
+              <div className="mb-4 text-gray-500">加载中...</div>
+            )}
             {/* 基本设置 */}
             {activeTab === 'general' && (
               <div className="space-y-6">
@@ -150,7 +406,8 @@ export default function SystemSettings() {
                       />
                       <p className="text-xs text-gray-500 mt-1">支持JPG、PNG格式，建议尺寸200x200px</p>
                     </div>
-                    <button className="px-4 py-2 bg-yellow-500 text-white rounded-lg hover:bg-yellow-600 transition-colors">
+                    <input ref={fileInputRef} type="file" accept="image/*" className="hidden" onChange={handleUploadLogoChange} />
+                    <button onClick={handleUploadLogoClick} className="px-4 py-2 bg-yellow-500 text-white rounded-lg hover:bg-yellow-600 transition-colors">
                       上传图片
                     </button>
                   </div>
@@ -234,86 +491,160 @@ export default function SystemSettings() {
               <div className="space-y-6">
                 <div className="flex items-center justify-between">
                   <h3 className="text-lg font-bold">首页轮播图管理</h3>
-                  <button className="px-4 py-2 bg-yellow-500 text-white rounded-lg hover:bg-yellow-600 transition-colors">
+                  <button onClick={() => setShowAddCarousel(true)} className="px-4 py-2 bg-yellow-500 text-white rounded-lg hover:bg-yellow-600 transition-colors">
                     <i className="fa fa-plus mr-2"></i>
                     添加轮播图
                   </button>
                 </div>
                 
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                  {/* 轮播图项目 */}
-                  {[
-                    {
-                      id: 1,
-                      title: "秋日创作大赛",
-                      image: "https://picsum.photos/id/175/800/400",
-                      link: "/activities/1",
-                      order: 1,
-                      status: "active"
-                    },
-                    {
-                      id: 2,
-                      title: "文学沙龙活动",
-                      image: "https://picsum.photos/id/176/800/400",
-                      link: "/activities/2",
-                      order: 2,
-                      status: "active"
-                    },
-                    {
-                      id: 3,
-                      title: "新书推荐",
-                      image: "https://picsum.photos/id/177/800/400",
-                      link: "/articles/1",
-                      order: 3,
-                      status: "inactive"
-                    }
-                  ].map((item) => (
-                    <div key={item.id} className="bg-white rounded-xl shadow-sm overflow-hidden">
-                      <div className="relative">
-                        <img src={item.image} alt={item.title} className="w-full h-48 object-cover" />
-                        <div className="absolute top-2 right-2">
-                          <span className={`px-2 py-1 text-xs rounded-full ${
-                            item.status === 'active' 
-                              ? 'bg-green-100 text-green-500' 
-                              : 'bg-gray-100 text-gray-500'
-                          }`}>
-                            {item.status === 'active' ? '启用' : '禁用'}
-                          </span>
+                {/* 列表 */}
+                {carouselLoading ? (
+                  <div className="text-gray-500">加载中...</div>
+                ) : (
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    {carousels.length === 0 && (
+                      <div className="text-gray-500">暂无轮播图</div>
+                    )}
+                    {carousels.map((item: any) => (
+                      <div key={item.ID || item.id} className="bg-white rounded-xl shadow-sm overflow-hidden">
+                        <div className="relative">
+                          <img src={item.ImageURL || item.image_url} alt={item.Title || item.title} className="w-full h-48 object-cover" />
+                          <div className="absolute top-2 right-2">
+                            <span className={`px-2 py-1 text-xs rounded-full ${
+                              (item.Status || item.status) === 'active' 
+                                ? 'bg-green-100 text-green-500' 
+                                : 'bg-gray-100 text-gray-500'
+                            }`}>
+                              {(item.Status || item.status) === 'active' ? '启用' : '禁用'}
+                            </span>
+                          </div>
+                          <div className="absolute top-2 left-2">
+                            <span className="px-2 py-1 bg-black bg-opacity-50 text-white text-xs rounded">
+                              排序: {item.Order || item.order}
+                            </span>
+                          </div>
                         </div>
-                        <div className="absolute top-2 left-2">
-                          <span className="px-2 py-1 bg-black bg-opacity-50 text-white text-xs rounded">
-                            排序: {item.order}
-                          </span>
+                        <div className="p-4">
+                          <h4 className="font-medium text-gray-900 mb-2">{item.Title || item.title}</h4>
+                          <p className="text-sm text-gray-500 mb-3">链接: {item.LinkURL || item.link_url}</p>
+                          <div className="flex items-center justify-between">
+                            <div className="flex items-center gap-2">
+                              <button className="text-blue-600 hover:text-blue-900 text-sm" onClick={() => handleEditOpen(item)}>编辑</button>
+                              <a className="text-yellow-600 hover:text-yellow-900 text-sm" href={item.LinkURL || item.link_url || '#'} target="_blank" rel="noreferrer">预览</a>
+                              <button className="text-red-600 hover:text-red-900 text-sm" onClick={() => handleDeleteCarousel(item.ID || item.id)}>删除</button>
+                            </div>
+                            <div className="flex items-center gap-1">
+                              <button className="text-gray-600 hover:text-gray-900 text-sm" onClick={() => handleMoveCarousel(item, -1)}><i className="fa fa-arrow-up"></i></button>
+                              <button className="text-gray-600 hover:text-gray-900 text-sm" onClick={() => handleMoveCarousel(item, 1)}><i className="fa fa-arrow-down"></i></button>
+                            </div>
+                          </div>
                         </div>
                       </div>
-                      <div className="p-4">
-                        <h4 className="font-medium text-gray-900 mb-2">{item.title}</h4>
-                        <p className="text-sm text-gray-500 mb-3">链接: {item.link}</p>
-                        <div className="flex items-center justify-between">
-                          <div className="flex items-center gap-2">
-                            <button className="text-blue-600 hover:text-blue-900 text-sm">
-                              编辑
-                            </button>
-                            <button className="text-yellow-600 hover:text-yellow-900 text-sm">
-                              预览
-                            </button>
-                            <button className="text-red-600 hover:text-red-900 text-sm">
-                              删除
-                            </button>
+                    ))}
+                  </div>
+                )}
+
+                {/* 新增弹层 */}
+                {showAddCarousel && (
+                  <div className="fixed inset-0 bg-black/40 z-50 flex items-center justify-center">
+                    <div className="bg-white w-full max-w-lg rounded-xl shadow-lg p-6">
+                      <div className="flex items-center justify-between mb-4">
+                        <h4 className="font-semibold">添加轮播图</h4>
+                        <button onClick={() => setShowAddCarousel(false)} className="text-gray-500 hover:text-gray-800"><i className="fa fa-times"></i></button>
+                      </div>
+                      <div className="space-y-4">
+                        <div>
+                          <label className="block text-sm font-medium mb-1">标题</label>
+                          <input value={newCarousel.title} onChange={(e)=>setNewCarousel(v=>({...v,title:e.target.value}))} className="w-full px-3 py-2 border rounded-lg" />
+                        </div>
+                        <div>
+                          <label className="block text-sm font-medium mb-1">链接URL</label>
+                          <input value={newCarousel.link_url} onChange={(e)=>setNewCarousel(v=>({...v,link_url:e.target.value}))} className="w-full px-3 py-2 border rounded-lg" placeholder="/activities/1 或 https://..." />
+                        </div>
+                        <div>
+                          <label className="block text-sm font-medium mb-1">描述（可选）</label>
+                          <textarea value={newCarousel.description} onChange={(e)=>setNewCarousel(v=>({...v,description:e.target.value}))} rows={2} className="w-full px-3 py-2 border rounded-lg" />
+                        </div>
+                        <div className="grid grid-cols-3 gap-4 items-end">
+                          <div className="col-span-2">
+                            <label className="block text-sm font-medium mb-1">图片URL</label>
+                            <input value={newCarousel.image_url} onChange={(e)=>setNewCarousel(v=>({...v,image_url:e.target.value}))} className="w-full px-3 py-2 border rounded-lg" placeholder="/uploads/... 或完整URL" />
+                            {!!newCarousel.image_url && (
+                              <img src={newCarousel.image_url} alt="预览" className="mt-2 h-24 w-full object-cover rounded" />
+                            )}
                           </div>
-                          <div className="flex items-center gap-1">
-                            <button className="text-gray-600 hover:text-gray-900 text-sm">
-                              <i className="fa fa-arrow-up"></i>
-                            </button>
-                            <button className="text-gray-600 hover:text-gray-900 text-sm">
-                              <i className="fa fa-arrow-down"></i>
-                            </button>
+                          <div className="col-span-1">
+                            <input ref={addCarouselFileRef} type="file" accept="image/*" className="hidden" onChange={handleAddCarouselUpload} />
+                            <button onClick={()=>addCarouselFileRef.current?.click()} className="w-full px-3 py-2 bg-gray-800 text-white rounded-lg">上传图片</button>
                           </div>
                         </div>
+                        <div>
+                          <label className="block text-sm font-medium mb-1">排序（数字越小越靠前）</label>
+                          <input type="number" value={newCarousel.order} onChange={(e)=>setNewCarousel(v=>({...v,order: Number(e.target.value)||1}))} className="w-40 px-3 py-2 border rounded-lg" />
+                        </div>
+                      </div>
+                      <div className="mt-6 flex justify-end gap-3">
+                        <button onClick={()=>setShowAddCarousel(false)} className="px-4 py-2 rounded-lg border">取消</button>
+                        <button onClick={handleCreateCarousel} disabled={saving} className="px-4 py-2 bg-yellow-500 text-white rounded-lg hover:bg-yellow-600">{saving? '提交中...' : '提交'}</button>
                       </div>
                     </div>
-                  ))}
-                </div>
+                  </div>
+                )}
+
+                {editCarousel && (
+                  <div className="fixed inset-0 bg-black/40 z-50 flex items-center justify-center">
+                    <div className="bg-white w-full max-w-lg rounded-xl shadow-lg p-6">
+                      <div className="flex items-center justify-between mb-4">
+                        <h4 className="font-semibold">编辑轮播图</h4>
+                        <button onClick={() => setEditCarousel(null)} className="text-gray-500 hover:text-gray-800"><i className="fa fa-times"></i></button>
+                      </div>
+                      <div className="space-y-4">
+                        <div>
+                          <label className="block text-sm font-medium mb-1">标题</label>
+                          <input value={editCarousel.title} onChange={(e)=>setEditCarousel((v:any)=>({...v,title:e.target.value}))} className="w-full px-3 py-2 border rounded-lg" />
+                        </div>
+                        <div>
+                          <label className="block text-sm font-medium mb-1">链接URL</label>
+                          <input value={editCarousel.link_url} onChange={(e)=>setEditCarousel((v:any)=>({...v,link_url:e.target.value}))} className="w-full px-3 py-2 border rounded-lg" />
+                        </div>
+                        <div>
+                          <label className="block text-sm font-medium mb-1">描述（可选）</label>
+                          <textarea value={editCarousel.description} onChange={(e)=>setEditCarousel((v:any)=>({...v,description:e.target.value}))} rows={2} className="w-full px-3 py-2 border rounded-lg" />
+                        </div>
+                        <div className="grid grid-cols-3 gap-4 items-end">
+                          <div className="col-span-2">
+                            <label className="block text-sm font-medium mb-1">图片URL</label>
+                            <input value={editCarousel.image_url} onChange={(e)=>setEditCarousel((v:any)=>({...v,image_url:e.target.value}))} className="w-full px-3 py-2 border rounded-lg" />
+                            {!!editCarousel.image_url && (
+                              <img src={editCarousel.image_url} alt="预览" className="mt-2 h-24 w-full object-cover rounded" />
+                            )}
+                          </div>
+                          <div className="col-span-1">
+                            <input ref={editCarouselFileRef} type="file" accept="image/*" className="hidden" onChange={handleEditUpload} />
+                            <button onClick={()=>editCarouselFileRef.current?.click()} className="w-full px-3 py-2 bg-gray-800 text-white rounded-lg">上传图片</button>
+                          </div>
+                        </div>
+                        <div className="grid grid-cols-2 gap-4">
+                          <div>
+                            <label className="block text-sm font-medium mb-1">排序</label>
+                            <input type="number" value={editCarousel.order} onChange={(e)=>setEditCarousel((v:any)=>({...v,order:Number(e.target.value)||1}))} className="w-full px-3 py-2 border rounded-lg" />
+                          </div>
+                          <div>
+                            <label className="block text-sm font-medium mb-1">状态</label>
+                            <select value={editCarousel.status} onChange={(e)=>setEditCarousel((v:any)=>({...v,status:e.target.value}))} className="w-full px-3 py-2 border rounded-lg">
+                              <option value="active">启用</option>
+                              <option value="inactive">禁用</option>
+                            </select>
+                          </div>
+                        </div>
+                      </div>
+                      <div className="mt-6 flex justify-end gap-3">
+                        <button onClick={()=>setEditCarousel(null)} className="px-4 py-2 rounded-lg border">取消</button>
+                        <button onClick={handleUpdateCarousel} disabled={saving} className="px-4 py-2 bg-yellow-500 text-white rounded-lg hover:bg-yellow-600">{saving? '保存中...' : '保存'}</button>
+                      </div>
+                    </div>
+                  </div>
+                )}
               </div>
             )}
 
@@ -758,14 +1089,15 @@ export default function SystemSettings() {
             {/* 保存按钮 */}
             <div className="mt-8 pt-6 border-t">
               <div className="flex items-center justify-end gap-4">
-                <button className="px-4 py-2 text-gray-600 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">
+                <button disabled={loading || saving} className="px-4 py-2 text-gray-600 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors disabled:opacity-50">
                   重置
                 </button>
                 <button 
                   onClick={handleSave}
-                  className="px-6 py-2 bg-yellow-500 text-white rounded-lg hover:bg-yellow-600 transition-colors"
+                  disabled={loading || saving}
+                  className="px-6 py-2 bg-yellow-500 text-white rounded-lg hover:bg-yellow-600 transition-colors disabled:opacity-50"
                 >
-                  保存设置
+                  {saving ? '保存中...' : '保存设置'}
                 </button>
               </div>
             </div>

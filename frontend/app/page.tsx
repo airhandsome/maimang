@@ -38,18 +38,28 @@ export default function HomePage() {
   const [stats, setStats] = useState<Stats | null>(null);
   const [loading, setLoading] = useState(true);
   const [categories, setCategories] = useState<Category[]>([]);
+  const [carousels, setCarousels] = useState<any[]>([]);
+  const [announcements, setAnnouncements] = useState<any[]>([]);
+  const [siteSettings, setSiteSettings] = useState<Record<string, any> | null>(null);
 
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const [articles, statsData, cats] = await Promise.all([
+        const [articles, statsData, cats, carouselsData, announcementsData, siteSettingsData] = await Promise.all([
           http.get<Article[]>('/articles/featured'),
           http.get<Stats>('/stats'),
           http.get<Category[]>('/categories'),
+          http.get<any[]>('/carousels'),
+          http.get<any[]>('/announcements'),
+          http.get<any>('/settings'),
         ]);
         setFeaturedArticles(articles);
         setStats(statsData);
         setCategories(cats);
+        setCarousels(carouselsData || []);
+        setAnnouncements((announcementsData as any)?.data || announcementsData || []);
+        // 公开系统设置
+        if ((siteSettingsData as any)?.data) setSiteSettings((siteSettingsData as any).data);
       } catch (error) {
         console.error('Failed to fetch data:', error);
       } finally {
@@ -70,6 +80,14 @@ export default function HomePage() {
     document.querySelectorAll('.reveal-init').forEach((el) => io.observe(el));
     return () => io.disconnect();
   }, []);
+
+  // 将 /uploads/... 补全为后端完整地址
+  const toAssetUrl = (url?: string) => {
+    if (!url) return '';
+    const apiBase = process.env.NEXT_PUBLIC_API_BASE || 'http://localhost:8080/api/v1';
+    const backendOrigin = apiBase.replace(/\/api\/v1$/, '');
+    return url.startsWith('/uploads') ? `${backendOrigin}${url}` : url;
+  };
 
   return (
     <div className="min-h-screen flex flex-col">
@@ -96,14 +114,14 @@ export default function HomePage() {
               </div>
 
               <h1 className="text-5xl sm:text-7xl mb-6 font-serif text-gold text-shadow">
-                <span className="block -rotate-1">青春如穗</span>
-                <span className="block rotate-1 text-gray-900">文字如芒</span>
+                <span className="block -rotate-1">{siteSettings?.siteName || '青春如穗'}</span>
+                <span className="block rotate-1 text-gray-900">{siteSettings?.siteDescription || '文字如芒'}</span>
               </h1>
 
               <p className="text-lg leading-relaxed text-gray-600 mb-8">
-                这里是青年作家的精神家园，是文学梦想的起航之地。
-                <br />
-                像麦芒一样锋芒毕露，用文字记录时代，用故事温暖人心。
+                {siteSettings?.siteDescription || (
+                  <>这里是青年作家的精神家园，是文学梦想的起航之地。<br/>像麦芒一样锋芒毕露，用文字记录时代，用故事温暖人心。</>
+                )}
               </p>
 
               <div className="flex items-center justify-center gap-4">
@@ -136,6 +154,34 @@ export default function HomePage() {
             </p>
           </div>
         </section>
+
+        {/* 公告条 */}
+        {announcements && (announcements as any[]).length > 0 && (
+          <div className="bg-yellow-50 border-y border-yellow-100">
+            <div className="mx-auto max-w-7xl px-6 py-3 text-sm text-yellow-800 flex items-center gap-2">
+              <span className="font-semibold">最新公告：</span>
+              <a href="#" className="hover:underline line-clamp-1">{(announcements as any[])[0].Title || (announcements as any[])[0].title}</a>
+            </div>
+          </div>
+        )}
+
+        {/* 轮播区域：横向滚动展示所有条目 */}
+        {carousels && (carousels as any[]).length > 0 && (
+          <section className="bg-white">
+            <div className="mx-auto max-w-7xl px-6 py-10">
+              <div className="relative overflow-hidden rounded-xl shadow-sm">
+                <div className="flex gap-4 overflow-x-auto snap-x snap-mandatory">
+                  {(carousels as any[]).map((c, i) => (
+                    <a key={i} href={c.LinkURL || c.link_url || '#'} className="min-w-full snap-start block">
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img src={toAssetUrl(c.ImageURL || c.image_url)} alt={c.Title || c.title || ''} className="w-full h-64 object-cover" />
+                    </a>
+                  ))}
+                </div>
+              </div>
+            </div>
+          </section>
+        )}
 
         {/* 我们的故事 */}
         <section id="about" className="py-20 bg-cream wheat-pattern reveal-init">

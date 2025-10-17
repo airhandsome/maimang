@@ -111,6 +111,7 @@ var serveCmd = &cobra.Command{
 			&repo.Announcement{},
 			&repo.SystemSetting{},
 			&repo.Material{},
+			&repo.Message{},
 		); err != nil {
 			return fmt.Errorf("migrate: %w", err)
 		}

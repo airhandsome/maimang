@@ -237,6 +237,49 @@ class Http {
     this.baseURL = baseURL;
   }
 
+  // 素材类型
+  async getMaterials(params?: {
+    page?: number;
+    per_page?: number;
+    search?: string;
+    type?: 'image' | 'document' | 'video' | 'audio';
+  }): Promise<PaginatedResponse<any>> {
+    const queryParams = new URLSearchParams();
+    if (params) {
+      Object.entries(params).forEach(([key, value]) => {
+        if (value !== undefined && value !== null) {
+          queryParams.append(key, value.toString());
+        }
+      });
+    }
+    const q = queryParams.toString();
+    return this.get<PaginatedResponse<any>>(`/admin/materials${q ? `?${q}` : ''}`);
+  }
+
+  async uploadMaterial(formData: FormData): Promise<ApiResponse<any>> {
+    const token = typeof window !== 'undefined' ? localStorage.getItem('access_token') : null;
+    const headers: Record<string, string> = {};
+    if (token) headers['Authorization'] = `Bearer ${token}`;
+    const response = await fetch(`${this.baseURL}/admin/materials/upload`, {
+      method: 'POST',
+      headers, // 不设置 Content-Type 以便浏览器自动设置 multipart 边界
+      body: formData,
+    });
+    const result = await response.json();
+    if (!response.ok) {
+      throw new Error(result?.error || `HTTP error! status: ${response.status}`);
+    }
+    return result as ApiResponse<any>;
+  }
+
+  async deleteMaterial(id: number): Promise<ApiResponse> {
+    return this.delete<ApiResponse>(`/admin/materials/${id}`);
+  }
+
+  async updateMaterial(id: number, data: Partial<{ name: string; description: string; tags: string }>): Promise<ApiResponse<any>> {
+    return this.put<ApiResponse<any>>(`/admin/materials/${id}`, data);
+  }
+
   private async request<T>(endpoint: string, options: RequestOptions = {}): Promise<T> {
     const { method = 'GET', data, headers = {} } = options;
 
@@ -620,6 +663,37 @@ class Http {
 
   async getMonthlyStats(): Promise<ApiResponse<MonthlyStatsData[]>> {
     return this.get<ApiResponse<MonthlyStatsData[]>>('/admin/statistics/monthly');
+  }
+
+  // 通知提醒（当前用户）
+  async getMyNotifications(): Promise<ApiResponse<any[]>> {
+    return this.get<ApiResponse<any[]>>('/profile/notifications');
+  }
+
+  // 系统设置
+  async getSystemSettings(): Promise<ApiResponse<Record<string, any>>> {
+    return this.get<ApiResponse<Record<string, any>>>('/admin/settings');
+  }
+
+  async updateSystemSettings(settings: Record<string, any>): Promise<ApiResponse<any>> {
+    return this.put<ApiResponse<any>>('/admin/settings', { settings });
+  }
+
+  // 消息/私信 API
+  async getConversations(): Promise<ApiResponse<any[]>> {
+    return this.get<ApiResponse<any[]>>('/messages/conversations');
+  }
+
+  async getMessagesWith(userId: number): Promise<ApiResponse<any[]>> {
+    return this.get<ApiResponse<any[]>>(`/messages/${userId}`);
+  }
+
+  async sendMessageTo(userId: number, content: string): Promise<ApiResponse<any>> {
+    return this.post<ApiResponse<any>>(`/messages/${userId}`, { content });
+  }
+
+  async markMessagesRead(userId: number): Promise<ApiResponse<any>> {
+    return this.put<ApiResponse<any>>(`/messages/${userId}/read`, {});
   }
 
   async getUser(id: number): Promise<ApiResponse<User>> {

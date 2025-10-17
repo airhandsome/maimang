@@ -64,6 +64,8 @@ func RegisterRoutes(app *fiber.App, db *gorm.DB) {
 	v1.Get("/albums/:id", handlers.GetAlbum(db))
 	v1.Get("/carousels", handlers.ListCarousels(db))         // 公开轮播图
 	v1.Get("/announcements", handlers.ListAnnouncements(db)) // 公开公告
+	// 公开系统设置（用于首页）
+	v1.Get("/settings", handlers.GetSystemSettings(db))
 
 	// 公共统计
 	v1.Get("/stats", handlers.GetPublicStatsSummary(db))
@@ -147,9 +149,17 @@ func RegisterRoutes(app *fiber.App, db *gorm.DB) {
 	// 素材管理
 	admin.Get("/materials", handlers.ListMaterials(db))
 	admin.Post("/materials", handlers.CreateMaterial(db))
+	admin.Post("/materials/upload", handlers.UploadMaterial(db))
 	admin.Put("/materials/:id", handlers.UpdateMaterial(db))
 	admin.Delete("/materials/:id", handlers.DeleteMaterial(db))
 
 	// 静态文件服务
 	app.Get("/uploads/*", handlers.ServeStaticFiles())
+
+	// 私信/消息 API（登录用户）
+	messages := v1.Group("/messages", middleware.AuthRequired())
+	messages.Get("/conversations", handlers.ListConversations(db))
+	messages.Get("/:id", handlers.ListMessagesWith(db))
+	messages.Post("/:id", handlers.SendMessage(db))
+	messages.Put("/:id/read", handlers.MarkMessagesRead(db))
 }

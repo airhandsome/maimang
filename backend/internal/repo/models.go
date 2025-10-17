@@ -303,3 +303,18 @@ type Material struct {
 	UploaderID  uint         `gorm:"not null;index"`
 	Uploader    User         `gorm:"foreignKey:UploaderID"`
 }
+
+// 私信/消息
+type Message struct {
+	ID        uint `gorm:"primaryKey"`
+	CreatedAt time.Time
+	UpdatedAt time.Time
+
+	FromUserID uint `gorm:"not null;index"`
+	FromUser   User `gorm:"foreignKey:FromUserID"`
+	ToUserID   uint `gorm:"not null;index"`
+	ToUser     User `gorm:"foreignKey:ToUserID"`
+
+	Content string     `gorm:"type:text;not null"`
+	ReadAt  *time.Time `gorm:"index"`
+}

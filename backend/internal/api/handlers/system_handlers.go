@@ -1,11 +1,14 @@
 package handlers
 
 import (
+	"encoding/json"
+	"fmt"
 	"strconv"
 	"time"
 
 	"github.com/gofiber/fiber/v2"
 	"gorm.io/gorm"
+	"gorm.io/gorm/clause"
 
 	"maimang/backend/internal/repo"
 	"maimang/backend/internal/types"
@@ -56,7 +59,7 @@ func UpdateSystemSettings(db *gorm.DB) fiber.Handler {
 
 		// 更新每个设置
 		for key, value := range req.Settings {
-			// 将值转换为字符串
+			// 将值转换为字符串（持久化为文本）
 			var valueStr string
 			switch v := value.(type) {
 			case string:
@@ -67,22 +70,41 @@ func UpdateSystemSettings(db *gorm.DB) fiber.Handler {
 				} else {
 					valueStr = "false"
 				}
-			case int, int64:
-				valueStr = strconv.FormatInt(v.(int64), 10)
 			case float64:
-				valueStr = strconv.FormatFloat(v, 'f', -1, 64)
+				// JSON 数字默认是 float64
+				// 如果是整数值，去小数点
+				if v == float64(int64(v)) {
+					valueStr = strconv.FormatInt(int64(v), 10)
+				} else {
+					valueStr = strconv.FormatFloat(v, 'f', -1, 64)
+				}
+			case int:
+				valueStr = strconv.Itoa(v)
+			case int64:
+				valueStr = strconv.FormatInt(v, 10)
+			case []interface{}:
+				b, _ := json.Marshal(v)
+				valueStr = string(b)
+			case []string:
+				b, _ := json.Marshal(v)
+				valueStr = string(b)
+			case map[string]interface{}:
+				b, _ := json.Marshal(v)
+				valueStr = string(b)
 			default:
-				valueStr = ""
+				valueStr = fmt.Sprintf("%v", v)
 			}
 
-			// 使用 UPSERT 更新或创建设置
-			if err := tx.Where("key = ?", key).
-				Assign(repo.SystemSetting{Value: valueStr}).
-				FirstOrCreate(&repo.SystemSetting{}, repo.SystemSetting{Key: key, Value: valueStr}).Error; err != nil {
+			// 使用 Postgres ON CONFLICT(key) DO UPDATE 实现原子 UPSERT，避免唯一键冲突
+			setting := repo.SystemSetting{Key: key, Value: valueStr, Type: "string"}
+			if err := tx.Clauses(clause.OnConflict{
+				Columns:   []clause.Column{{Name: "key"}},
+				DoUpdates: clause.AssignmentColumns([]string{"value", "updated_at"}),
+			}).Create(&setting).Error; err != nil {
 				tx.Rollback()
 				return c.Status(500).JSON(types.Response{
 					Success: false,
-					Error:   "Failed to update setting: " + key,
+					Error:   "Failed to upsert setting: " + key,
 				})
 			}
 		}
@@ -210,7 +232,7 @@ func ListCarousels(db *gorm.DB) fiber.Handler {
 
 		// 分页和排序
 		offset := (query.Page - 1) * query.PerPage
-		tx = tx.Order("order ASC, created_at DESC").
+		tx = tx.Order("\"order\" ASC, created_at DESC").
 			Offset(offset).
 			Limit(query.PerPage).
 			Find(&carousels)

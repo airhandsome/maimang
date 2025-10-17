@@ -16,6 +16,14 @@ export default function UsersManagement() {
   const [filterStatus, setFilterStatus] = useState<string>('all');
   const [searchTerm, setSearchTerm] = useState<string>('');
 
+  const getAssetUrl = (url?: string) => {
+    if (!url) return '';
+    if (/^https?:\/\//i.test(url)) return url;
+    const apiBase = process.env.NEXT_PUBLIC_API_BASE || 'http://localhost:8080/api/v1';
+    const origin = apiBase.replace(/\/api\/v1$/, '');
+    return `${origin}${url.startsWith('/') ? url : `/${url}`}`;
+  };
+
   // 获取用户列表
   const fetchUsers = async () => {
     try {
@@ -148,8 +156,11 @@ export default function UsersManagement() {
             >
               <option value="all">全部</option>
               <option value="admin">管理员</option>
+              <option value="editor">编辑</option>
+              <option value="reviewer">审核员</option>
               <option value="member">会员</option>
-              <option value="guest">游客</option>
+              <option value="visitor">游客</option>
+              <option value="super_admin">超级管理员</option>
             </select>
           </div>
           <div className="flex items-center gap-2">
@@ -211,7 +222,7 @@ export default function UsersManagement() {
                     <td className="px-6 py-4">
                       <div className="flex items-center">
                         <img 
-                          src={user.AvatarURL ? `http://localhost:8080${user.AvatarURL}` : '/default-avatar.svg'} 
+                          src={user.AvatarURL ? getAssetUrl(user.AvatarURL) : '/default-avatar.svg'} 
                           alt={user.Name}
                           className="w-10 h-10 rounded-full object-cover mr-3"
                           onError={(e) => {
@@ -299,7 +310,7 @@ export default function UsersManagement() {
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm text-gray-500">活跃用户</p>
-              <p className="text-2xl font-bold text-green-500">{users.filter(u => u.status === 'active').length}</p>
+              <p className="text-2xl font-bold text-green-500">{users.filter(u => (u as any).Status === 'active').length}</p>
             </div>
             <div className="w-10 h-10 rounded-full bg-green-100 flex items-center justify-center text-green-500">
               <i className="fa fa-user-check"></i>
@@ -310,7 +321,7 @@ export default function UsersManagement() {
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm text-gray-500">会员用户</p>
-              <p className="text-2xl font-bold text-blue-500">{users.filter(u => u.role === 'member').length}</p>
+              <p className="text-2xl font-bold text-blue-500">{users.filter(u => (u as any).Role === 'member').length}</p>
             </div>
             <div className="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center text-blue-500">
               <i className="fa fa-user"></i>
@@ -321,7 +332,7 @@ export default function UsersManagement() {
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm text-gray-500">管理员</p>
-              <p className="text-2xl font-bold text-red-500">{users.filter(u => u.role === 'admin').length}</p>
+              <p className="text-2xl font-bold text-red-500">{users.filter(u => (u as any).Role === 'admin').length}</p>
             </div>
             <div className="w-10 h-10 rounded-full bg-red-100 flex items-center justify-center text-red-500">
               <i className="fa fa-user-shield"></i>
